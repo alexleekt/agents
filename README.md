@@ -63,7 +63,9 @@ saddle --check
 │   ├── gemini.yaml
 │   └── copilot.yaml
 └── skills/                  # Reusable AI skills
-    └── <skill-name>/
+    ├── agent-conventions/   # Guidelines for AGENT.md files
+    │   └── SKILL.md
+    └── tech-advisor/        # Technology preferences & recommendations
         └── SKILL.md
 ```
 
@@ -88,6 +90,15 @@ Reusable AI capabilities organized by function. Each skill is a directory contai
 - When to use it
 - Usage instructions
 - Examples
+
+#### Core Skills
+
+| Skill | Description | Triggers |
+|-------|-------------|----------|
+| `agent-conventions` | Guidelines for creating AGENT.md and agent configuration files | Creating/editing agent files, agent configuration questions |
+| `tech-advisor` | Technology preferences and tool recommendations | Tool recommendations, "what should I use", tech stack decisions |
+
+These skills are automatically loaded when relevant contexts are detected.
 
 ## Usage
 
