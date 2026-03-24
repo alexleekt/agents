@@ -1,0 +1,41 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": true,
+  "mcp": {
+    "exa": {
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp",
+      "enabled": true,
+    },
+  },
+  "plugin": ["@plannotator/opencode@latest", "cc-safety-net"],
+  // "disabled_providers": ["lmstudio"],
+  "provider": {
+    "evo-x2": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "EVO-X2 (Strix Halo)",
+      "options": {
+        "baseURL": "http://evo-x2-1b7d4b80:8080/v1",
+      },
+      "models": {
+        "nemotron-120b": {
+          "name": "Nemotron 3 Super 120B (262K context)",
+          "id": "nemotron-3-super-120b",
+          "family": "nemotron",
+          "limit": {
+            "context": 262144,
+            "output": 8192,
+          },
+          "reasoning": true,
+          "temperature": true,
+          "tool_call": true,
+          "attachment": false,
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"],
+          },
+        },
+      },
+    },
+  },
+}

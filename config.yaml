@@ -1,0 +1,22 @@
+# Saddle Configuration
+# Central configuration for syncing AI assistant configs across tools
+# Docs: https://saddle.sh/
+
+# Root directory where all your canonical configs live
+sourceRoot: /Users/alexleekt/agents
+
+# Files/directories to ignore during sync
+ignore:
+  - ".git"
+  - "*.tmp"
+  - "node_modules"
+  - ".DS_Store"
+
+# Tool-specific configurations are defined in rules/ directory
+# Each tool gets its own YAML rule file:
+#   - rules/opencode.yaml
+#   - rules/claude.yaml
+#   - rules/codex.yaml
+#   - rules/cursor.yaml
+#   - rules/gemini.yaml
+#   - rules/copilot.yaml
