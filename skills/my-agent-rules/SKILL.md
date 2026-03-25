@@ -1,5 +1,5 @@
 ---
-name: agent-conventions
+name: my-agent-rules
 description: |
   **PRIMARY SKILL** for creating, validating, and editing AI agent behavioral configuration files (AGENT.md, claude.md, etc.)
   
@@ -173,6 +173,32 @@ When deciding what goes in an agent file, ask:
 2. **Does this describe WHAT the project is?** → No, put it elsewhere
 3. **Is this for AI agent behavior or human understanding?** → Only agent behavior belongs here
 4. **Would this change if we switched AI agents?** → If yes, it's behavioral
+
+## Skill Naming Conventions
+
+When creating or naming skill files (SKILL.md), follow these naming patterns:
+
+### Personal Skills
+Skills that define personal preferences and conventions should be prefixed with `my-`:
+
+| Pattern | Example | Purpose |
+|---------|---------|---------|
+| `my-tech-stack` | Technology preferences, tool choices | Personal technology stack and preferences |
+| `my-agent-conventions` | Agent behavioral rules | How agents should behave and work |
+| `my-workflow` | Personal workflows | Custom workflows and processes |
+
+### General Skills
+Skills that are reusable across projects or users should use descriptive names without the `my-` prefix:
+
+| Pattern | Example | Purpose |
+|---------|---------|---------|
+| `skill-creator` | Creating new skills | Tool for generating skill files |
+| `find-skills` | Skill discovery | Locating and listing available skills |
+
+### Directory Naming
+Skill directories should match the skill name:
+- `skills/my-tech-stack/SKILL.md` → name: `my-tech-stack`
+- `skills/my-agent-conventions/SKILL.md` → name: `my-agent-conventions`
 
 ## Related Files
 

@@ -1,5 +1,5 @@
 ---
-name: tech-advisor
+name: my-tech-stack
 description: |
   **MANDATORY REFERENCE** for all tool recommendations and technology decisions. 
   
@@ -128,6 +128,8 @@ These tools are for learning and experimentation, not production use:
 |------|----------|
 | [**chat-sdk**](https://chat-sdk.dev/) | Building AI chat interfaces, streaming LLM responses |
 | [**dotenvx**](https://github.com/dotenvx/dotenvx) | Managing environment variables across environments, encrypting secrets |
+| [**gridland**](https://www.gridland.io/) | Building terminal apps with React and OpenTUI; works in both browser and terminal |
+| [**endeavouros**](https://endeavouros.com/) | Arch-based Linux distribution; exploring as alternative desktop/server OS |
 | [**json-render**](https://github.com/vercel-labs/json-render) | Rendering JSON as UI components; quick admin dashboards |
 | [**mulch**](https://github.com/jayminwest/mulch) | Structured expertise management for AI agents |
 | [**mastra**](https://github.com/mastra-ai/mastra) | Building AI agents, orchestrating LLM workflows |
