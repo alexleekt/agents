@@ -29,8 +29,9 @@ When working in the `~/agents` repository:
 ### Workflow
 1. **Always edit in `~/agents/`** — Never write directly to tool config directories (like `~/.config/opencode/`)
 2. **Use Saddle for syncing** — After making changes, run `saddle --yes --all` to sync to all tools
-3. **Preview first** — Use `saddle --dry-run --all` to see what will change before applying
-4. **Check existing structure** — Before creating new files, verify the pattern by looking at existing examples
+3. **ALWAYS sync after committing** — After any `git commit` in this repo, immediately run `saddle --yes --all` to sync changes to all tools. Do not wait for user to ask.
+4. **Preview first** — Use `saddle --dry-run --all` to see what will change before applying
+5. **Check existing structure** — Before creating new files, verify the pattern by looking at existing examples
 
 ### Common Mistakes to Avoid
 - **Writing to tool directories directly** — Skills created in `~/.config/opencode/skills/` won't be synced or version controlled
