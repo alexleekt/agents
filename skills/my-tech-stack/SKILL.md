@@ -135,7 +135,6 @@ These tools are for learning and experimentation, not production use:
 | [**mastra**](https://github.com/mastra-ai/mastra) | Building AI agents, orchestrating LLM workflows |
 | [**rust**](https://www.rust-lang.org/) | Systems programming, performance-critical apps, WebAssembly, CLI tools |
 | [**varlock.dev**](https://varlock.dev/) | Securely sharing environment variables with team members |
-| [**bouné**](https://boune.dev/docs/introduction/) | Modern task runner and build system with great DX |
 
 ## Quick Decision Reference
 
