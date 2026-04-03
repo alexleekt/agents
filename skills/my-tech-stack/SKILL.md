@@ -1,23 +1,7 @@
 ---
 name: my-tech-stack
 description: |
-  **MANDATORY REFERENCE** for all tool recommendations and technology decisions. 
-  
-  ALWAYS consult this skill BEFORE:
-  - Recommending ANY tools, libraries, frameworks, or technologies
-  - Setting up new projects, development environments, or repositories
-  - Choosing package managers (bun vs npm vs pnpm vs yarn)
-  - Selecting cloud providers, infrastructure tools, or deployment platforms
-  - Making runtime decisions (Node.js vs Deno vs Bun, Python versions)
-  - Choosing code editors, linters, formatters, or quality tools
-  - Answering "what should I use for X?" or "which tool is best for Y?"
-  - Comparing alternatives for any technical decision
-  
-  This skill contains the user's explicit technology preferences organized by category: Development Environment, AI Agents, Code Quality, Infrastructure & Cloud, Local Development, API & Testing, Security & Secrets, Remote Access, Task Automation, Operating System, and Shell preferences.
-  
-  **CRITICAL:** Do NOT suggest tools that are NOT listed in this skill without first checking here and asking the user if they want to deviate from their stated preferences.
-  
-  **DO NOT** proceed with technology recommendations without consulting this skill first.
+  **MANDATORY REFERENCE** for all tool recommendations. ALWAYS consult BEFORE recommending tools, libraries, frameworks, or technologies. Contains explicit preferences: bun, TypeScript, uv, zed, biome, cloudflare, terraform, k3s, bitwarden, fish (interactive), zsh (scripts). **CRITICAL:** Do NOT suggest unlisted tools without asking first.
 ---
 
 # Technology Preferences
