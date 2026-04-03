@@ -1,7 +1,7 @@
-tool: opencode
-label: OpenCode
-binary: opencode
-home: ~/.config/opencode
+tool: pi
+label: Pi Coding Agent
+binary: pi
+home: /Users/alexleekt/.pi/agent
 enabled: true
 
 mappings:
