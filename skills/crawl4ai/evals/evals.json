@@ -1,0 +1,98 @@
+{
+  "skill_name": "my-crawl4ai",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Set up crawl4ai for my project",
+      "expected_output": "Creates ~/projects/crawler/ directory with pyproject.toml containing crawl4ai dependency, justfile with crawl/setup-browser/example tasks, and src/crawler/quick.py template",
+      "files": [],
+      "assertions": [
+        {
+          "name": "project_directory_created",
+          "description": "Directory ~/projects/crawler should be created",
+          "check": "path_exists"
+        },
+        {
+          "name": "pyproject_has_crawl4ai",
+          "description": "pyproject.toml should contain crawl4ai dependency",
+          "check": "file_contains",
+          "target": "~/projects/crawler/pyproject.toml",
+          "content": "crawl4ai"
+        },
+        {
+          "name": "justfile_has_tasks",
+          "description": "justfile should contain crawl, setup-browser, and example tasks",
+          "check": "file_contains",
+          "target": "~/projects/crawler/justfile",
+          "content": "crawl:"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "How do I crawl a site from my TypeScript app?",
+      "expected_output": "Explains MCP server or uvx CLI approach, provides code snippet for bun.$ integration",
+      "files": [],
+      "assertions": [
+        {
+          "name": "mentions_uvx_cli",
+          "description": "Response should mention uvx CLI option",
+          "check": "text_contains",
+          "content": "uvx"
+        },
+        {
+          "name": "mentions_mcp_server",
+          "description": "Response should mention MCP server option",
+          "check": "text_contains",
+          "content": "MCP"
+        },
+        {
+          "name": "provides_bun_example",
+          "description": "Response should provide Bun/TypeScript code example",
+          "check": "text_contains",
+          "content": "bun"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create a crawler that logs in before scraping",
+      "expected_output": "Generates src/crawler/auth.py with environment variable loading, BrowserContext with storage state, and login flow + crawl sequence",
+      "files": [],
+      "assertions": [
+        {
+          "name": "uses_environment_variables",
+          "description": "Code should use environment variables for credentials",
+          "check": "text_contains",
+          "content": "os.getenv"
+        },
+        {
+          "name": "uses_browser_config",
+          "description": "Code should use BrowserConfig with user_data_dir",
+          "check": "text_contains",
+          "content": "BrowserConfig"
+        },
+        {
+          "name": "has_login_flow",
+          "description": "Code should implement login flow with JS execution",
+          "check": "text_contains",
+          "content": "js_code"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Add Fish abbreviations for crawl4ai",
+      "expected_output": "Provides Fish abbreviation for crawl command"
+      "files": [],
+      "assertions": [
+        {
+          "name": "provides_crawl_abbr",
+          "description": "Response should provide 'crawl' abbreviation",
+          "check": "text_contains",
+          "content": "abbr -a crawl"
+        }
+      ]
+    }
+  ]
+}
