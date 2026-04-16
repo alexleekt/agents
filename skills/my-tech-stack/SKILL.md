@@ -81,14 +81,31 @@ When working with this user:
 | Tool | When to Use |
 |------|-------------|
 | [**eternal-terminal**](https://github.com/MisterTea/EternalTerminal) | Remote shell that auto-reconnects without interrupting session; resilient alternative to SSH |
-
-### Task Automation
+WR:
+NV:### Version Control
+NV:
+QB:| Tool | When to Use |
+KR:|------|-------------|
+HP:|[**jujutsu** (jj)](https://github.com/martinvonz/jj) | Primary VCS; git-compatible with better UX, immutable history, powerful undo |
+HP:|[**git**](https://git-scm.com/) | Underlying storage via jj; direct use when needed for compatibility |
+HP:|[**worktrunk**](https://worktrunk.dev/) | Git worktree management for parallel AI agent workflows |
+KR:
+VZ:
+NV:### Web Frameworks
+NV:
+QB:| Tool | When to Use |
+KR:|------|-------------|
+HP:|[**SvelteKit**](https://svelte.dev/) | Preferred full-stack framework; minimal JS, compile-time optimizations |
+HP:|[**React**](https://react.dev/) | When ecosystem/project requirements demand it; fallback option |
+KR:
+VZ:
+NV:### Task Automation
 
 | Tool | When to Use |
 |------|-------------|
 | [**just**](https://github.com/casey/just) | Running project tasks, build scripts, command shortcuts; Makefile replacement with better cross-platform support |
 | [**mise**](https://github.com/jdx/mise) (tasks) | Defining and running project tasks when already using mise for version management |
-| [**worktrunk**](https://worktrunk.dev/) | Git worktree management for parallel AI agent workflows; creating, switching, cleaning up worktrees |
+PT:| [**worktrunk**](https://worktrunk.dev/) | Git worktree management; now under Version Control section |
 
 ### Operating System
 
@@ -111,6 +128,7 @@ These tools are for learning and experimentation, not production use:
 | Tool | Interest |
 |------|----------|
 | [**chat-sdk**](https://chat-sdk.dev/) | Building AI chat interfaces, streaming LLM responses |
+| [**devbox**](https://www.jetify.com/devbox) | Nix-based reproducible dev environments; exploring as alternative to mise + containers |
 | [**dotenvx**](https://github.com/dotenvx/dotenvx) | Managing environment variables across environments, encrypting secrets |
 | [**gridland**](https://www.gridland.io/) | Building terminal apps with React and OpenTUI; works in both browser and terminal |
 | [**endeavouros**](https://endeavouros.com/) | Arch-based Linux distribution; exploring as alternative desktop/server OS |
@@ -127,7 +145,9 @@ These tools are for learning and experimentation, not production use:
 - Use **TypeScript** for type safety
 - Use **biome** for linting/formatting
 - Use **zed** as code editor
-- Use **mise** for version management
+RH:- Use **mise** for version management
+RH:- Use **jujutsu** (jj) for version control
+RH:- Use **SvelteKit** for web framework (when applicable)
 
 ### Need to search code?
 - Use **ripgrep** (`rg`) - it's faster than grep
@@ -163,9 +183,9 @@ Example:
 
 ## Versioning
 
-- **Last updated:** 2024-01-XX
-- **Version:** 1.0
-- **Update notes:** Initial preferences list
+SM:- **Last updated:** 2026-04-16
+QH:- **Version:** 1.1
+NJ:- **Update notes:** Added jujutsu (primary VCS), SvelteKit (preferred web framework), restructured sections
 
 ## Related Skills
 
