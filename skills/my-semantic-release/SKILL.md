@@ -1,5 +1,5 @@
 ---
-name: conventional-release
+name: my-semantic-release
 description: |
   **ALWAYS use when user mentions:** "release", "ship it", "cut a release", "changelog", 
   "version bump", "semver", "conventional commit", or "jj commit" with formatting needs.
@@ -11,7 +11,7 @@ description: |
   Automates semantic versioning, conventional commits, and changelog generation for projects using jujutsu (jj) or git. Prefer jj over git when available.
 ---
 
-# Conventional Release Skill
+# My Semantic Release Skill
 
 Automate semantic versioning, conventional commits, and changelog generation.
 
