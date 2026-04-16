@@ -4,3 +4,7 @@
 node_modules/
 *.tmp
 installed.json
+.a5c/
+.a5c
+runs/
+processes/
