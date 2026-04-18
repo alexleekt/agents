@@ -128,15 +128,17 @@ These tools are for learning and experimentation, not production use:
 | Tool | Interest |
 |------|----------|
 | [**chat-sdk**](https://chat-sdk.dev/) | Building AI chat interfaces, streaming LLM responses |
-| [**devbox**](https://www.jetify.com/devbox) | Nix-based reproducible dev environments; exploring as alternative to mise + containers |
+| [**devbox**](https://www.jetify.com/devbox) | Nix-based reproducible dev environments; exploring alongside mise + smolvm |
 | [**dotenvx**](https://github.com/dotenvx/dotenvx) | Managing environment variables across environments, encrypting secrets |
 | [**gridland**](https://www.gridland.io/) | Building terminal apps with React and OpenTUI; works in both browser and terminal |
 | [**endeavouros**](https://endeavouros.com/) | Arch-based Linux distribution; exploring as alternative desktop/server OS |
 | [**json-render**](https://github.com/vercel-labs/json-render) | Rendering JSON as UI components; quick admin dashboards |
 | [**mulch**](https://github.com/jayminwest/mulch) | Structured expertise management for AI agents |
+| [**smolvm**](https://github.com/smol-machines/smolvm) | MicroVMs for sandboxing untrusted code, portable executables, isolated dev environments |
 | [**mastra**](https://github.com/mastra-ai/mastra) | Building AI agents, orchestrating LLM workflows |
 | [**rust**](https://www.rust-lang.org/) | Systems programming, performance-critical apps, WebAssembly, CLI tools |
 | [**varlock.dev**](https://varlock.dev/) | Securely sharing environment variables with team members |
+| [**raganything**](https://github.com/HKUDS/RAG-Anything) | Multimodal RAG system for documents with images, tables, and equations |
 
 ## Quick Decision Reference
 
@@ -183,10 +185,33 @@ Example:
 
 ## Versioning
 
-SM:- **Last updated:** 2026-04-16
-QH:- **Version:** 1.1
-NJ:- **Update notes:** Added jujutsu (primary VCS), SvelteKit (preferred web framework), restructured sections
+- **Last updated:** 2026-04-17
+- **Version:** 1.2
+- **Update notes:** Added jj auto-colocate workflow pattern, Fish wrapper function documentation
 
 ## Related Skills
 
 - **agent-conventions** — For creating AGENT.md files (not tech recommendations)
+d05|
+## jj Workflow Pattern
+
+When working with git repositories and jujutsu:
+
+### Auto-Colocate on First Use
+- Fish shell wrapper auto-initializes `jj git init --colocate` when running `jj` in a git repo without jj setup
+- No manual configuration needed for existing git repositories
+- Wrapper located at `dot_config/fish/functions/jj.fish`
+
+### Common jj Commands (Learn These)
+| Command | Purpose |
+|---------|---------|
+| `jj status` | Show working copy status |
+| `jj log` | View change history |
+| `jj diff` | Show current changes |
+| `jj describe` | Edit change description |
+| `jj new` | Create new change |
+| `jj squash` | Combine changes |
+| `jj absorb` | Auto-squash fixups |
+| `jj undo` | Undo last operation |
+| `jj git push` | Push to git remote |
+| `jj out` | Show outgoing changes (custom alias)
