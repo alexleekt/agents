@@ -1,5 +1,5 @@
 ---
-name: crawl4ai
+name: my-crawl4ai
 description: |
   Set up and use crawl4ai for web crawling/scraping using uv, just, and project-based workflows.
   Use when the user mentions crawl4ai, web scraping, crawling sites, or needs to extract 

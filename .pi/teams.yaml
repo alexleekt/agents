@@ -1,0 +1,20 @@
+# Team of AI skill representatives for collaborative discussion. Each member embodies a specific skill from the skills/ directory and can discuss both their domain and general topics.
+# Team of AI skill representatives plus a generalist for collaborative discussion. Specialized reps cover specific skills; generalist covers everything else and bridges gaps.
+# Team of AI skill representatives plus generalist and skill bar raiser for collaborative discussion. Specialized reps cover specific skills; generalist covers everything else; bar raiser ensures quality.
+# Team of AI skill representatives plus generalist and skill bar raiser for collaborative discussion. Specialized reps cover specific skills; generalist covers everything else; bar raiser ensures quality.
+# Multi-domain discussion team of skill representatives - for discussions spanning multiple skill domains. Now without generalist-rep.
+skill-representatives:
+  settings:
+    separate_windows: true
+  agents:
+    - agent-rules-rep
+    - tech-stack-rep
+    - my-crawl4ai-rep
+    - skill-bar-raiser
+    - jj-workflow-rep
+    - my-semantic-release-rep
+
+
+
+
+

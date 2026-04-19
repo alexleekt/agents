@@ -6,38 +6,95 @@ These rules apply when working in the `~/agents/` directory and its subdirectori
 ## Environment Awareness
 
 ### Directory Structure
-- `SADDLE_DIR` = `~/agents` (this repository root)
-- `SADDLE_CONFIG` = `~/agents/config.yaml`
-- `SADDLE_RULES_DIR` = `~/agents/rules`
+- `AGENTS_DIR` = `~/agents` (this repository root)
 - Skills live in `~/agents/skills/<skill-name>/SKILL.md`
+- Agent definitions live in `~/agents/.pi/agents/`
+- Team templates live in `~/agents/.pi/teams.yaml`
 
 ### Skills System
-- Skills are managed by `saddle` (symlink manager for AI skills)
 - Each skill is a directory containing `SKILL.md`
-- Skills are registered via symlinks for agent discovery
+- Skills are distributed via symlinks for agent discovery (Claude Code)
+- Pi reads skills directly from source (no symlinks needed)
 
 ## Workflow Rules
 
-### After Modifying Any Skill
-**ALWAYS run:**
+### Skill Availability Principle
+**All skills in this repository must be available across all projects and all agents.**
+
+| Tool | Discovery Method | Status |
+|------|------------------|--------|
+| **Pi** | Reads `~/.agents/skills/` directly | ✅ Working |
+| **Claude Code** | Symlinks in `~/.claude/skills/` | ✅ Working |
+| **Codex/Cursor/etc** | Via symlinks in their skill dirs | ⚠️ On demand |
+
+**For Pi:** Already configured. No action needed.
+
+**For Claude Code:** Create symlinks when adding new skills:
 ```bash
-saddle --all
+ln -sf ~/.agents/skills/<skill-name> ~/.claude/skills/<skill-name>
 ```
-This registers all skills by creating/updating symlinks.
 
 ### Creating New Skills
 1. Create directory: `mkdir -p skills/<skill-name>`
 2. Write `skills/<skill-name>/SKILL.md`
-3. Run `saddle --all` to register
+3. Add Claude Code symlink (if needed for that tool)
+4. Follow naming conventions
+
+### When to Create Separate Skills
+Consider splitting into separate skills when:
+- **Different trigger conditions** — When to use each skill is distinct
+- **Different expertise domains** — Knowledge areas don't significantly overlap
+- **Independent utility** — Users might want one skill without the other
+- **Clear boundaries** — Each skill has a focused, well-defined scope
+
+**Example:** `my-crawl4ai` (web scraping) and `my-tech-stack` (tooling preferences) are separate because they have different triggers and expertise, even though both relate to development workflows.
 
 ### Skill Naming Conventions
 - Personal conventions: `my-<thing>` (e.g., `my-tech-stack`)
 - General tools: descriptive name (e.g., `skill-creator`)
 
-### Configuration Files
-- `config.yaml` — Saddle main configuration
-- `installed.json` — Tracks registered skills
-- `rules/` — Custom agent behavioral rules
+### See Also
+- [[skill-distribution-manual-symlinks]] — Why we use manual symlinks
+- [[skill-separation-of-concerns]] — When to split skills
+- [[skill-representatives-team]] — Multi-domain discussion team
+
+## Skill Representatives Team
+
+For multi-domain discussions, a team of skill representatives is available:
+
+| Representative | Domain |
+|----------------|--------|
+| `agent-rules-rep` | Agent configuration (AGENT.md, claude.md) |
+| `generalist-rep` | Cross-domain topics, bridges gaps |
+| `jj-workflow-rep` | Daily version control (jj, git, worktrees) |
+| `my-crawl4ai-rep` | Web crawling/scraping with crawl4ai |
+| `my-semantic-release-rep` | Semantic versioning and releases |
+| `skill-bar-raiser` | Quality assurance — triggers, expertise, separation |
+| `tech-stack-rep` | Preferred tooling recommendations |
+
+**Template:** `skill-representatives`
+
+Use `create_predefined_team()` to instantiate for discussions spanning multiple skill domains.
+
+**Recent Split:** `my-jj-workflow` was separated from `my-semantic-release` because they have different triggers (daily VCS vs release workflows) and independent utility.
+
+### Skill Bar Raiser Role
+
+The `skill-bar-raiser` ensures skill quality by reviewing:
+- **Triggers** — Clear, specific when-to-use conditions
+- **Expertise** — Deep, actionable knowledge with examples
+- **Separation of concerns** — Proper boundaries, minimal overlap
+
+## Tool-Specific Notes
+
+### Pi
+Pi is configured to read skills directly from `~/.agents/skills/` via `settings.json`. **No symlinks needed** for Pi.
+
+### Claude Code
+Requires symlinks in `~/.claude/skills/` to discover skills. Add manually when creating new skills.
+
+### Other Agents
+Configure on demand when using Codex, Cursor, Gemini, etc. Most follow similar symlink patterns.
 
 ## Communication Style
 - When suggesting new skills, check `skills/` for existing patterns
