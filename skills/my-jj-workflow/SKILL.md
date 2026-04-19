@@ -107,6 +107,19 @@ jj describe -m "feat: JWT authentication"
 jj commit -m "feat: JWT authentication"  # Now commit
 ```
 
+**After committing, start fresh:**
+
+```bash
+# After jj commit, the working copy is now "empty" (no description set)
+# Create a new change to continue working:
+jj new -m "wip: next task"
+
+# The previous commit is now your parent (@-)
+# Future changes can be squashed into it if needed
+```
+
+**Key pattern:** `jj commit` → `jj new` → work → `jj commit` creates a linear chain. If you need to fixup the previous commit, use `jj edit @-` then `jj squash`.
+
 ### Context Switching (JJ's Superpower)
 
 Multiple in-progress changes without branches:
@@ -330,7 +343,13 @@ jj commit
 
 # If want to commit without describing:
 jj commit -m "feat(scope): description"
+
+# Step 2: After commit, create new change for next work
+jj new -m "wip: next task"
+# Or just: jj new (describe later)
 ```
+
+**Note:** After `jj commit`, the working copy is empty. Always run `jj new` to continue working. The previous commit becomes your parent (`@-`), available for fixups via `jj edit @-` + `jj squash` if needed.
 
 #### Scenario: "What changed?"
 
