@@ -2,19 +2,24 @@
 name: my-agent-rules
 description: |
   **PRIMARY SKILL** for creating, validating, and editing AI agent behavioral configuration files (AGENT.md, claude.md, etc.)
-  
-  ALWAYS use this skill when:
-  - User asks to create, edit, review, or update AGENT.md or claude files
-  - User mentions "agent configuration", "agent rules", or "behavioral rules"
-  - User asks what should go in agent files or how to structure them
-  - User is setting up AI agent workflows or defining how agents should behave
-  - User asks about agent file location (where to put AGENT.md, when to use claude.md)
-  - User wants to validate agent file content
-  - User asks about the difference between AGENT.md and claude.md
-  
-  This skill defines what content BELONGS in agent files (behavioral rules, workflows, communication style) vs what DOES NOT belong (project documentation, architecture, feature specs). It provides the definitive rules for agent file organization.
-  
-  **DO NOT** write or modify agent configuration files without consulting this skill first.
+
+  **ALWAYS use when user mentions:**
+  - "AGENT.md", "claude.md", "agent configuration", "agent rules", "behavioral rules"
+  - Creating, editing, reviewing, or updating agent files
+  - "what should go in agent files", "how to structure agent files"
+  - Agent file location (where to put AGENT.md, when to use claude.md)
+  - Validating agent file content
+  - "difference between AGENT.md and claude.md"
+  - Setting up AI agent workflows or defining how agents should behave
+
+  **DO NOT use for:**
+  - Technology/tool recommendations → use @skills/my-tech-stack
+  - Version control operations → use @skills/my-jj-workflow
+
+  **CRITICAL:** Never write or modify agent configuration files without consulting this skill first.
+
+  This skill defines what content BELONGS in agent files (behavioral rules, workflows,
+  communication style) vs what DOES NOT belong (project documentation, architecture, feature specs).
 ---
 
 # Agent File Conventions

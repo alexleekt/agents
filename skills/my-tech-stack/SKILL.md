@@ -1,7 +1,23 @@
 ---
 name: my-tech-stack
 description: |
-  **MANDATORY REFERENCE** for all tool recommendations. ALWAYS consult BEFORE recommending tools, libraries, frameworks, or technologies. Contains explicit preferences: bun, TypeScript, uv, zed, biome, cloudflare, terraform, k3s, bitwarden, fish (interactive), zsh (scripts). **CRITICAL:** Do NOT suggest unlisted tools without asking first.
+  **MANDATORY REFERENCE** for all tool recommendations. ALWAYS consult BEFORE
+  recommending tools, libraries, frameworks, or technologies.
+
+  **ALWAYS use when user asks about:**
+  - Preferred tools/libraries ("what should I use for...")
+  - Technology recommendations ("bun or node", "uv or pip", "terraform or pulumi")
+  - Stack decisions, tooling choices
+
+  **DO NOT use when:**
+  - User already specified a tool (respect their choice)
+  - Topic is about HOW to use a tool (behavioral) vs WHICH tool (stack)
+  - Agent configuration needed → use @skills/my-agent-rules
+  - Version control operations → use @skills/my-jj-workflow
+
+  Contains explicit preferences: bun, TypeScript, uv, zed, biome, cloudflare,
+  terraform, k3s, bitwarden, fish (interactive), zsh (scripts).
+  **CRITICAL:** Do NOT suggest unlisted tools without asking first.
 ---
 
 # Technology Preferences
@@ -82,15 +98,6 @@ When working with this user:
 |------|-------------|
 | [**eternal-terminal**](https://github.com/MisterTea/EternalTerminal) | Remote shell that auto-reconnects without interrupting session; resilient alternative to SSH |
 WR:
-NV:### Version Control
-NV:
-QB:| Tool | When to Use |
-KR:|------|-------------|
-HP:|[**jujutsu** (jj)](https://github.com/martinvonz/jj) | Primary VCS; git-compatible with better UX, immutable history, powerful undo |
-HP:|[**git**](https://git-scm.com/) | Underlying storage via jj; direct use when needed for compatibility |
-HP:|[**worktrunk**](https://worktrunk.dev/) | Git worktree management for parallel AI agent workflows |
-KR:
-VZ:
 NV:### Web Frameworks
 NV:
 QB:| Tool | When to Use |
@@ -105,7 +112,6 @@ NV:### Task Automation
 |------|-------------|
 | [**just**](https://github.com/casey/just) | Running project tasks, build scripts, command shortcuts; Makefile replacement with better cross-platform support |
 | [**mise**](https://github.com/jdx/mise) (tasks) | Defining and running project tasks when already using mise for version management |
-PT:| [**worktrunk**](https://worktrunk.dev/) | Git worktree management; now under Version Control section |
 
 ### Operating System
 
@@ -148,7 +154,6 @@ These tools are for learning and experimentation, not production use:
 - Use **biome** for linting/formatting
 - Use **zed** as code editor
 RH:- Use **mise** for version management
-RH:- Use **jujutsu** (jj) for version control
 RH:- Use **SvelteKit** for web framework (when applicable)
 
 ### Need to search code?
@@ -185,33 +190,11 @@ Example:
 
 ## Versioning
 
-- **Last updated:** 2026-04-17
-- **Version:** 1.2
-- **Update notes:** Added jj auto-colocate workflow pattern, Fish wrapper function documentation
+- **Last updated:** 2026-04-19
+- **Version:** 1.3
+- **Update notes:** Removed scope bloat (VCS content moved to my-jj-workflow), improved triggers with ALWAYS/DO NOT pattern
 
 ## Related Skills
 
-- **agent-conventions** — For creating AGENT.md files (not tech recommendations)
-d05|
-## jj Workflow Pattern
-
-When working with git repositories and jujutsu:
-
-### Auto-Colocate on First Use
-- Fish shell wrapper auto-initializes `jj git init --colocate` when running `jj` in a git repo without jj setup
-- No manual configuration needed for existing git repositories
-- Wrapper located at `dot_config/fish/functions/jj.fish`
-
-### Common jj Commands (Learn These)
-| Command | Purpose |
-|---------|---------|
-| `jj status` | Show working copy status |
-| `jj log` | View change history |
-| `jj diff` | Show current changes |
-| `jj describe` | Edit change description |
-| `jj new` | Create new change |
-| `jj squash` | Combine changes |
-| `jj absorb` | Auto-squash fixups |
-| `jj undo` | Undo last operation |
-| `jj git push` | Push to git remote |
-| `jj out` | Show outgoing changes (custom alias)
+- **my-agent-rules** — For creating AGENT.md files (not tech recommendations)
+- **my-jj-workflow** — For version control operations with jj

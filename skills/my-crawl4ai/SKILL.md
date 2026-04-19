@@ -1,10 +1,16 @@
 ---
 name: my-crawl4ai
 description: |
+  **ALWAYS use when user mentions:** "crawl4ai", "web scraping", "crawl a site",
+  "extract web content", "scrape data from URL", or needs to extract web content
+  as markdown/JSON.
+
+  **DO NOT use for:** Browser automation (clicking, filling forms, screenshots,
+  testing web apps) — use @skills/agent-browser for those.
+
   Set up and use crawl4ai for web crawling/scraping using uv, just, and project-based workflows.
-  Use when the user mentions crawl4ai, web scraping, crawling sites, or needs to extract 
-  web content as markdown/JSON. Assumes uv for Python, just for tasks, Fish shell, and 
-  mise for version management. For TypeScript/Node projects, provides CLI/MCP integration patterns.
+  Assumes uv for Python, just for tasks, Fish shell, and mise for version management.
+  For TypeScript/Node projects, provides CLI/MCP integration patterns.
 ---
 
 # crawl4ai

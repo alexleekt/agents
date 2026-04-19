@@ -1,14 +1,19 @@
 ---
 name: my-jj-workflow
 description: |
-  **ALWAYS use when user mentions:** "jj", "jujutsu", "commit" (assumes jj commit),
-  "what changed", "check status", "push to github", "worktree", or any daily version control operations.
+  **ALWAYS use when user mentions:** "jj", "jujutsu", OR user implies VCS without naming
+  a specific tool ("commit", "what changed", "check status", "push to github", "worktree",
+  "branch", "merge", "rebase", "diff", "stash", "pull") when the user hasn't specified
+  a different VCS tool.
 
-  **DO NOT use for:** semantic versioning, changelog generation, or release workflows —
+  **Assumption:** When user says "commit" without specifying "git commit", they want
+  jj workflow, NOT git.
+
+  **DO NOT use for:** semantic versioning, changelog generation, release workflows,
+  OR when user explicitly mentions "git" as their preferred tool —
   use @skills/my-semantic-release for those.
 
   Daily version control workflows using jujutsu (jj) with git/github as fallback.
-  When user says "commit", they mean `jj commit` unless they explicitly say "git commit".
   Auto-colocation, worktrees, and practical day-to-day VCS operations.
 ---
 

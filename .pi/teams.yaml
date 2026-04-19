@@ -13,6 +13,15 @@ skill-representatives:
     - skill-bar-raiser
     - jj-workflow-rep
     - my-semantic-release-rep
+# Project-local skill representatives team for multi-domain discussions
+skill-reps-local:
+  - agent-rules-rep
+  - tech-stack-rep
+  - my-crawl4ai-rep
+  - skill-bar-raiser
+  - jj-workflow-rep
+  - my-semantic-release-rep
+
 
 
 
