@@ -414,6 +414,74 @@ jj edit my-feature
 
 ---
 
+### Timeout and Retry Pattern
+
+jj commands may hang if interactive or on slow repos. Wrap with timeout and retry:
+
+```bash
+# Retry function with exponential backoff
+jj_with_retry() {
+  local cmd="$1"
+  local max_retries=3
+  local timeout_sec=10
+  local delay=2
+  local attempt=1
+  
+  while [ $attempt -le $max_retries ]; do
+    echo "Attempt $attempt/$max_retries: $cmd"
+    
+    # Run with timeout, capture exit code
+    if timeout $timeout_sec bash -c "$cmd"; then
+      return 0
+    fi
+    
+    local exit_code=$?
+    
+    # Check if timeout (124) or other error
+    if [ $exit_code -eq 124 ]; then
+      echo "  → Timeout after ${timeout_sec}s"
+    else
+      echo "  → Failed with exit code $exit_code"
+    fi
+    
+    # If not last attempt, wait and retry
+    if [ $attempt -lt $max_retries ]; then
+      echo "  → Retrying in ${delay}s..."
+      sleep $delay
+      delay=$((delay * 2))  # Exponential backoff: 2s, 4s, 8s
+    fi
+    
+    attempt=$((attempt + 1))
+  done
+  
+  echo "Failed after $max_retries attempts"
+  return 1
+}
+
+# Usage examples
+jj_with_retry "jj st"
+jj_with_retry "jj commit -m 'feat: add feature'"
+jj_with_retry "jj describe -m 'wip: work in progress'"
+
+# For potentially stuck commands, use shorter timeout
+jj_with_retry "timeout 5 jj describe -m 'quick'"
+```
+
+**When to use:**
+- Commands that might hang (forgot `-m` flag, interactive prompt)
+- Slow repositories or network-dependent operations
+- Automation scripts that must complete
+
+**Fallback on failure:**
+```bash
+if ! jj_with_retry "jj commit -m 'feat: x'"; then
+  echo "Commit failed, using EDITOR=cat fallback"
+  EDITOR=cat timeout 5 jj commit || echo "Even fallback failed"
+fi
+```
+
+---
+
 ## Git Interop
 
 ### When to Use Git Fallback
