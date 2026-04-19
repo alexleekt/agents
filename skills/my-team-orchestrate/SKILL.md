@@ -1,27 +1,13 @@
 ---
 name: my-team-orchestrate
 description: |
-  **ALWAYS use when tasks exhibit these characteristics:**
-  
-  **Scale signals:** "refactor the entire codebase", "50+ files involved", "whole project migration",
-  "massive change", "large-scale" — scope too big for single-agent completion
-  
-  **Complexity signals:** "too complex", "multi-part problem", "needs exploration first",
-  "overwhelming", "don't know where to start" — complexity requiring staged analysis
-  
-  **Parallelism opportunities:** "can work on X and Y separately", "parallel streams",
-  "independent parts" — work that can be divided across agents
-  
-  **Multi-domain needs:** "review from security/performance/DX perspective",
-  "needs architecture review" — requiring expertise from multiple domains simultaneously
-  
-  **Explicit triggers (if mentioned):** "start a team", "delegate", "spawn agents",
-  "divide and conquer", "parallelize", "get multiple opinions"
-  
-  **DO NOT use for:** single-file changes, one-step debugging, focused Q&A, OR when user
-  explicitly wants solo work. Use when task CHARACTERISTICS suggest multi-agent value.
+  **ALWAYS use when tasks exhibit:** scale ("refactor entire codebase", "50+ files"), complexity
+  ("multi-part", "needs exploration", "overwhelming"), parallelism ("work on X and Y separately"),
+  multi-domain needs ("security review", "architecture"), OR explicit triggers ("start a team",
+  "delegate", "spawn agents", "divide and conquer", "parallelize").
 
-  **Agent-Agnostic:** Works with Pi, Claude Code, or any system with subagent capabilities.
+  **DO NOT use for:** single-file changes, one-step debugging, focused Q&A, or when user
+  explicitly wants solo work. Works across Pi, Claude Code, or any system with subagents.
 ---
 
 # Team Orchestration Skill
@@ -192,6 +178,98 @@ for (const task of tasks) {
 # Wait for all to complete, then verify
 ```
 
+### Pattern 5: Review Till Done (Iterative Review Loop)
+Best for: Code review that continues until no more issues found
+
+**Concept:** Loop between reviewer and fixer agents until reviewer returns "LGTM" or zero issues.
+
+**Pi Implementation:**
+```typescript
+await team_create({ team_name: "review-loop", description: "Iterative code review" });
+
+let round = 1;
+let maxRounds = 5;
+let done = false;
+
+while (!done && round <= maxRounds) {
+  // REVIEW PHASE
+  await spawn_teammate({
+    team_name: "review-loop",
+    name: `reviewer-r${round}`,
+    cwd: projectPath,
+    prompt: `Review the current code in src/ for issues.
+Check: bugs, style violations, missing tests, security issues, performance problems.
+Return EXACTLY one of:
+1. "LGTM" - if no issues found
+2. A numbered list of specific issues with file paths and line numbers
+Do not provide explanations, just the list.`
+  });
+
+  // Wait and collect review results
+  const reviewResult = await waitForResult(`reviewer-r${round}`);
+
+  if (reviewResult.includes("LGTM") || reviewResult.trim() === "") {
+    done = true;
+    break;
+  }
+
+  // FIX PHASE
+  await spawn_teammate({
+    team_name: "review-loop",
+    name: `fixer-r${round}`,
+    cwd: projectPath,
+    prompt: `Fix these specific issues in the code:
+${reviewResult}
+
+Apply fixes directly to files. After fixing, save and report which files were modified.`
+  });
+
+  // Wait for fixes
+  await waitForResult(`fixer-r${round}`);
+
+  round++;
+}
+
+if (!done) {
+  console.log("Max review rounds reached. Manual intervention needed.");
+}
+
+await team_shutdown({ team_name: "review-loop" });
+```
+
+**Claude Code Implementation:**
+```
+# Round 1
+/subagent reviewer "Review src/ for issues. Return 'LGTM' if clean, else numbered list of specific issues with file:line"
+# Wait for result...
+
+# If issues found:
+/subagent fixer "Fix these issues: [paste reviewer output]. Apply directly to files."
+# Wait for fixes...
+
+# Round 2 - re-review
+/subagent reviewer "Review src/ again. Return 'LGTM' if clean, else new issues list."
+# Repeat until LGTM or max rounds
+```
+
+**Key Rules for Reviewer Agent:**
+- Must return machine-parseable format ("LGTM" or numbered list)
+- Each issue needs file path and specific location
+- No prose - just actionable items
+- Can focus on specific domains: security-only, style-only, etc.
+
+**Key Rules for Fixer Agent:**
+- Apply fixes, don't just suggest them
+- Preserve existing patterns and conventions
+- Run tests/linting if available after fixes
+- Report what was changed
+
+**Stopping Conditions:**
+- Reviewer returns "LGTM"
+- Empty issues list
+- Max rounds reached (safety valve)
+- Fixer makes no changes (reviewer found issues but fixer couldn't resolve)
+
 ### Pattern 4: Predefined Expert Teams
 Best for: Leveraging established domain expertise across projects
 
@@ -250,9 +328,9 @@ You are a security expert. Focus on:
 ### Spawning Teammates
 **Universal principles:**
 - Give each agent a **specific, focused role** (not "help with this")
-- Include **full context in initial prompt** — subagents don't see your conversation
-- Set **clear deliverables** — what should they return?
-- Define **communication protocol** — how/when to report back
+- Include **full context in initial prompt** - subagents don't see your conversation
+- Set **clear deliverables** - what should they return?
+- Define **communication protocol** - how/when to report back
 
 ### Task Management
 | Approach | Use When |
@@ -281,12 +359,12 @@ You are a security expert. Focus on:
 
 ## Common Anti-Patterns (All Platforms)
 
-❌ **Vague assignments** — "Help with this" vs "Audit src/auth.ts for SQL injection risks"
-❌ **Context overload** — Dumping entire conversation vs focused, relevant context
-❌ **Orphaned agents** — Starting subagents without plan to collect results
-❌ **Unclear handoffs** — Chain patterns need explicit "check X for previous output"
-❌ **Agent sprawl** — 3-5 focused agents > 10 generalists
-❌ **Platform confusion** — Using Pi syntax in Claude Code or vice versa
+❌ **Vague assignments** - "Help with this" vs "Audit src/auth.ts for SQL injection risks"
+❌ **Context overload** - Dumping entire conversation vs focused, relevant context
+❌ **Orphaned agents** - Starting subagents without plan to collect results
+❌ **Unclear handoffs** - Chain patterns need explicit "check X for previous output"
+❌ **Agent sprawl** - 3-5 focused agents > 10 generalists
+❌ **Platform confusion** - Using Pi syntax in Claude Code or vice versa
 
 ## Platform-Specific Troubleshooting
 
@@ -320,5 +398,16 @@ Task complexity?
 └── Complex (multi-domain or parallelizable) → Team approach
     ├── Needs exploration first? → Scout → Planner → Worker
     ├── Needs multiple perspectives? → Parallel Expert Panel
-    └── Can be split independently? → Divide and Conquer
+    ├── Can be split independently? → Divide and Conquer
+    └── Needs iterative refinement? → Review Till Done (review→fix→repeat)
+```
+
+**Review Till Done** specifically:
+```
+Starting state: Code/files to review
+Loop:
+  1. Reviewer checks → Issues found?
+     ├── Yes → Fixer applies fixes → Go to step 1
+     └── No (LGTM) → Done
+Safety: Max 5 rounds, then escalate to human
 ```

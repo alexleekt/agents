@@ -106,5 +106,23 @@
     "prompt": "This is a massive refactor but I've already mapped out every change needed in this detailed plan. Just follow the steps.",
     "should_trigger": false,
     "note": "EDGE: Large scope but fully specified - sequential execution sufficient"
+  },
+  {
+    "id": "eval-19-REVIEW-TILL-DONE",
+    "prompt": "Review this PR and keep fixing issues until it's clean. Don't stop at the first round if there are still problems.",
+    "should_trigger": true,
+    "note": "Review Till Done pattern - iterative review with explicit 'keep going' instruction"
+  },
+    {
+    "id": "eval-20-REVIEW-TILL-DONE-IMPLICIT",
+    "prompt": "I just wrote this 500-line module. Can you make sure it's production-ready? Check everything - bugs, style, tests, security.",
+    "should_trigger": true,
+    "note": "IMPLICIT Review Till Done: Production-ready requirement implies multiple review passes needed"
+  },
+  {
+    "id": "eval-21-REVIEW-TILL-DONE-NEGATIVE",
+    "prompt": "Quick review of this function - just tell me if you see any obvious bugs.",
+    "should_trigger": false,
+    "note": "Single-pass review request, not iterative"
   }
 ]
