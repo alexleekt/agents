@@ -1,0 +1,110 @@
+[
+  {
+    "id": "eval-1",
+    "prompt": "I have this complex refactoring that touches 15 files. Can you start a team to work on it in parallel?",
+    "should_trigger": true,
+    "note": "Explicit keywords + scale signal"
+  },
+  {
+    "id": "eval-2",
+    "prompt": "I need multiple perspectives on this architecture decision. Can you get some experts to weigh in?",
+    "should_trigger": true,
+    "note": "Explicit keywords + multi-domain need"
+  },
+  {
+    "id": "eval-3",
+    "prompt": "Delegate this implementation task to a subagent while I work on something else",
+    "should_trigger": true,
+    "note": "Explicit delegation keyword"
+  },
+  {
+    "id": "eval-4",
+    "prompt": "I want to divide and conquer this feature - can you scout the codebase first, then plan, then implement?",
+    "should_trigger": true,
+    "note": "Explicit pattern keywords"
+  },
+  {
+    "id": "eval-5",
+    "prompt": "Spawn agents to review this code from security, performance, and DX perspectives",
+    "should_trigger": true,
+    "note": "Explicit keywords + multi-domain"
+  },
+  {
+    "id": "eval-6-IMPLICIT",
+    "prompt": "This codebase has 200 files and I need to migrate from REST to GraphQL throughout. Where do I even start?",
+    "should_trigger": true,
+    "note": "IMPLICIT: Scale signal (200 files) + complexity signal (where to start) - no explicit team keywords"
+  },
+  {
+    "id": "eval-7-IMPLICIT",
+    "prompt": "I need to understand this monorepo structure. It's overwhelming - there are packages I don't even know exist.",
+    "should_trigger": true,
+    "note": "IMPLICIT: Complexity signal (overwhelming) + scale signal (monorepo) - no explicit keywords"
+  },
+  {
+    "id": "eval-8-IMPLICIT",
+    "prompt": "Before I implement this auth feature, I need to understand how the current system handles sessions, cookies, and JWTs. But I don't know where any of that code lives.",
+    "should_trigger": true,
+    "note": "IMPLICIT: Exploration needed (don't know where code lives) + multi-domain (sessions/cookies/JWTs)"
+  },
+  {
+    "id": "eval-9-IMPLICIT",
+    "prompt": "Is this API design secure, performant, and maintainable? I want to make sure before we commit to it.",
+    "should_trigger": true,
+    "note": "IMPLICIT: Multi-domain review needed (security, performance, DX) - no explicit 'team' mention"
+  },
+  {
+    "id": "eval-10-IMPLICIT",
+    "prompt": "We need to refactor the database layer, API layer, and frontend state management all at once for this new feature. They're pretty independent.",
+    "should_trigger": true,
+    "note": "IMPLICIT: Parallelism signal (independent parts) + multi-workstream - no delegation keywords"
+  },
+  {
+    "id": "eval-11-NEGATIVE",
+    "prompt": "Just read this file for me",
+    "should_trigger": false,
+    "note": "Single file, simple task"
+  },
+  {
+    "id": "eval-12-NEGATIVE",
+    "prompt": "What do you think about this approach?",
+    "should_trigger": false,
+    "note": "Opinion request, single perspective sufficient"
+  },
+  {
+    "id": "eval-13-NEGATIVE",
+    "prompt": "Can you edit this function to handle null cases?",
+    "should_trigger": false,
+    "note": "Single function, bounded scope"
+  },
+  {
+    "id": "eval-14-NEGATIVE",
+    "prompt": "I prefer to work solo on this - no subagents needed",
+    "should_trigger": false,
+    "note": "Explicit anti-trigger"
+  },
+  {
+    "id": "eval-15-NEGATIVE",
+    "prompt": "Help me understand how this code works",
+    "should_trigger": false,
+    "note": "Explanation request, single-agent sufficient"
+  },
+  {
+    "id": "eval-16-NEGATIVE",
+    "prompt": "Fix the bug in line 42 of src/utils.ts",
+    "should_trigger": false,
+    "note": "Specific location, bounded scope"
+  },
+  {
+    "id": "eval-17-EDGE",
+    "prompt": "I need to update the README and add a new example file",
+    "should_trigger": false,
+    "note": "EDGE: Two independent tasks, but trivial scope - prefer sequential over team overhead"
+  },
+  {
+    "id": "eval-18-EDGE",
+    "prompt": "This is a massive refactor but I've already mapped out every change needed in this detailed plan. Just follow the steps.",
+    "should_trigger": false,
+    "note": "EDGE: Large scope but fully specified - sequential execution sufficient"
+  }
+]
