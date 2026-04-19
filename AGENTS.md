@@ -21,24 +21,38 @@ These rules apply when working in the `~/agents/` directory and its subdirectori
 ### Skill Availability Principle
 **All skills in this repository must be available across all projects and all agents.**
 
+Skills are developed in `~/agents/skills/` (JJ-tracked) and **symlinked to `~/.agents/skills/`** for universal agent discovery.
+
 | Tool | Discovery Method | Status |
 |------|------------------|--------|
-| **Pi** | Reads `~/.agents/skills/` directly | ✅ Working |
+| **Pi** | Reads `~/.agents/skills/` (symlinked) | ✅ Working |
 | **Claude Code** | Symlinks in `~/.claude/skills/` | ✅ Working |
 | **Codex/Cursor/etc** | Via symlinks in their skill dirs | ⚠️ On demand |
 
-**For Pi:** Already configured. No action needed.
-
-**For Claude Code:** Create symlinks when adding new skills:
+**Required for every new skill:**
 ```bash
+# 1. Create in source directory
+mkdir -p ~/agents/skills/<skill-name>
+
+# 2. Symlink to ~/.agents/skills/ (Pi + other agents)
+ln -sf ~/agents/skills/<skill-name> ~/.agents/skills/<skill-name>
+
+# 3. For Claude Code (if using)
 ln -sf ~/.agents/skills/<skill-name> ~/.claude/skills/<skill-name>
 ```
 
 ### Creating New Skills
 1. Create directory: `mkdir -p skills/<skill-name>`
 2. Write `skills/<skill-name>/SKILL.md`
-3. Add Claude Code symlink (if needed for that tool)
-4. Follow naming conventions
+3. **Symlink to `~/.agents/skills/` (required):**
+   ```bash
+   ln -sf ~/agents/skills/<skill-name> ~/.agents/skills/<skill-name>
+   ```
+4. Add Claude Code symlink (if using Claude Code):
+   ```bash
+   ln -sf ~/.agents/skills/<skill-name> ~/.claude/skills/<skill-name>
+   ```
+5. Follow naming conventions
 
 ### When to Create Separate Skills
 Consider splitting into separate skills when:
@@ -88,7 +102,7 @@ The `skill-bar-raiser` ensures skill quality by reviewing:
 ## Tool-Specific Notes
 
 ### Pi
-Pi is configured to read skills directly from `~/.agents/skills/` via `settings.json`. **No symlinks needed** for Pi.
+Pi discovers skills from `~/.agents/skills/` automatically. **The symlink from `~/agents/skills/` to `~/.agents/skills/` is required** to make JJ-tracked skills available to Pi.
 
 ### Claude Code
 Requires symlinks in `~/.claude/skills/` to discover skills. Add manually when creating new skills.
