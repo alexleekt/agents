@@ -1,29 +1,36 @@
 ---
 name: my-team-orchestrate
 description: |
-  **ALWAYS use when tasks exhibit:** scale ("refactor entire codebase", "50+ files"), complexity
-  ("multi-part", "needs exploration", "overwhelming"), parallelism ("work on X and Y separately"),
-  multi-domain needs ("security review", "architecture"), OR explicit triggers ("start a team",
-  "delegate", "spawn agents", "divide and conquer", "parallelize").
+  **ALWAYS use when tasks exhibit:**
+  - **Scale:** "refactor entire codebase", "50+ files"
+  - **Complexity:** "needs exploration", "overwhelming"
+  - **Parallelism:** "work on X and Y separately"
+  - **Multi-domain:** "security review", "architecture"
+  - **Explicit:** "start a team", "delegate", "yolo"
 
-  **DO NOT use for:** single-file changes, one-step debugging, focused Q&A, or when user
-  explicitly wants solo work. Works across Pi, Claude Code, or any system with subagents.
+  **DO NOT use for:** single-file changes, one-step tasks, solo work preference.
 ---
 
 # Team Orchestration Skill
 
-Multi-agent delegation patterns that work across any AI system with subagent support.
+Multi-agent delegation patterns for any system with subagent support.
 
-## Platform-Specific Implementations
+## ⚡ Agent Quick Start
 
-| Platform | Subagent Mechanism | Key Tools |
-|----------|-------------------|-----------|
-| **Pi** | `team_create`, `spawn_teammate`, `send_message` | Native team coordination |
-| **Claude Code** | `/subagent` command | Built-in subagent spawning |
-| **Codex/Cursor** | Limited/None | May require external orchestration |
-| **Babysitter** | Process definitions + `@team` | Workflow-based delegation |
+**Pick pattern by signal:**
 
-> **Note:** Adapt the implementation patterns below to your platform's specific subagent API.
+| Signal | Pattern | Section |
+|--------|---------|---------|
+| "refactor everything" / "50+ files" | Divide and Conquer | Pattern 3 |
+| "explore first, then build" | Scout → Planner → Worker | Pattern 1 |
+| "security + performance review" | Expert Panel | Pattern 2 |
+| "keep fixing till clean" / "yolo" | Till Done | Pattern 5 |
+| "use my expert team" | Predefined Teams | Pattern 4 |
+
+**Platform notes:**
+- **Pi:** Use `team_*` tools (`team_create`, `spawn_teammate`, `send_message`)
+- **Claude Code:** Use `/subagent` command
+- **Other:** Adapt patterns to available subagent API
 
 ## Implicit Trigger Recognition
 
@@ -431,24 +438,16 @@ Loop:
 Safety: Max 5 rounds or no-progress detection
 ```
 
-## Yolo as Pattern Modifier
+### YOLO as Pattern Modifier
 
-**"Yolo"** isn't just for Till Done — it's an autonomy modifier applicable to any pattern:
+**"Yolo"** works with ANY pattern, not just Till Done:
 
 | Base Pattern | YOLO Variant | Effect |
 |-------------|--------------|--------|
-| Scout → Planner → Worker | **Scout → Planner → Worker YOLO** | No human between stages; planner works from scout output directly, worker from planner design |
-| Divide and Conquer | **Divide and Conquer YOLO** | Spawn all workers at once; no individual progress checks until all done |
-| Expert Panel | **Expert Panel YOLO** | Don't summarize/consolidate; just return all expert outputs raw |
-| Till Done | **Till Done YOLO** | Autonomous looping without human between cycles |
+| Scout→Planner→Worker | **Scout→Planner→Worker YOLO** | No human between stages |
+| Divide and Conquer | **Divide and Conquer YOLO** | Spawn all workers at once |
+| Expert Panel | **Expert Panel YOLO** | Return raw outputs, no synthesis |
+| Till Done | **Till Done YOLO** | Autonomous looping |
 
-**When to YOLO:**
-- User explicitly says "yolo", "just make it work", "don't ask between steps"
-- Time pressure — overhead of human confirmation is too slow
-- Trust established — pattern has worked before on similar tasks
-- Batch processing — many similar items, no need for individual attention
-
-**When NOT to YOLO:**
-- High-stakes changes (production, security, money)
-- User wants to learn/understand each step
-- Novel situation — no precedent for autonomous decisions
+**When to YOLO:** User says "yolo", time pressure, batch processing.
+**When NOT:** High-stakes, novel situations, user wants to learn.
