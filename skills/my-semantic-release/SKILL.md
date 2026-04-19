@@ -177,6 +177,52 @@ This skill assumes you have version control set up (see @skills/my-jj-workflow f
 2. **Writes** changelog, version bumps, commits, tags
 3. **Uses** jj or git depending on your setup
 
+## Custom Release Tools
+
+Some projects have custom release automation (e.g., `just release`, `make release`, `npm run release`) that handles tagging and pushing automatically. **Check first** before manually tagging.
+
+**Signs of custom release tools:**
+- `justfile`, `Makefile`, or `package.json` scripts with `release` target
+- Workflow files that trigger on tags but also create tags themselves
+- Documentation saying "run `just release`" instead of manual tagging
+
+**If custom tool exists:**
+1. Bump version in `package.json` (or relevant file)
+2. Update `CHANGELOG.md`
+3. Commit with `chore(release): X.X.X` message
+4. Run the custom tool (e.g., `just release`) - **it will tag and push for you**
+
+**Do NOT manually run `git tag` if the tool does it automatically** - this creates duplicate or mismatched tags.
+
+### Example: npm Project with just release
+
+A typical npm project with `just release` which:
+- Reads version from `package.json`
+- Validates version matches conventional commits
+- Creates and pushes the tag automatically
+- **Monitors GitHub Actions with auto-retry (up to 3 times)**
+
+**Correct workflow:**
+```bash
+# 1-3. Update files and commit
+jj describe -m "chore(release): X.X.X"
+jj commit
+
+# 4. Run the tool (handles everything including monitoring)
+just release
+```
+
+**Wrong workflow (creates tag at wrong commit):**
+```bash
+git tag -a vX.X.X -m "Release vX.X.X"  # DON'T do this manually!
+just release  # Tool also tries to create tag - conflict!
+```
+
+**Advanced: Skip monitoring**
+```bash
+RELEASE_NO_WATCH=1 just release  # Push tag but don't watch CI
+```
+
 ## Example Release Session
 
 **Before:** package.json has `"version": "1.2.0"`, last tag is `v1.2.0`
