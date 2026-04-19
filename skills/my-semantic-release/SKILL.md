@@ -43,6 +43,18 @@ The project should follow **Conventional Commits** specification:
 3. Categorize by conventional commit type
 4. Write/update CHANGELOG.md
 
+**Concrete commands:**
+```bash
+# Find last tag (jj or git)
+git describe --tags --abbrev=0
+
+# Get commits since last tag
+git log v1.2.0..HEAD --oneline --no-decorate
+
+# Or with jj (in colocated repo)
+jj log -r 'tags()::@' --no-graph
+```
+
 **Changelog format:**
 ```markdown
 ## [Unreleased]
@@ -68,10 +80,21 @@ The project should follow **Conventional Commits** specification:
 4. Check for fix: commits
 5. Recommend version bump
 
-**Rules:**
-- `BREAKING CHANGE:` in any commit → **MAJOR**
-- `feat:` present → **MINOR** (if no breaking change)
-- `fix:` present → **PATCH** (if no feat/breaking)
+**Concrete analysis commands:**
+```bash
+# Get all commits since last tag with bodies (to check for BREAKING CHANGE)
+git log v1.2.0..HEAD --format='%s%n%b%n---' | grep -E '(BREAKING CHANGE:|^feat:|^fix:|^docs:|^style:|^refactor:)'
+
+# Quick count by type
+git log v1.2.0..HEAD --format='%s' | grep -c '^feat:'  # count features
+git log v1.2.0..HEAD --format='%s' | grep -c '^fix:'   # count fixes
+git log v1.2.0..HEAD --format='%b' | grep -c 'BREAKING CHANGE'  # count breaking
+```
+
+**Decision rules:**
+- `BREAKING CHANGE:` in any commit → **MAJOR** (1.2.0 → 2.0.0)
+- `feat:` present → **MINOR** (1.2.0 → 1.3.0) (if no breaking change)
+- `fix:` present → **PATCH** (1.2.0 → 1.2.1) (if no feat/breaking)
 - Only docs/style/refactor → **No bump**
 
 ### 3. Format Conventional Commit
@@ -116,11 +139,34 @@ Use this to write properly formatted commit messages that feed into release auto
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Execution:**
+**Concrete execution (example: 1.2.0 → 1.3.0):**
+
 ```bash
-# Use jj or git for commits (see @skills/my-jj-workflow)
-jj commit -m "chore(release): $(cat VERSION)"
-git tag -a "v$(cat VERSION)" -m "Release v$(cat VERSION)"
+# STEP 1: Determine version (found feat: commits, no breaking changes)
+# Decision: MINOR bump → 1.3.0
+
+# STEP 2: Update CHANGELOG.md (prepend new section)
+# Edit file manually or use automated tool
+
+# STEP 3: Bump version in package.json
+# Using jq:
+cat package.json | jq '.version = "1.3.0"' > package.json.tmp && mv package.json.tmp package.json
+
+# Or edit Cargo.toml manually:
+# version = "1.3.0"
+
+# STEP 4: Describe the release (jj workflow)
+jj describe -m "chore(release): 1.3.0"
+
+# STEP 5: Commit the release
+jj commit
+
+# STEP 6: Tag the release (using git in colocated repo)
+git tag -a "v1.3.0" -m "Release v1.3.0"
+
+# STEP 7: Push (see @skills/my-jj-workflow for push commands)
+git push origin main
+git push origin v1.3.0
 ```
 
 ## Integration with VCS
@@ -133,25 +179,46 @@ This skill assumes you have version control set up (see @skills/my-jj-workflow f
 
 ## Example Release Session
 
+**Before:** package.json has `"version": "1.2.0"`, last tag is `v1.2.0`
+
 ```bash
 # User: "ship it"
 
 # 1. Determine version bump
-→ feat: add user profiles + fix: auth bug
+$ git log v1.2.0..HEAD --format='%s' | grep -E '^feat:|^fix:'
+feat: add user profiles
+fix: handle auth edge case
 → Recommendation: MINOR bump (1.2.0 → 1.3.0)
 
-# 2. Generate changelog
-→ Update CHANGELOG.md with new "1.3.0" section
+# 2. Update CHANGELOG.md (prepend new section)
+$ cat > /tmp/changelog_section.md << 'EOF'
+## [1.3.0] - 2026-04-19
 
-# 3. Bump version files
-→ package.json: 1.2.0 → 1.3.0
+### Added
+- User profiles feature
 
-# 4. Commit and tag
-→ jj commit -m "chore(release): 1.3.0"
-→ git tag -a v1.3.0 -m "Release v1.3.0"
+### Fixed
+- Auth edge case handling
+EOF
+$ cat /tmp/changelog_section.md CHANGELOG.md > CHANGELOG.md.new
+$ mv CHANGELOG.md.new CHANGELOG.md
 
-# 5. Push (use @skills/my-jj-workflow for push commands)
-→ git push origin main && git push origin v1.3.0
+# 3. Bump version in package.json
+$ cat package.json | jq '.version = "1.3.0"' > package.json.tmp
+$ mv package.json.tmp package.json
+
+# 4. Stage changes and describe
+$ jj st  # shows modified: CHANGELOG.md, package.json
+$ jj describe -m "chore(release): 1.3.0"
+
+# 5. Commit the release
+$ jj commit
+
+# 6. Tag and push
+$ git tag -a v1.3.0 -m "Release v1.3.0"
+$ git push origin main && git push origin v1.3.0
+
+# After: v1.3.0 tag exists, package.json shows 1.3.0, CHANGELOG.md updated
 ```
 
 ## When NOT to Use This Skill

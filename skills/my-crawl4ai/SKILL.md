@@ -30,6 +30,21 @@ uv add "crawl4ai[basic,browser,markdown]"
 uv run python -c "import crawl4ai; crawl4ai.setup()"
 ```
 
+## Reference Files
+
+This skill references detailed guides for specific situations:
+
+| Read this | When you need to... |
+|-----------|---------------------|
+| `references/setup-workflow.md` | Set up a new crawler project from scratch |
+| `references/code-templates.md` | Get ready-to-use code for batch crawling, auth, screenshots |
+| `references/integration-guides/typescript.md` | Use crawl4ai from a TypeScript/Node project |
+
+**Always check reference files when:**
+- Setting up a new project → read `setup-workflow.md`
+- Need code examples → read `code-templates.md`
+- Working with TypeScript → read `integration-guides/typescript.md`
+
 ## When to Use What
 
 | Situation | Approach |
@@ -183,6 +198,35 @@ Add to `~/.config/fish/conf.d/abbreviations.fish`:
 # System-wide: quick crawls from any directory
 abbr -a crawl 'uvx --from crawl4ai crwl'
 ```
+
+---
+
+## Common Agent Mistakes
+
+**Mistake 1: Using crawl4ai for browser automation**
+- ❌ Wrong: "Click the login button and take a screenshot"
+- ✅ Right: Use `@skills/agent-browser` for clicking, filling forms, screenshots
+- **Rule:** crawl4ai = content extraction, agent-browser = interaction automation
+
+**Mistake 2: Not reading reference files when setting up**
+- ❌ Wrong: Trying to write setup steps from memory
+- ✅ Right: Read `references/setup-workflow.md` for complete step-by-step setup
+- **Rule:** Reference files exist for a reason — use them
+
+**Mistake 3: Skipping browser setup**
+- ❌ Wrong: Running crawler without `crawl4ai.setup()` first
+- ✅ Right: Always run browser setup before first use (one-time)
+- **Rule:** Check error messages for "browser not found" → run setup
+
+**Mistake 4: Confusing one-off vs project approaches**
+- ❌ Wrong: Creating a full project for a single URL crawl
+- ✅ Right: Use `uvx --from crawl4ai crwl URL` for one-off crawls
+- **Rule:** Project setup only for recurring crawling needs
+
+**Mistake 5: Not using justfile**
+- ❌ Wrong: Typing long `uv run python ...` commands repeatedly
+- ✅ Right: Create justfile with common tasks (`just crawl <url>`)
+- **Rule:** Save time with task automation
 
 ---
 
