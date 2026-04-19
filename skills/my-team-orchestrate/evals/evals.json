@@ -124,5 +124,17 @@
     "prompt": "Quick review of this function - just tell me if you see any obvious bugs.",
     "should_trigger": false,
     "note": "Single-pass review request, not iterative"
+  },
+  {
+    "id": "eval-22-YOLO-SIGNAL",
+    "prompt": "This PR is a mess. Just yolo it and make it production-ready. Keep fixing until it's clean.",
+    "should_trigger": true,
+    "note": "YOLO signal + review-till-done pattern: implicit 'don't ask between rounds, just iterate'"
+  },
+  {
+    "id": "eval-23-YOLO-IMPLICIT",
+    "prompt": "This code is rough but I need it perfect. Just do whatever it takes, don't ask me between steps.",
+    "should_trigger": true,
+    "note": "IMPLICIT yolo signal: 'whatever it takes' + 'don't ask between steps' = autonomous iteration"
   }
 ]

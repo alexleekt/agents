@@ -181,7 +181,9 @@ for (const task of tasks) {
 ### Pattern 5: Review Till Done (Iterative Review Loop)
 Best for: Code review that continues until no more issues found
 
-**Concept:** Loop between reviewer and fixer agents until reviewer returns "LGTM" or zero issues.
+**Trigger phrases:** "review till done", "keep fixing until clean", "don't stop", **"yolo"** (as in: "just yolo this and make it perfect")
+
+**Concept:** Loop between reviewer and fixer agents until reviewer returns "LGTM" or zero issues. The "yolo" signal specifically means: *don't ask for confirmation between rounds, just keep iterating until it's done or hits safety limits.*
 
 **Pi Implementation:**
 ```typescript
@@ -255,7 +257,7 @@ await team_shutdown({ team_name: "review-loop" });
 **Key Rules for Reviewer Agent:**
 - Must return machine-parseable format ("LGTM" or numbered list)
 - Each issue needs file path and specific location
-- No prose - just actionable items
+- No prose — just actionable items
 - Can focus on specific domains: security-only, style-only, etc.
 
 **Key Rules for Fixer Agent:**
@@ -263,6 +265,12 @@ await team_shutdown({ team_name: "review-loop" });
 - Preserve existing patterns and conventions
 - Run tests/linting if available after fixes
 - Report what was changed
+
+**The "Yolo" Signal:**
+When user says **"yolo"** or **"just make it work"** in a review context, it means:
+- Don't pause for human confirmation between review/fix cycles
+- Autonomously iterate until LGTM or safety limit
+- Maximum autonomy within the loop constraints
 
 **Stopping Conditions:**
 - Reviewer returns "LGTM"
