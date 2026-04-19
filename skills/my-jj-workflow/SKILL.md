@@ -18,499 +18,347 @@ description: |
 
 # My JJ Workflow
 
-Personal workflow patterns for jujutsu (jj). For full command reference, see **@skills/jujutsu**.
+**Agent-optimized guide for jujutsu (jj).** For full command reference, see **@skills/jujutsu**.
 
 ---
 
-## Core Philosophy
+## ⚡ Agent Quick Start
 
-| Principle | What it means |
-|-----------|---------------|
-| **jj-first** | Use jj for all local operations |
-| **Auto-colocation** | First `jj` command in a git repo auto-runs `jj git init --colocate` |
-| **Describe-first** | Write messages with `jj describe -m` before committing |
-| **git for push** | Push via git (jj colocation makes this seamless) |
+**Before any jj operation, verify:**
+1. ✅ This is a jj repo (`ls .jj` or `jj st` succeeds)
+2. ✅ Always use `-m` flag (never rely on editor)
+3. ✅ Never use `jj split` (use patterns below)
+4. ✅ After `jj commit`, run `jj new` to continue
+5. ✅ Use `jj edit`, not `git checkout`
 
----
-
-## Quick Decision Guide
-
-**When user says... → Do this:**
-
-| User says | Your action |
-|-----------|-------------|
-| "commit this" | `jj st` → `jj describe -m "..."` or `jj commit -m "..."` |
-| "what changed?" | `jj st` + `jj diff` |
-| "split this" | `jj diff --summary` → `ask_user` for strategy → use [split patterns](#pattern-1-split-by-file-automated) |
-| "new branch" | Explain jj doesn't use branches; use `jj new main -m "feat: ..."` |
-| "checkout X" | `jj edit X` (X = bookmark, change_id, or revset like `@--`) |
-| "undo" | `jj undo` (undoes last jj operation) |
-| "push to github" | `git push` or `jj git push` |
-| "worktree" | Explain jj uses **workspaces**: `jj workspace add ../ws` |
+**If stuck:** `EDITOR=cat timeout 10 jj <command>` (recovery only)
 
 ---
 
-## Quick Reference (Non-Interactive)
+## Decision Guide: User Says → You Do
 
-**Always use `-m` flag to skip editors in agent workflows:**
-
-| Task | Command |
-|------|---------|
-| Check status | `jj st` |
-| Create change | `jj new main -m "feat: start work"` |
-| Update message | `jj describe -m "feat: updated message"` |
-| Commit change | `jj commit -m "feat: complete"` |
-| Squash to parent | `jj squash -m "final message"` |
-| Cross-commit squash | `jj squash --from <src> --into <dst> -m "msg"` |
-| Show log | `jj log --limit 20` |
-| Show diff | `jj diff` |
-
-**❌ Interactive (avoid in agents):** `jj split`, `jj describe` (without `-m`), `jj commit` (without `-m`)
-
-### Emergency Non-Interactive Mode
-
-If an editor opens unexpectedly or a command gets stuck, use `EDITOR=cat`:
-
-```bash
-# Force non-interactive mode (accepts empty/placeholder message)
-EDITOR=cat jj commit
-```
-
-**⚠️ WARNING: Don't use as default!** This creates empty/placeholder messages and hides mistakes. Always prefer `-m` flag.
-
-**When to use `EDITOR=cat`:**
-- Editor opened accidentally (forgot `-m` flag) — recovery only
-- Command hanging waiting for input — unblocking only
-
-**Better prevention:** Use `-m` flag consistently:
-```bash
-# ✅ Correct: Always use -m
-jj describe -m "feat: description"
-jj commit -m "feat: description"
-
-# ❌ Wrong: Relies on editor (hangs in agents)
-jj describe
-jj commit
-```
-
-After using `EDITOR=cat`, fix empty messages:
-```bash
-jj describe -m "proper message"  # If not yet committed
-# Or if already committed with bad message, use amend pattern
-```
+| User says | Your exact steps |
+|-----------|------------------|
+| **"commit this"** | 1. `jj st` → 2. If no description: `jj describe -m "..."` → 3. `jj commit -m "..."` → 4. `jj new -m "wip: next"` |
+| **"what changed?"** | `jj st` then `jj diff` |
+| **"check status"** | `jj st` |
+| **"split this" / "break into commits"** | 1. `jj diff --summary` → 2. `ask_user` how to split → 3. Use [Split Workflow](#split-workflow) below |
+| **"new branch" / "create branch"** | Explain: "jj uses changes, not branches. Use: `jj new main -m \"feat: ...\"`" |
+| **"checkout X"** | `jj edit X` (X = bookmark name, change ID, or `@--`) |
+| **"go back" / "undo"** | `jj undo` (undoes last jj operation) |
+| **"push to github"** | `git push` or `jj git push --bookmark main` |
+| **"pull from github"** | `jj git fetch` then `jj rebase -d main@origin` |
+| **"worktree" / "new worktree"** | Explain: "jj uses workspaces: `jj workspace add ../ws`" |
+| **"squash/fixup"** | `jj squash -m "final message"` (into parent) or `jj squash --from @ --into X -m "..."` |
+| **"amend last commit"** | `jj edit @-` → make edits → `jj squash` OR `jj describe -m "new message"` if just changing message |
+| **"see history"** | `jj log --limit 10` |
+| **"diff against main"** | `jj diff --from main --to @` |
 
 ---
 
-## Essential Revset Navigation
+## Standard Workflows (Step-by-Step)
 
-jj uses revsets (revision sets) to navigate. Learn these first:
-
-| Symbol | Meaning | Example use |
-|--------|---------|-------------|
-| `@` | Current working copy | `jj diff -r @` |
-| `@-` | Parent of current | `jj edit @-` |
-| `@--` | Grandparent | `jj log -r @--` |
-| `@+` | Child of current | `jj log -r @+` |
-| `main` | Bookmark (like branch) | `jj new main` |
-| `abc123` | Change ID prefix | `jj edit abc123` |
-
-**⚠️ Common mistakes:**
-- ❌ `@~1` (git syntax) → ✅ `@-` (jj syntax)
-- ❌ `@^` (git syntax) → ✅ `@-` (jj syntax)
-- ❌ `git checkout` → ✅ `jj edit`
-- ❌ `git branch` → ✅ `jj bookmark create`
-
----
-
-## Daily Workflows
-
-### Describe-First Workflow
-
-Don't commit immediately — describe your intent first, commit when ready:
-
-```bash
-jj new main
-# ... make edits ...
-jj describe -m "wip: auth flow"
-# ... more edits ...
-jj describe -m "feat: JWT authentication"
-jj commit -m "feat: JWT authentication"  # Now commit
-```
-
-**After committing, start fresh:**
-
-```bash
-# After jj commit, the working copy is now "empty" (no description set)
-# Create a new change to continue working:
-jj new -m "wip: next task"
-
-# The previous commit is now your parent (@-)
-# Future changes can be squashed into it if needed
-```
-
-**Key pattern:** `jj commit` → `jj new` → work → `jj commit` creates a linear chain. If you need to fixup the previous commit, use `jj edit @-` then `jj squash`.
-
-### Context Switching (JJ's Superpower)
-
-Multiple in-progress changes without branches:
-
-```bash
-jj edit @--           # Go back one change
-jj edit feature-x     # Jump to bookmark
-jj new main           # Start fresh work
-jj log                # See your change stack
-```
-
-### Organizing Changes
-
-**Squash fixups into parent:**
-```bash
-jj squash -m "final message"
-
-# Cross-commit squash
-jj squash --from <src> --into <dst> -m "message"
-```
-
-**Split mixed concerns:** See [Agent-Specific Patterns](#handling-split-and-interactive-commands) below for non-interactive alternatives to `jj split`.
-
----
-
-## Workspaces & Sparse Checkouts
-
-jj uses "workspaces" — separate working directories linked to the same repo:
-
-```bash
-# Create a new workspace
-jj workspace add ../feature-ws
-cd ../feature-ws
-
-# Remove when done
-jj workspace forget ../feature-ws
-```
-
-### Sparse Patterns (Checkout Only What You Need)
-
-Sparse patterns control which files exist in each workspace's working copy:
-
-**Create sparse workspaces:**
-```bash
-# Empty workspace, add manually
-jj workspace add ../frontend-ws --sparse-patterns empty
-cd ../frontend-ws
-jj sparse set --add frontend/ --add README.md
-
-# Full checkout (default inherits parent's sparsity)
-jj workspace add ../full-ws --sparse-patterns full
-```
-
-**Manage sparse patterns:**
-```bash
-jj sparse list                    # See current patterns
-jj sparse set --add src/          # Add paths to working copy
-jj sparse set --remove tests/     # Remove paths (deletes from workspace, not repo)
-jj sparse reset                   # Reset to full checkout
-```
-
-**Sparse vs .gitignore:**
-
-| | `.gitignore` | `jj sparse` |
-|---|---|---|
-| **Purpose** | Prevents VCS tracking | Controls checkout presence |
-| **Scope** | All workspaces globally | Per-workspace only |
-| **Effect** | Files ignored from status | Files missing from disk |
-| **Use for** | Build artifacts, secrets, deps | Large repos, focused work |
-
----
-
-## Agent-Specific Patterns
-
-### Handling Split and Interactive Commands
-
-`jj split` is inherently interactive and cannot run non-interactively. **Never attempt `jj split` in agent workflows.**
-
-#### Decision Tree: User Asks to "Split" a Change
-
-```
-User says: "Split this commit"
-    │
-    ├─→ Step 1: Check what's in the change
-    │   $ jj diff --summary
-    │   M src/auth.js
-    │   M src/login.js
-    │   M README.md
-    │
-    ├─→ Step 2: Ask user for split strategy
-    │   "This change has 3 files. Split by:
-    │    1. File (each file separate)
-    │    2. Type (code vs docs)
-    │    3. Manual (you specify)"
-    │
-    └─→ Step 3: Execute without `jj split`
-```
-
-#### Pattern 1: Split by File (Automated)
-
-When user wants each file as separate commit:
-
-```bash
-# Current change has: src/auth.js, src/login.js, README.md
-
-# Extract first file to new commit
-jj new @- -m "feat(auth): add authentication"
-cp src/auth.js /tmp/  # save temporarily
-jj restore --from @- src/auth.js  # restore to this change
-# ...copy file back, stage, commit...
-
-# Actually easier: describe original partially, then new
-jj describe -m "feat(auth): add authentication"  # for auth.js
-jj commit -m "feat(auth): add authentication"
-jj new -m "feat(login): add login page"  # remaining files get new change
-```
-
-**Simpler approach:** Create fresh changes from parent:
-
-```bash
-# Abandon current mixed change
-change_id=$(jj log -r @ -T 'change_id')
-
-# Create clean change for first file
-jj new @- -m "feat(auth): add authentication"
-# Manually ensure only auth.js is in working copy
-
-# Create clean change for second file
-jj new @-- -m "feat(login): add login"
-# Manually ensure only login.js
-
-# Abandon original
-jj abandon $change_id
-```
-
-#### Pattern 2: Split by Concern (Most Common)
-
-User wants "code changes" separate from "docs":
-
-```bash
-# Step 1: Show what's in the change
-$ jj diff --summary
-M src/auth.js      # code
-M src/login.js     # code  
-M README.md        # docs
-M CHANGELOG.md     # docs
-
-# Step 2: Create new change for docs
-jj new @- -m "docs: update readme and changelog"
-# Working copy now at new change, parent has code files
-
-# Step 3: Go back and commit code
-jj edit @-
-jj commit -m "feat: add authentication system"
-
-# Step 4: Go to docs change and commit
-jj edit @+
-jj commit -m "docs: document authentication"
-```
-
-#### Pattern 3: Prevent Need for Split (Best Practice)
-
-Instead of splitting later, use **describe-first** to create focused changes:
-
-```bash
-# ❌ Don't: One big change then split later
-jj new main
-# edit auth.js, login.js, README.md
-# now need to split...
-
-# ✅ Do: Separate changes from start
-jj new main -m "wip: auth endpoints"
-# edit auth.js
-jj describe -m "feat(api): add auth endpoints"
-
-jj new @ -m "wip: login ui"
-# edit login.js
-jj describe -m "feat(ui): add login form"
-
-jj new @ -m "wip: docs"
-# edit README.md
-jj describe -m "docs: add auth documentation"
-```
-
-#### Pattern 4: Emergency Git Fallback
-
-If you must do complex split operations:
-
-```bash
-# In colocated repo only
-jj st  # note the change_id
-
-# Use git to split (unstage, then selective add)
-git reset --mixed HEAD~1
-git add -p  # interactive patch selection
-EDITOR=true git commit -m "part 1"
-git add .
-EDITOR=true git commit -m "part 2"
-
-# Sync jj state (may need)
-jj workspace update-stale
-```
-
-⚠️ Only use this for complex splits. Prefer jj-native patterns above.
-
----
-
-### Common Agent Scenarios
-
-#### Scenario: "Commit these changes"
+### Workflow 1: Normal Commit
 
 ```bash
 # Step 1: Check current state
 jj st
 
-# If no description yet:
-jj describe -m "feat(scope): description"
+# Step 2: If changes exist but no description, describe them
+jj describe -m "feat(scope): what this does"
 
-# If already described:
-jj commit
+# Step 3: Commit
+jj commit -m "feat(scope): what this does"
 
-# If want to commit without describing:
-jj commit -m "feat(scope): description"
-
-# Step 2: After commit, create new change for next work
+# Step 4: CRITICAL - Create new change for next work
 jj new -m "wip: next task"
-# Or just: jj new (describe later)
+# (Or just `jj new` if you want to describe later)
 ```
 
-**Note:** After `jj commit`, the working copy is empty. Always run `jj new` to continue working. The previous commit becomes your parent (`@-`), available for fixups via `jj edit @-` + `jj squash` if needed.
+### Workflow 2: Describe-First (Preferred)
 
-#### Scenario: "What changed?"
+Start with intent, evolve message, commit when ready:
 
 ```bash
-# Summary of files
+# Start with intent
+jj new main -m "wip: auth flow"
+
+# Make edits...
+
+# Refine description as work progresses  
+jj describe -m "feat(auth): JWT authentication"
+
+# Make more edits...
+
+# Final description
+jj describe -m "feat(auth): add JWT authentication with refresh tokens"
+
+# Now commit
+jj commit -m "feat(auth): add JWT authentication with refresh tokens"
+
+# Continue with new change
+jj new -m "wip: next task"
+```
+
+### Workflow 3: Fixup Previous Commit
+
+```bash
+# Option A: Quick message change (not yet pushed)
+jj edit @-                    # Go to parent commit
+jj describe -m "new message"  # Update message
+jj edit @+                    # Return to current work
+
+# Option B: Add more changes to previous commit
+jj edit @-                    # Go to parent
+# ...make edits...
+jj squash -m "updated message" # Squash working copy into parent
+jj edit @+                    # Return to current work
+```
+
+### Workflow 4: Split Workflow
+
+**NEVER use `jj split`** — it's interactive only. Use this instead:
+
+```bash
+# Step 1: See what files we have
 jj diff --summary
+# Output:
+# M src/auth.js
+# M src/login.js  
+# M README.md
 
-# Detailed diff
-jj diff
+# Step 2: Decide split strategy (use ask_user if unclear)
+# Strategy A: Code vs Docs
+# Strategy B: File by file
 
-# Last N changes
-jj log --limit 5
+# --- Strategy A: Code vs Docs ---
+
+# Create new change for docs (current change keeps code)
+jj new @- -m "docs: update readme"
+# (Now @ has docs, @- has code)
+
+# Commit the code first
+jj edit @-
+jj commit -m "feat: add authentication"
+
+# Now commit the docs
+jj edit @+
+jj commit -m "docs: document authentication"
+
+# --- Strategy B: File by File ---
+
+# Abandon mixed change, create clean ones
+change_id=$(jj log -r @ -T 'change_id')
+
+# Create first commit
+jj new @- -m "feat(auth): add auth endpoints"
+# Ensure only auth.js is present
+
+# Create second commit  
+jj new @-- -m "feat(login): add login page"
+# Ensure only login.js is present
+
+# Abandon original mixed change
+jj abandon $change_id
+
+# Result: Two clean commits instead of one mixed
 ```
 
-#### Scenario: "I need to work on something else"
+### Workflow 5: Context Switch
 
 ```bash
-# Option 1: Describe current, start new
-jj describe -m "wip: current task"
-jj new main -m "feat: new task"
+# Current work is WIP, need to do something else
 
-# Option 2: Shelve-like (create new, leave current)
-jj new -m "feat: new task"  # @ now points here, @- has wip
+# Option 1: Describe and leave
+jj describe -m "wip: feature X on hold"
+jj new main -m "feat: urgent fix"
 
-# Option 3: Create bookmark for later
-jj bookmark create my-feature -r @
-jj new main
+# Option 2: Bookmark for later, start fresh
+jj bookmark create feature-x -r @
+jj new main -m "feat: urgent fix"
 
 # Come back later
-jj edit my-feature
+jj edit feature-x
+```
+
+### Workflow 6: Workspace with Sparse Checkout
+
+```bash
+# Create minimal workspace for focused work
+jj workspace add --sparse-patterns empty ../feature-ws
+cd ../feature-ws
+
+# Add only what you need
+jj sparse set --add src/auth/ --add README.md
+
+# Work only with those files present
+# ...
+
+# When done, clean up
+jj workspace forget ../feature-ws
 ```
 
 ---
 
-### Timeout and Retry Pattern
+## Error Recovery
 
-jj commands may hang if interactive or on slow repos. Wrap with timeout and retry:
+### Problem: Editor Opened (Forgot `-m` Flag)
+
+```
+WHAT HAPPENED: You ran `jj commit` without `-m`, editor opened
+
+RECOVERY:
+1. Cancel editor immediately:
+   - Vim: Press Escape, type `:q!`, press Enter
+   - Nano: Press Ctrl+X
+
+2. Re-run with `-m` flag:
+   jj commit -m "feat: actual message"
+
+PREVENTION: Always use `-m` flag. Never rely on editor.
+```
+
+### Problem: Command Stuck/Hanging
+
+```
+WHAT HAPPENED: Command waiting for input (forgot `-m` or interactive prompt)
+
+RECOVERY:
+1. Force non-interactive completion:
+   EDITOR=cat timeout 10 jj <command>
+
+2. Or kill and retry:
+   Ctrl+C or kill -9 <pid>
+   Then retry with `-m` flag
+
+WARNING: EDITOR=cat creates empty messages. Fix immediately with:
+   jj describe -m "proper message"  # if not committed
+   # or edit @- and squash if already committed
+```
+
+### Problem: "No .jj Directory Found"
+
+```
+CAUSE: Not a jj repo yet
+
+SOLUTION:
+1. If git repo exists: First `jj` command auto-colocates (Fish shell)
+   Or run: jj git init --colocate
+
+2. If new project: jj git init
+```
+
+### Problem: "Nothing Changed" After Commit
+
+```
+THIS IS NORMAL. After `jj commit`:
+- Your changes were saved to the commit
+- Working copy is now "empty" (no files, no description)
+
+NEXT STEP: Always run `jj new` to continue working:
+   jj new -m "wip: next task"
+```
+
+### Problem: Accidentally Used Git Commands
+
+```
+DANGER: git commit, git rebase, git merge, git cherry-pick, git reset --hard
+CORRUPT jj history in colocated repos.
+
+IF YOU JUST DID IT (< 1 minute):
+   jj undo                    # May recover
+
+IF PUSHED/PERSISTED:
+   jj op log                  # See operation history
+   jj op restore <op-id>      # Restore from before git command
+   # Or manually recreate changes
+
+SAFE git commands (read-only):
+   git log, git diff, git show, git blame, git grep
+```
+
+---
+
+## Essential Reference
+
+### Revset Symbols (Navigation)
+
+| Symbol | Means | Use in |
+|--------|-------|--------|
+| `@` | Current working copy | `jj diff -r @` |
+| `@-` | Parent of current | `jj edit @-` |
+| `@--` | Grandparent | `jj log -r @--` |
+| `@+` | Child of current | `jj edit @+` |
+| `main` | Bookmark (like branch) | `jj new main` |
+| `abc123` | Change ID | `jj edit abc123` |
+
+**⚠️ Git syntax that breaks in jj:**
+- ❌ `@~1` → ✅ `@-`
+- ❌ `@^` → ✅ `@-`  
+- ❌ `@~-1` → ✅ `@+`
+
+### Common Commands
+
+| Task | Command |
+|------|---------|
+| Status | `jj st` |
+| Diff | `jj diff` |
+| Log | `jj log --limit 20` |
+| New change | `jj new main -m "feat: x"` |
+| Describe | `jj describe -m "feat: x"` |
+| Commit | `jj commit -m "feat: x"` |
+| Squash | `jj squash -m "final"` |
+| Edit change | `jj edit @-` or `jj edit <id>` |
+| Undo | `jj undo` |
+
+### Timeout Wrapper (For Automation)
 
 ```bash
-# Retry function with exponential backoff
 jj_with_retry() {
   local cmd="$1"
   local max_retries=3
   local timeout_sec=10
   local delay=2
-  local attempt=1
   
-  while [ $attempt -le $max_retries ]; do
+  for ((attempt=1; attempt<=max_retries; attempt++)); do
     echo "Attempt $attempt/$max_retries: $cmd"
-    
-    # Run with timeout, capture exit code
     if timeout $timeout_sec bash -c "$cmd"; then
       return 0
     fi
-    
-    local exit_code=$?
-    
-    # Check if timeout (124) or other error
-    if [ $exit_code -eq 124 ]; then
-      echo "  → Timeout after ${timeout_sec}s"
-    else
-      echo "  → Failed with exit code $exit_code"
-    fi
-    
-    # If not last attempt, wait and retry
-    if [ $attempt -lt $max_retries ]; then
-      echo "  → Retrying in ${delay}s..."
-      sleep $delay
-      delay=$((delay * 2))  # Exponential backoff: 2s, 4s, 8s
-    fi
-    
-    attempt=$((attempt + 1))
+    echo "  → Retrying in ${delay}s..."
+    sleep $delay
+    delay=$((delay * 2))
   done
-  
-  echo "Failed after $max_retries attempts"
   return 1
 }
 
-# Usage examples
-jj_with_retry "jj st"
-jj_with_retry "jj commit -m 'feat: add feature'"
-jj_with_retry "jj describe -m 'wip: work in progress'"
-
-# For potentially stuck commands, use shorter timeout
-jj_with_retry "timeout 5 jj describe -m 'quick'"
+# Usage: jj_with_retry "jj commit -m 'feat: x'"
 ```
 
-**When to use:**
-- Commands that might hang (forgot `-m` flag, interactive prompt)
-- Slow repositories or network-dependent operations
-- Automation scripts that must complete
+### Sparse Patterns
 
-**Fallback on failure:**
 ```bash
-if ! jj_with_retry "jj commit -m 'feat: x'"; then
-  echo "Commit failed, using EDITOR=cat fallback"
-  EDITOR=cat timeout 5 jj commit || echo "Even fallback failed"
-fi
+# See current:    jj sparse list
+# Add paths:      jj sparse set --add src/
+# Remove paths:   jj sparse set --remove tests/
+# Reset to full:  jj sparse reset
 ```
+
+### Git Interop
+
+| Situation | Tool |
+|-----------|------|
+| Daily work | jj |
+| Push to GitHub | git push or jj git push |
+| Clone | git clone → auto-colocate |
+| Submodules | git (jj limited) |
+| Complex split | git (jj split is interactive) |
+
+**CRITICAL:** Never use `git commit`, `git rebase`, `git merge` in colocated jj repos.
 
 ---
 
-## Git Interop
-
-### When to Use Git Fallback
-
-| Situation | Use |
-|-----------|-----|
-| Status, diff, log | **jj** |
-| Commit | **jj commit** (default) |
-| Push to GitHub | **git push** or **jj git push** |
-| Clone new repo | **git clone**, then auto-colocate |
-| Submodules | **git** (jj limited support) |
-| Complex split | **git** (jj split is interactive only) |
-
-### Auto-Colocation
-
-Fish shell auto-colocates on first `jj` command:
-
-```bash
-# In a git repo without .jj/, first jj command auto-runs:
-# jj git init --colocate
-```
-
-🚨 **CRITICAL:** Never use `git commit`, `git rebase`, `git cherry-pick`, `git merge`, or `git reset --hard` in a colocated repo — they silently corrupt jj history. Read-only git commands (`log`, `diff`, `show`, `blame`) are safe.
-
----
-
-## Shell Setup
-
-### Fish Abbreviations
+## Fish Shell Abbreviations
 
 ```fish
 abbr -a js 'jj status'
@@ -523,85 +371,4 @@ abbr -a jsw 'jj workspace add'
 
 ---
 
-## Troubleshooting
-
-| Problem | Solution |
-|---------|----------|
-| "No .jj directory found" | First `jj` command auto-colocates (via Fish wrapper), or run `jj git init --colocate` |
-| Merge conflicts | `jj resolve` or use git in colocated repo |
-| Need to split interactively | Use [agent patterns](#handling-split-and-interactive-commands) above, or use git in colocated repo |
-| Accidentally used git commit | Run `jj undo` if immediately after, or manually recover from jj op log |
-| Editor opens (vim/nano) | Cancel with `:q!` or Ctrl+C, then retry with `-m` flag: `jj commit -m "msg"` |
-| Command stuck/hanging | `EDITOR=cat jj <command>` to force non-interactive completion |
-| "command not found: jj" | jj not installed; use git instead |
-| "nothing changed" after commit | Working copy is empty (normal jj behavior); changes were committed |
-
-### Agent-Specific Debugging
-
-**Problem: `jj describe` without `-m` opened an editor**
-```bash
-# What happened: User tried to set commit message, editor opened
-# Solution: Cancel editor, use non-interactive form
-
-# Cancel vim: :q!
-# Cancel nano: Ctrl+X
-
-# Then:
-jj describe -m "feat: actual message"
-```
-
-**Problem: Command is stuck/hanging**
-```bash
-# What happened: Forgot `-m` flag, command waiting for editor/input
-# Solution: Force non-interactive mode
-
-EDITOR=cat jj commit
-
-# Or in another terminal:
-kill -9 <pid>  # then retry with -m flag
-```
-
-**Problem: Change already has description, need to commit**
-```bash
-$ jj st
-Working copy (@): xyz123abc (empty) (no description set)
-# ^ This means change IS empty - files were already committed
-
-# If there ARE files:
-$ jj st
-Working copy (@): xyz123abc my description here
-$ jj commit  # Will use existing description
-```
-
-**Problem: User wants to "amend" last commit**
-```bash
-# In git: git commit --amend
-# In jj: just edit @- and squash
-
-jj edit @-              # Go to parent (the commit to amend)
-# make edits
-jj squash               # Squash working copy into this commit
-# or just commit if @- was empty
-jj commit -m "new message"
-```
-
----
-
 📚 **Full command reference:** @skills/jujutsu
-
----
-
-## Appendix: JJ vs Git Quick Map
-
-| Git Concept | JJ Equivalent | Notes |
-|-------------|-------------|-------|
-| `git add` | (not needed) | jj snapshots automatically |
-| `git commit` | `jj commit -m` | Or `jj describe` + `jj commit` |
-| `git commit --amend` | `jj squash` or edit `@-` | Describe-first makes this rare |
-| `git checkout branch` | `jj edit bookmark` | Bookmarks ≈ branches |
-| `git checkout -b` | `jj bookmark create` + `jj new` | Or just `jj new` without bookmark |
-| `git stash` | `jj new` or `jj describe` | Multiple changes = natural stashing |
-| `git rebase` | `jj rebase -s -d` | `-s` = source, `-d` = destination |
-| `git cherry-pick` | `jj new -B change` | `-B` = change description |
-| `git log` | `jj log` | `-T` for custom templates |
-| `git worktree` | `jj workspace add` | With sparse pattern support |
