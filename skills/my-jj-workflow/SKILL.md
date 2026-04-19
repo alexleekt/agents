@@ -358,17 +358,4 @@ jj_with_retry() {
 
 ---
 
-## Fish Shell Abbreviations
-
-```fish
-abbr -a js 'jj status'
-abbr -a jl 'jj log'
-abbr -a jd 'jj diff'
-abbr -a jdesc 'jj describe'
-abbr -a jc 'jj commit'
-abbr -a jsw 'jj workspace add'
-```
-
----
-
 📚 **Full command reference:** @skills/jujutsu
