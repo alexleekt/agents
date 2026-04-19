@@ -108,33 +108,57 @@
     "note": "EDGE: Large scope but fully specified - sequential execution sufficient"
   },
   {
-    "id": "eval-19-REVIEW-TILL-DONE",
+    "id": "eval-19-TILL-DONE",
     "prompt": "Review this PR and keep fixing issues until it's clean. Don't stop at the first round if there are still problems.",
     "should_trigger": true,
-    "note": "Review Till Done pattern - iterative review with explicit 'keep going' instruction"
+    "note": "Till Done pattern (code domain) - iterative refinement with explicit 'keep going'"
   },
-    {
-    "id": "eval-20-REVIEW-TILL-DONE-IMPLICIT",
+  {
+    "id": "eval-20-TILL-DONE-IMPLICIT",
     "prompt": "I just wrote this 500-line module. Can you make sure it's production-ready? Check everything - bugs, style, tests, security.",
     "should_trigger": true,
-    "note": "IMPLICIT Review Till Done: Production-ready requirement implies multiple review passes needed"
+    "note": "IMPLICIT Till Done: Production-ready implies multiple refinement passes"
   },
   {
-    "id": "eval-21-REVIEW-TILL-DONE-NEGATIVE",
+    "id": "eval-21-TILL-DONE-TESTS",
+    "prompt": "These tests keep failing. Fix them and keep running till they all pass.",
+    "should_trigger": true,
+    "note": "Till Done pattern (tests domain) - checker is test runner, fixer is test fixer"
+  },
+  {
+    "id": "eval-22-TILL-DONE-DOCS",
+    "prompt": "The README is incomplete. Keep adding sections until it covers everything a new contributor needs.",
+    "should_trigger": true,
+    "note": "Till Done pattern (docs domain) - checker validates completeness"
+  },
+  {
+    "id": "eval-23-TILL-DONE-NEGATIVE",
     "prompt": "Quick review of this function - just tell me if you see any obvious bugs.",
     "should_trigger": false,
-    "note": "Single-pass review request, not iterative"
+    "note": "Single-pass check, not iterative refinement"
   },
   {
-    "id": "eval-22-YOLO-SIGNAL",
+    "id": "eval-24-YOLO-TILL-DONE",
     "prompt": "This PR is a mess. Just yolo it and make it production-ready. Keep fixing until it's clean.",
     "should_trigger": true,
-    "note": "YOLO signal + review-till-done pattern: implicit 'don't ask between rounds, just iterate'"
+    "note": "YOLO + Till Done: autonomous iteration without human between rounds"
   },
   {
-    "id": "eval-23-YOLO-IMPLICIT",
+    "id": "eval-25-YOLO-SCOUT",
+    "prompt": "Yolo this feature - explore, plan, and build it without asking me between steps.",
+    "should_trigger": true,
+    "note": "YOLO modifier on Scout→Planner→Worker pattern"
+  },
+  {
+    "id": "eval-26-YOLO-DIVIDE",
+    "prompt": "I need to migrate 50 files from REST to GraphQL. Just yolo it and get it done.",
+    "should_trigger": true,
+    "note": "YOLO modifier on Divide-and-Conquer: spawn all workers, batch process"
+  },
+  {
+    "id": "eval-27-YOLO-IMPLICIT",
     "prompt": "This code is rough but I need it perfect. Just do whatever it takes, don't ask me between steps.",
     "should_trigger": true,
-    "note": "IMPLICIT yolo signal: 'whatever it takes' + 'don't ask between steps' = autonomous iteration"
+    "note": "IMPLICIT YOLO: 'whatever it takes' + 'don't ask between steps'"
   }
 ]

@@ -178,105 +178,114 @@ for (const task of tasks) {
 # Wait for all to complete, then verify
 ```
 
-### Pattern 5: Review Till Done (Iterative Review Loop)
-Best for: Code review that continues until no more issues found
+### Pattern 5: Till Done (Iterative Refinement Loop)
+Best for: Any task requiring repeated cycles until quality threshold met
 
-**Trigger phrases:** "review till done", "keep fixing until clean", "don't stop", **"yolo"** (as in: "just yolo this and make it perfect")
+**Trigger phrases:** "till done", "until clean", "keep going", "don't stop", **"yolo"**
 
-**Concept:** Loop between reviewer and fixer agents until reviewer returns "LGTM" or zero issues. The "yolo" signal specifically means: *don't ask for confirmation between rounds, just keep iterating until it's done or hits safety limits.*
+**Concept:** Loop between checker→fixer agents until checker returns "DONE" or zero issues. Generic pattern applicable to code review, tests, docs, refactoring, etc.
 
-**Pi Implementation:**
+**The "Yolo" Modifier:**
+When user says **"yolo"** with any pattern, it means:
+- Don't pause for human confirmation between cycles
+- Autonomously iterate until done or safety limit
+- Maximum autonomy, zero hand-holding
+
+Apply "yolo" to any pattern: Scout→Planner→Worker YOLO, Divide-and-Conquer YOLO, etc.
+
+**Generic Structure:**
+```
+Loop:
+  1. CHECKER validates current state → Issues?
+     ├── "DONE" → Exit loop
+     └── Issues list → Continue
+  2. FIXER addresses issues
+  3. (Optional) VERIFIER confirms fixes
+  4. Back to step 1 (with max rounds safety)
+```
+
+**Pi Implementation (Generic):**
 ```typescript
-await team_create({ team_name: "review-loop", description: "Iterative code review" });
+await team_create({ team_name: "refinement-loop", description: "Iterative till done" });
 
 let round = 1;
-let maxRounds = 5;
+const maxRounds = 5;
 let done = false;
 
 while (!done && round <= maxRounds) {
-  // REVIEW PHASE
+  // CHECK PHASE
   await spawn_teammate({
-    team_name: "review-loop",
-    name: `reviewer-r${round}`,
+    team_name: "refinement-loop",
+    name: `checker-r${round}`,
     cwd: projectPath,
-    prompt: `Review the current code in src/ for issues.
-Check: bugs, style violations, missing tests, security issues, performance problems.
-Return EXACTLY one of:
-1. "LGTM" - if no issues found
-2. A numbered list of specific issues with file paths and line numbers
-Do not provide explanations, just the list.`
+    prompt: `[DOMAIN-SPECIFIC CHECK]
+For code: Check src/ for bugs, style, tests. Return "DONE" or numbered issues.
+For tests: Run test suite. Return "DONE" (all pass) or failing test list.
+For docs: Check README completeness. Return "DONE" or missing sections.
+
+Always return machine-parseable:
+- "DONE" if complete
+- Numbered list of specific issues otherwise`
   });
 
-  // Wait and collect review results
-  const reviewResult = await waitForResult(`reviewer-r${round}`);
-
-  if (reviewResult.includes("LGTM") || reviewResult.trim() === "") {
+  const checkResult = await waitForResult(`checker-r${round}`);
+  
+  if (checkResult.includes("DONE") || checkResult.trim() === "") {
     done = true;
     break;
   }
 
   // FIX PHASE
   await spawn_teammate({
-    team_name: "review-loop",
+    team_name: "refinement-loop",
     name: `fixer-r${round}`,
     cwd: projectPath,
-    prompt: `Fix these specific issues in the code:
-${reviewResult}
+    prompt: `Address these issues:
+${checkResult}
 
-Apply fixes directly to files. After fixing, save and report which files were modified.`
+Apply fixes directly. Report what changed.`
   });
 
-  // Wait for fixes
   await waitForResult(`fixer-r${round}`);
-
   round++;
 }
 
-if (!done) {
-  console.log("Max review rounds reached. Manual intervention needed.");
-}
-
-await team_shutdown({ team_name: "review-loop" });
+await team_shutdown({ team_name: "refinement-loop" });
 ```
+
+**Domain-Specific Examples:**
+
+| Domain | Checker Prompt | Fixer Prompt | Done Signal |
+|--------|---------------|--------------|-------------|
+| **Code Review** | Review src/ for bugs, style, security. Return "DONE" or issues list. | Fix listed issues in code | "DONE" or empty |
+| **Tests** | Run `npm test`. Return "DONE" or failing test names. | Fix failing tests | "DONE" or all pass |
+| **Docs** | Check README covers setup, API, examples. Return "DONE" or gaps. | Add missing documentation | "DONE" |
+| **Refactor** | Check if migration complete (old API calls remain?). Return "DONE" or locations. | Replace old patterns | "DONE" |
 
 **Claude Code Implementation:**
 ```
-# Round 1
-/subagent reviewer "Review src/ for issues. Return 'LGTM' if clean, else numbered list of specific issues with file:line"
-# Wait for result...
-
-# If issues found:
-/subagent fixer "Fix these issues: [paste reviewer output]. Apply directly to files."
-# Wait for fixes...
-
-# Round 2 - re-review
-/subagent reviewer "Review src/ again. Return 'LGTM' if clean, else new issues list."
-# Repeat until LGTM or max rounds
+# YOLO mode: chain with no human between rounds
+/subagent checker "Check if task complete. Return 'DONE' or what remains."
+/subagent fixer "Fix what checker found. Apply directly."
+/subagent checker "Check again. Return 'DONE' or continue."
+# ...loop until DONE or max rounds
 ```
 
-**Key Rules for Reviewer Agent:**
-- Must return machine-parseable format ("LGTM" or numbered list)
-- Each issue needs file path and specific location
-- No prose — just actionable items
-- Can focus on specific domains: security-only, style-only, etc.
+**Checker Agent Rules:**
+- Return "DONE" (machine-parseable) when complete
+- Otherwise: numbered, specific, actionable issues
+- No prose — just pass/fail criteria
 
-**Key Rules for Fixer Agent:**
-- Apply fixes, don't just suggest them
-- Preserve existing patterns and conventions
-- Run tests/linting if available after fixes
-- Report what was changed
-
-**The "Yolo" Signal:**
-When user says **"yolo"** or **"just make it work"** in a review context, it means:
-- Don't pause for human confirmation between review/fix cycles
-- Autonomously iterate until LGTM or safety limit
-- Maximum autonomy within the loop constraints
+**Fixer Agent Rules:**
+- Apply fixes, don't just suggest
+- Preserve existing patterns
+- Run verification if available (tests, lint)
 
 **Stopping Conditions:**
-- Reviewer returns "LGTM"
+- Checker returns "DONE"
 - Empty issues list
 - Max rounds reached (safety valve)
-- Fixer makes no changes (reviewer found issues but fixer couldn't resolve)
+- Fixer makes no changes (stuck detection)
 
 ### Pattern 4: Predefined Expert Teams
 Best for: Leveraging established domain expertise across projects
@@ -407,15 +416,39 @@ Task complexity?
     ├── Needs exploration first? → Scout → Planner → Worker
     ├── Needs multiple perspectives? → Parallel Expert Panel
     ├── Can be split independently? → Divide and Conquer
-    └── Needs iterative refinement? → Review Till Done (review→fix→repeat)
+    └── Needs iterative refinement? → Till Done (checker→fixer loop)
 ```
 
-**Review Till Done** specifically:
+**Till Done Loop** (generic):
 ```
-Starting state: Code/files to review
 Loop:
-  1. Reviewer checks → Issues found?
-     ├── Yes → Fixer applies fixes → Go to step 1
-     └── No (LGTM) → Done
-Safety: Max 5 rounds, then escalate to human
+  1. CHECKER validates → Issues found?
+     ├── "DONE" → Exit successfully
+     └── Issues list → Continue
+  2. FIXER addresses issues
+  3. (Optional) VERIFIER confirms
+  4. Back to step 1
+Safety: Max 5 rounds or no-progress detection
 ```
+
+## Yolo as Pattern Modifier
+
+**"Yolo"** isn't just for Till Done — it's an autonomy modifier applicable to any pattern:
+
+| Base Pattern | YOLO Variant | Effect |
+|-------------|--------------|--------|
+| Scout → Planner → Worker | **Scout → Planner → Worker YOLO** | No human between stages; planner works from scout output directly, worker from planner design |
+| Divide and Conquer | **Divide and Conquer YOLO** | Spawn all workers at once; no individual progress checks until all done |
+| Expert Panel | **Expert Panel YOLO** | Don't summarize/consolidate; just return all expert outputs raw |
+| Till Done | **Till Done YOLO** | Autonomous looping without human between cycles |
+
+**When to YOLO:**
+- User explicitly says "yolo", "just make it work", "don't ask between steps"
+- Time pressure — overhead of human confirmation is too slow
+- Trust established — pattern has worked before on similar tasks
+- Batch processing — many similar items, no need for individual attention
+
+**When NOT to YOLO:**
+- High-stakes changes (production, security, money)
+- User wants to learn/understand each step
+- Novel situation — no precedent for autonomous decisions
