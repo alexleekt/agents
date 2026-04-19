@@ -64,8 +64,20 @@ Consider splitting into separate skills when:
 **Example:** `my-crawl4ai` (web scraping) and `my-tech-stack` (tooling preferences) are separate because they have different triggers and expertise, even though both relate to development workflows.
 
 ### Skill Naming Conventions
-- Personal conventions: `my-<thing>` (e.g., `my-tech-stack`)
-- General tools: descriptive name (e.g., `skill-creator`)
+**ALWAYS prefix skills with `my-`** for this repository.
+
+| Pattern | Example | Purpose |
+|---------|---------|---------|
+| `my-<thing>` | `my-tech-stack` | Personal preferences, conventions, workflows |
+| `my-<tool>` | `my-crawl4ai` | Personal tooling configurations |
+| `my-<domain>` | `my-jj-workflow` | Domain-specific expertise |
+
+**Rationale:** This is a personal skills repository. The `my-` prefix:
+- Clearly identifies these as personal/opinionated (not generic)
+- Avoids naming conflicts with public/community skills
+- Signals to other agents that these reflect personal preferences
+
+**No exceptions.** Even utility skills that might seem generic belong here with `my-` prefix because they're tuned to personal workflows.
 
 ### See Also
 - [[skill-distribution-manual-symlinks]] — Why we use manual symlinks

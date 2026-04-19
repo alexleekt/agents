@@ -77,12 +77,75 @@ Fish shell auto-colocates on first `jj` command in a git repo:
 # jj git init --colocate
 ```
 
-## Worktrees
+## Workspaces (Multiple Working Directories)
+
+jj uses "workspaces" (not worktrees) — separate working directories linked to the same repo:
 
 ```bash
-jj workspace add ../feature-worktree
-cd ../feature-worktree
-jj workspace forget ../feature-worktree
+# Create a new workspace
+jj workspace add ../feature-ws
+cd ../feature-ws
+
+# Remove when done
+jj workspace forget ../feature-ws
+```
+
+### Sparse Workspaces (Checkout Only What You Need)
+
+Sparse patterns control which files exist in each workspace's working copy — perfect for large repos or focused work.
+
+**Create sparse workspaces:**
+```bash
+# Empty workspace, add manually
+jj workspace add ../frontend-ws --sparse-patterns empty
+cd ../frontend-ws
+jj sparse set --add frontend/ --add README.md
+
+# Full checkout (default inherits parent's sparsity)
+jj workspace add ../full-ws --sparse-patterns full
+```
+
+**Manage sparse patterns:**
+```bash
+# See current patterns
+jj sparse list
+
+# Add paths to working copy
+jj sparse set --add src/ --add docs/
+
+# Remove paths (deletes from workspace, not repo)
+jj sparse set --remove tests/
+
+# Reset to full checkout
+jj sparse reset
+```
+
+**Sparse vs .gitignore:**
+
+| | `.gitignore` | `jj sparse` |
+|---|---|---|
+| **Purpose** | Prevents VCS tracking | Controls checkout presence |
+| **Scope** | All workspaces globally | Per-workspace only |
+| **Effect** | Files ignored from status | Files missing from disk |
+| **Use for** | Build artifacts, secrets, deps | Large repos, focused work |
+
+**Example workflow:**
+```bash
+# Main repo has everything
+~/project $ ls
+frontend/  backend/  docs/  assets/  .gitignore
+
+# Frontend workspace (only frontend + docs)
+~/project $ jj workspace add --sparse-patterns empty ../frontend-ws
+cd ../frontend-ws
+jj sparse set --add frontend/ --add docs/
+$ ls
+frontend/  docs/
+
+# Backend workspace (only backend)
+jj workspace add --sparse-patterns empty ../backend-ws
+cd ../backend-ws
+jj sparse set --add backend/
 ```
 
 ## Fish Abbreviations
