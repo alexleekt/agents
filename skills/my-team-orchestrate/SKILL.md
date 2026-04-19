@@ -1,14 +1,11 @@
 ---
 name: my-team-orchestrate
 description: |
-  **ALWAYS use when tasks exhibit:**
-  - **Scale:** "refactor entire codebase", "50+ files"
-  - **Complexity:** "needs exploration", "overwhelming"
-  - **Parallelism:** "work on X and Y separately"
-  - **Multi-domain:** "security review", "architecture"
-  - **Explicit:** "start a team", "delegate", "yolo"
+  **ALWAYS use when tasks exhibit:** Scale ("50+ files", "refactor everything"),
+  Complexity ("needs exploration"), Parallelism ("work on X and Y separately"),
+  Multi-domain ("security review"), OR user says "start a team", "delegate", "yolo".
 
-  **DO NOT use for:** single-file changes, one-step tasks, solo work preference.
+  **DO NOT use for:** single-file changes, one-step tasks, solo work.
 ---
 
 # Team Orchestration Skill
@@ -380,6 +377,16 @@ You are a security expert. Focus on:
 - Always terminate/close subagents when done
 - Save outputs before cleanup
 - Pi: `team_shutdown()` | Claude Code: Implicit on session end | Generic: Manual tracking
+
+## Cross-Skill References
+
+When reviewing code across multiple files, use `@skills/my-code-review` for:
+- Research-based recommendations
+- Build vs buy analysis
+- Test coverage requirements
+- Security/performance red flags
+
+The team patterns here handle orchestration; `my-code-review` handles the actual code quality analysis.
 
 ## Common Anti-Patterns (All Platforms)
 

@@ -1,14 +1,12 @@
 ---
 name: my-semantic-release
 description: |
-  **ALWAYS use when user mentions:** "release", "ship it", "cut a release", "changelog", 
-  "version bump", "semver", "conventional commit", or "what version should this be".
+  **ALWAYS use when user mentions:** "release", "ship it", "cut a release",
+  "changelog", "version bump", "semver", "conventional commit".
 
-  **DO NOT use for:** daily jj/git operations (status, diff, commit, push) —
-  use @skills/my-jj-workflow for version control workflows.
+  **DO NOT use for:** daily VCS operations — use @skills/my-jj-workflow.
 
   Automates semantic versioning, changelog generation, and release workflows.
-  Assumes jj or git for VCS operations.
 ---
 
 # My Semantic Release
@@ -122,6 +120,10 @@ Use this to write properly formatted commit messages that feed into release auto
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
+│  STEP 0: PRE-RELEASE VERIFICATION (Critical!)                 │
+│  └─> Run full check suite (biome, tests, typecheck)          │
+│      └─> Fix any format/lint issues BEFORE tagging           │
+├─────────────────────────────────────────────────────────────┤
 │  STEP 1: Semantic Versioning                                  │
 │  └─> Analyze commits since last tag                          │
 │      └─> Detect major/minor/patch (or none)                  │
@@ -137,6 +139,21 @@ Use this to write properly formatted commit messages that feed into release auto
 │  └─> Commit: "chore(release): X.Y.Z"                        │
 │      └─> Tag: vX.Y.Z                                         │
 └─────────────────────────────────────────────────────────────┘
+```
+
+**⚠️ CRITICAL: Pre-Release Verification**
+
+ALWAYS run full checks before tagging. CI failures after tagging require force-pushing the tag:
+
+```bash
+# Step 0: Verify everything passes BEFORE tagging
+just check  # or: npm run check, make check, etc.
+
+# Common pre-release failures:
+# 1. Biome format issues (package.json indentation, import sorting)
+# 2. Test failures
+# 3. TypeScript errors
+# 4. Missing test coverage
 ```
 
 **Concrete execution (example: 1.2.0 → 1.3.0):**
@@ -221,6 +238,55 @@ just release  # Tool also tries to create tag - conflict!
 **Advanced: Skip monitoring**
 ```bash
 RELEASE_NO_WATCH=1 just release  # Push tag but don't watch CI
+```
+
+## Common CI Failures & Recovery
+
+### Failure: Biome Format Errors
+
+**Symptom:** CI fails with "Formatter would have printed the following content"
+
+**Common causes:**
+- `jq` modified `package.json` with wrong indentation (2 spaces vs tabs)
+- New test files have unsorted imports
+- File saved without final newline
+
+**Fix:**
+```bash
+# Local fix
+just fix  # or: npx @biomejs/biome check --write .
+
+# Commit the fix
+jj commit -m "style: fix biome formatting"
+
+# Move tag to fixed commit (if already pushed)
+git tag -d vX.Y.X
+git tag -a vX.Y.X -m "Release vX.Y.X" <new-commit-hash>
+git push --force origin vX.Y.X
+```
+
+### Failure: Test Failures
+
+**Symptom:** CI fails during test phase
+
+**Fix:**
+```bash
+# Run tests locally
+just test
+
+# Fix failures, commit, retag
+```
+
+### Failure: TypeScript Errors
+
+**Symptom:** `npx tsc --noEmit` fails
+
+**Fix:**
+```bash
+# Check types locally
+npx tsc --noEmit --skipLibCheck
+
+# Fix errors, commit, retag
 ```
 
 ## Example Release Session

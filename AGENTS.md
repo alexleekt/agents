@@ -44,6 +44,8 @@ ln -sf ~/.agents/skills/<skill-name> ~/.claude/skills/<skill-name>
 ### Creating New Skills
 1. Create directory: `mkdir -p skills/<skill-name>`
 2. Write `skills/<skill-name>/SKILL.md`
+   - **CRITICAL:** Description must be ≤1024 characters (Pi constraint)
+   - Use `wc -c` to check: `head -20 SKILL.md | grep -A 100 "^description:" | wc -c`
 3. **Symlink to `~/.agents/skills/` (required):**
    ```bash
    ln -sf ~/agents/skills/<skill-name> ~/.agents/skills/<skill-name>

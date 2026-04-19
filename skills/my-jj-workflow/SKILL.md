@@ -1,17 +1,13 @@
 ---
 name: my-jj-workflow
 description: |
-  **ALWAYS use when user mentions:** "jj", "jujutsu", OR user implies VCS without naming
-  a specific tool ("commit", "what changed", "check status", "push to github", "worktree",
-  "branch", "merge", "rebase", "diff", "stash", "pull") when the user hasn't specified
-  a different VCS tool.
+  **ALWAYS use when user mentions:** "jj", "jujutsu", OR implies VCS without naming
+  a tool ("commit", "status", "diff", "push") when user hasn't specified git.
 
-  **Assumption:** When user says "commit" without specifying "git commit", they want
-  jj workflow, NOT git.
+  **Assumption:** "commit" without "git" prefix means jj, NOT git.
 
-  **DO NOT use for:** semantic versioning, changelog generation, release workflows,
-  OR when user explicitly mentions "git" as their preferred tool —
-  use @skills/my-semantic-release for those.
+  **DO NOT use for:** releases/semver (@skills/my-semantic-release) or when user
+  explicitly prefers git.
 
   **For all jj commands, see @skills/jujutsu**
 ---
@@ -26,10 +22,15 @@ description: |
 
 **Before any jj operation, verify:**
 1. ✅ This is a jj repo (`ls .jj` or `jj st` succeeds)
-2. ✅ Always use `-m` flag (never rely on editor)
+2. ✅ **CRITICAL: Always use `-m` flag for commits** (never rely on editor in non-interactive mode)
 3. ✅ Never use `jj split` (use patterns below)
 4. ✅ After `jj commit`, run `jj new` to continue
 5. ✅ Use `jj edit`, not `git checkout`
+
+**⚠️ NON-INTERACTIVE SAFETY:** In scripts/agents, `jj commit` without `-m` will abort or hang. Always use:
+   - `jj commit -m "message"`
+   - `jj describe -m "message"`
+   - `jj new -m "message"`
 
 **If stuck:** `EDITOR=cat timeout 10 jj <command>` (recovery only)
 
@@ -39,7 +40,7 @@ description: |
 
 | User says | Your exact steps |
 |-----------|------------------|
-| **"commit this"** | 1. `jj st` → 2. If no description: `jj describe -m "..."` → 3. `jj commit -m "..."` → 4. `jj new -m "wip: next"` |
+| **"commit this"** | 1. `jj st` → 2. If no description: `jj describe -m "..."` → 3. `jj commit -m "..."` (⚠️ `-m` required!) → 4. `jj new -m "wip: next"` |
 | **"what changed?"** | `jj st` then `jj diff` |
 | **"check status"** | `jj st` |
 | **"split this" / "break into commits"** | 1. `jj diff --summary` → 2. `ask_user` how to split → 3. Use [Split Workflow](#split-workflow) below |
@@ -64,13 +65,17 @@ description: |
 # Step 1: Check current state
 jj st
 
-# Step 2: If changes exist but no description, describe them
+# Step 2: Run pre-commit checks (if project has them)
+just check 2>/dev/null || npm test 2>/dev/null || echo "No checks configured"
+# Fix any issues before committing!
+
+# Step 3: If changes exist but no description, describe them
 jj describe -m "feat(scope): what this does"
 
-# Step 3: Commit
+# Step 4: Commit
 jj commit -m "feat(scope): what this does"
 
-# Step 4: CRITICAL - Create new change for next work
+# Step 5: CRITICAL - Create new change for next work
 jj new -m "wip: next task"
 # (Or just `jj new` if you want to describe later)
 ```
@@ -198,6 +203,33 @@ jj sparse set --add src/auth/ --add README.md
 jj workspace forget ../feature-ws
 ```
 
+### Workflow 7: Pre-Push Verification
+
+**ALWAYS run this before pushing to CI/CD or releasing:**
+
+```bash
+# Step 1: Check for any uncommitted changes
+jj st
+
+# Step 2: Run full check suite (project-specific)
+just check 2>/dev/null || npm test 2>/dev/null || cargo test 2>/dev/null
+
+# Common checks that must pass:
+# ✅ Biome/Prettier formatting (no "would have printed" errors)
+# ✅ Linting (no warnings/errors)
+# ✅ Tests (all pass)
+# ✅ TypeScript typecheck (no errors)
+
+# Step 3: If any checks fail, fix before pushing
+just fix 2>/dev/null || npx @biomejs/biome check --write .
+jj commit -m "style: fix formatting"
+
+# Step 4: Now safe to push/release
+just release  # or: git push, jj git push, etc.
+```
+
+**Why this matters:** CI failures after tagging require force-pushing the tag, which is messy and risks race conditions with npm registry.
+
 ---
 
 ## Error Recovery
@@ -234,6 +266,29 @@ RECOVERY:
 WARNING: EDITOR=cat creates empty messages. Fix immediately with:
    jj describe -m "proper message"  # if not committed
    # or edit @- and squash if already committed
+```
+
+### Problem: `jj commit` Aborts in Non-Interactive Mode
+
+```
+WHAT HAPPENED: Ran `jj commit` without `-m` flag in non-interactive mode
+
+SYMPTOM: Command aborts with "Command aborted" or hangs indefinitely
+
+RECOVERY:
+1. Check if commit actually happened:
+   jj log --limit 3
+
+2. If not committed, retry with `-m` flag:
+   jj commit -m "feat: actual message"
+
+3. If partially committed (change ID changed), check status:
+   jj st
+
+PREVENTION: ALWAYS use `-m` flag in scripts/automation:
+   ✅ jj commit -m "feat: x"
+   ✅ jj commit --message "feat: x"
+   ❌ jj commit  # Never use without -m in non-interactive mode
 ```
 
 ### Problem: "No .jj Directory Found"

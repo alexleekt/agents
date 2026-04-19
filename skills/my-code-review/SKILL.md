@@ -169,6 +169,15 @@ Specific praise. Trust comes from honesty.
 3. **Codebase patterns** — grep for consistency with existing code
 4. **Community guides** — With clear attribution
 
+## Multi-File Reviews
+
+For reviews spanning many files, use `@skills/my-team-orchestrate` to:
+- Spawn parallel review agents for different modules
+- Coordinate findings across the codebase
+- Apply "Till Done" pattern for iterative review cycles
+
+Example: "Review this entire codebase" → Use team orchestration with checker/fix loops.
+
 ## Red Flags (always catch)
 
 - [ ] Unvalidated user input → database

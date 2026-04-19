@@ -2,21 +2,14 @@
 name: my-tech-stack
 description: |
   **MANDATORY REFERENCE** for all tool recommendations. ALWAYS consult BEFORE
-  recommending tools, libraries, frameworks, or technologies.
+  suggesting tools, libraries, frameworks, or technologies.
 
-  **ALWAYS use when user asks about:**
-  - Preferred tools/libraries ("what should I use for...")
-  - Technology recommendations ("bun or node", "uv or pip", "terraform or pulumi")
-  - Stack decisions, tooling choices
+  **ALWAYS use when user asks about:** preferred tools, tech recommendations
+  ("bun or node", "uv or pip"), or stack decisions.
 
-  **DO NOT use when:**
-  - User already specified a tool (respect their choice)
-  - Topic is about HOW to use a tool (behavioral) vs WHICH tool (stack)
-  - Agent configuration needed → use @skills/my-agent-rules
-  - Version control operations → use @skills/my-jj-workflow
+  **DO NOT use for:** agent configuration (@skills/my-agent-rules) or VCS
+  operations (@skills/my-jj-workflow).
 
-  Contains explicit preferences: bun, TypeScript, uv, zed, biome, cloudflare,
-  terraform, k3s, bitwarden, fish (interactive), zsh (scripts).
   **CRITICAL:** Do NOT suggest unlisted tools without asking first.
 ---
 
@@ -57,7 +50,15 @@ When working with this user:
 
 | Tool | When to Use |
 |------|-------------|
-| [**opencode**](https://opencode.ai/) | AI coding agent harness; preferred for agent-driven development workflows |
+| [**pi-coding-agent**](https://github.com/mariozechner/pi) | **Primary coding agent** — preferred harness for agent-driven development |
+| [**opencode**](https://opencode.ai/) | Alternative agent harness; use when pi is unavailable |
+
+### AI Providers
+
+| Provider | When to Use |
+|----------|-------------|
+| [**fireworks**](https://fireworks.ai/) | **Default LLM provider** — fast inference, FirePass intelligent routing, cost-effective |
+| [**firepass**](https://fireworks.ai/models?show=Serverless&filters=firepass) | Intelligent model routing; automatically selects optimal model for the task |
 
 ### Code Quality
 
@@ -83,7 +84,18 @@ When working with this user:
 
 | Tool | When to Use |
 |------|-------------|
-| [**httpie**](https://github.com/httpie/cli) | Testing APIs, making HTTP requests, debugging endpoints; preferred over curl for readability |
+| [**httpie**](https://github.com/httpie/cli) | **Default for API work** — testing APIs, debugging endpoints, agent workflows; natural syntax, auto JSON formatting |
+| **curl** | Production scripts, CI/CD pipelines, binary data handling, systems where Python isn't available |
+
+**httpie vs curl decision guide:**
+| Situation | Use |
+|-----------|-----|
+| API exploration, debugging | **httpie** — `http GET api.example.com/users page==1` |
+| Production deployment scripts | **curl** — universally available, reliable exit codes |
+| Agent-driven workflows | **httpie** — more readable in logs, less flag memorization |
+| JSON-heavy APIs | **httpie** — native JSON support, auto-pretty-printing |
+| Binary file downloads | **curl** — more robust for non-text data |
+| CI/CD pipelines | **curl** — no dependency on Python/HTTPie |
 
 ### Security & Secrets
 
@@ -139,7 +151,7 @@ These tools are for learning and experimentation, not production use:
 | [**gridland**](https://www.gridland.io/) | Building terminal apps with React and OpenTUI; works in both browser and terminal |
 | [**endeavouros**](https://endeavouros.com/) | Arch-based Linux distribution; exploring as alternative desktop/server OS |
 | [**json-render**](https://github.com/vercel-labs/json-render) | Rendering JSON as UI components; quick admin dashboards |
-| [**mulch**](https://github.com/jayminwest/mulch) | Structured expertise management for AI agents |
+| [**memex**](https://github.com/iamtouchsky/memex) | Zettelkasten-based agent memory with bidirectional links; installed as pi package |
 | [**smolvm**](https://github.com/smol-machines/smolvm) | MicroVMs for sandboxing untrusted code, portable executables, isolated dev environments |
 | [**mastra**](https://github.com/mastra-ai/mastra) | Building AI agents, orchestrating LLM workflows |
 | [**rust**](https://www.rust-lang.org/) | Systems programming, performance-critical apps, WebAssembly, CLI tools |
@@ -190,9 +202,9 @@ Example:
 
 ## Versioning
 
-- **Last updated:** 2026-04-19
-- **Version:** 1.3
-- **Update notes:** Removed scope bloat (VCS content moved to my-jj-workflow), improved triggers with ALWAYS/DO NOT pattern
+- **Last updated:** 2026-04-22
+- **Version:** 1.6
+- **Update notes:** Added AI Providers section with fireworks/firepass as default LLM provider; pi-coding-agent as primary agent; memex replacing mulch
 
 ## Related Skills
 
