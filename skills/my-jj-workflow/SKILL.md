@@ -67,7 +67,37 @@ Personal workflow patterns for jujutsu (jj). For full command reference, see **@
 
 **❌ Interactive (avoid in agents):** `jj split`, `jj describe` (without `-m`), `jj commit` (without `-m`)
 
-**⚠️ Nuclear option:** `EDITOR=cat jj <command>` forces non-interactive mode
+### Emergency Non-Interactive Mode
+
+If an editor opens unexpectedly or a command gets stuck, use `EDITOR=cat`:
+
+```bash
+# Force non-interactive mode (accepts empty/placeholder message)
+EDITOR=cat jj commit
+```
+
+**⚠️ WARNING: Don't use as default!** This creates empty/placeholder messages and hides mistakes. Always prefer `-m` flag.
+
+**When to use `EDITOR=cat`:**
+- Editor opened accidentally (forgot `-m` flag) — recovery only
+- Command hanging waiting for input — unblocking only
+
+**Better prevention:** Use `-m` flag consistently:
+```bash
+# ✅ Correct: Always use -m
+jj describe -m "feat: description"
+jj commit -m "feat: description"
+
+# ❌ Wrong: Relies on editor (hangs in agents)
+jj describe
+jj commit
+```
+
+After using `EDITOR=cat`, fix empty messages:
+```bash
+jj describe -m "proper message"  # If not yet committed
+# Or if already committed with bad message, use amend pattern
+```
 
 ---
 
@@ -434,6 +464,7 @@ abbr -a jsw 'jj workspace add'
 | Need to split interactively | Use [agent patterns](#handling-split-and-interactive-commands) above, or use git in colocated repo |
 | Accidentally used git commit | Run `jj undo` if immediately after, or manually recover from jj op log |
 | Editor opens (vim/nano) | Cancel with `:q!` or Ctrl+C, then retry with `-m` flag: `jj commit -m "msg"` |
+| Command stuck/hanging | `EDITOR=cat jj <command>` to force non-interactive completion |
 | "command not found: jj" | jj not installed; use git instead |
 | "nothing changed" after commit | Working copy is empty (normal jj behavior); changes were committed |
 
@@ -449,6 +480,17 @@ abbr -a jsw 'jj workspace add'
 
 # Then:
 jj describe -m "feat: actual message"
+```
+
+**Problem: Command is stuck/hanging**
+```bash
+# What happened: Forgot `-m` flag, command waiting for editor/input
+# Solution: Force non-interactive mode
+
+EDITOR=cat jj commit
+
+# Or in another terminal:
+kill -9 <pid>  # then retry with -m flag
 ```
 
 **Problem: Change already has description, need to commit**
