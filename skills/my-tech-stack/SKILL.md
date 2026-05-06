@@ -19,6 +19,41 @@ Preferred tools and technologies. Defaults, not hard rules.
 
 > **Note:** This is a living document. Preferences evolve as new tools emerge and requirements change. Check the latest version before making decisions.
 
+## ⚡ Quick Start
+
+**Starting a new project?** Default stack:
+
+```bash
+# JavaScript/TypeScript
+bun init              # Runtime + package manager
+biome init            # Lint + format
+just --init           # Task runner (optional)
+
+# Python
+uv init               # Python project + deps
+uv add pytest         # Testing
+
+# Version control
+jj git init --colocate  # Or git init
+```
+
+**Quick decision guide:**
+| Need | Use |
+|------|-----|
+| JS/TS runtime | **bun** |
+| Python packages | **uv** |
+| Lint/format | **biome** (JS/TS) |
+| Search code | **ripgrep** (`rg`) |
+| Find files | **fd** |
+| Tasks | **just** |
+| Editor | **zed** |
+
+## Prerequisites
+
+- **OS:** macOS (desktop), Ubuntu (servers)
+- **Shell:** Any (examples work in bash/zsh/fish)
+- **Package managers:** Homebrew (macOS), system package manager (Linux)
+
 ## How to Use This
 
 When working with this user:
@@ -199,6 +234,24 @@ When project requirements conflict with these preferences:
 
 Example:
 > "The project uses npm instead of bun (your preferred package manager). I'll proceed with npm for consistency with the existing codebase."
+
+## Troubleshooting
+
+**Tool not available?**
+→ Check if it's in the "Exploring" section (learning only, not production-ready)
+→ For missing tools, ask user before installing
+
+**Preference conflicts with project requirements?**
+→ Always follow project requirements
+→ Document the deviation: "Using npm instead of preferred bun"
+
+**Unclear which tool to use?**
+→ Check "Quick Decision Reference" section
+→ When in doubt, ask before adding new dependencies
+
+**Version conflicts between tools?**
+→ Use **mise** for version management
+→ Pin versions in project config files
 
 ## Versioning
 

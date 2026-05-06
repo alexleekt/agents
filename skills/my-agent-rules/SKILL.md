@@ -16,6 +16,48 @@ description: |
 
 # Agent File Conventions
 
+## ⚡ Quick Start
+
+**Creating an AGENT.md file:**
+
+```bash
+# Check if agent files already exist
+ls -la AGENT.md .agent/claude.md 2>/dev/null || echo "No agent files found"
+
+# Create AGENT.md in project root
+cat > AGENT.md << 'EOF'
+# Agent Guidelines
+
+## Communication Style
+- Be direct and to the point
+- Ask clarifying questions when requirements are unclear
+
+## Code Conventions
+- Follow existing conventions in the project
+- Use TypeScript for all new files
+
+## Workflow Rules
+- Always run tests before committing
+- Ask before installing new dependencies
+
+## Tool Usage
+- Use Edit tool for precise changes
+- Prefer grep over manual file reading
+EOF
+```
+
+**Quick Check - Does this belong in AGENT.md?**
+- ✅ Behavioral rules → YES
+- ❌ Project description → NO (use README.md)
+- ❌ Architecture docs → NO (use ARCHITECTURE.md)
+- ❌ Feature specs → NO (use issues/PRs)
+
+## Prerequisites
+
+- Understanding of project structure
+- Knowledge of agent tools available (read, edit, grep, etc.)
+- Familiarity with `@skills/my-tech-stack` for tech preferences
+
 ## Overview
 
 Agent configuration files (`AGENT.md`, `claude.md`, etc.) define **behavioral rules** for AI agents — how to work with a project.

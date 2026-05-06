@@ -1,5 +1,16 @@
 # Agent Guidelines: Saddle Skills Repository
 
+**Quick reference for skill creation and management.**
+
+## Table of Contents
+
+- [Scope](#scope)
+- [Environment Awareness](#environment-awareness)
+- [Workflow Rules](#workflow-rules)
+- [Skill Representatives Team](#skill-representatives-team)
+- [Tool-Specific Notes](#tool-specific-notes)
+- [Communication Style](#communication-style)
+
 ## Scope
 These rules apply when working in the `~/agents/` directory and its subdirectories.
 
@@ -82,9 +93,9 @@ Consider splitting into separate skills when:
 **No exceptions.** Even utility skills that might seem generic belong here with `my-` prefix because they're tuned to personal workflows.
 
 ### See Also
-- [[skill-distribution-manual-symlinks]] — Why we use manual symlinks
-- [[skill-separation-of-concerns]] — When to split skills
-- [[skill-representatives-team]] — Multi-domain discussion team
+- **skill-distribution-manual-symlinks** — Why we use manual symlinks (Memex reference)
+- **skill-separation-of-concerns** — When to split skills (Memex reference)
+- **skill-representatives-team** — Multi-domain discussion team (Memex reference)
 
 ## Skill Representatives Team
 

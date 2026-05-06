@@ -13,6 +13,27 @@ description: |
 
 Automate semantic versioning, changelog generation, and release workflows.
 
+## ⚡ Quick Start
+
+**Quick version bump check:**
+```bash
+# Analyze commits since last tag
+git log v1.2.0..HEAD --format='%s' | grep -E '^feat:|^fix:'
+git log v1.2.0..HEAD --format='%b' | grep 'BREAKING CHANGE'
+
+# Decision:
+# - BREAKING CHANGE present → MAJOR (1.2.0 → 2.0.0)
+# - feat: present → MINOR (1.2.0 → 1.3.0)
+# - fix: present → PATCH (1.2.0 → 1.2.1)
+```
+
+**Quick release workflow:**
+1. Update CHANGELOG.md with new version section
+2. Bump version in package.json / Cargo.toml / etc.
+3. Commit: `chore(release): X.Y.Z`
+4. Tag: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
+5. Push: `git push origin main && git push origin vX.Y.Z`
+
 ## Overview
 
 This skill provides workflows for:

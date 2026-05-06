@@ -36,6 +36,13 @@ description: |
 
 ---
 
+## Prerequisites
+
+- **jj** — Jujutsu VCS (install: `cargo install jj` or package manager)
+- **git** — For push/pull to GitHub/GitLab (jj uses git as backend)
+- **Shell** — Any POSIX-compatible shell (bash, zsh, fish)
+- **Optional: just** — For pre-commit check examples
+
 ## Decision Guide: User Says → You Do
 
 | User says | Your exact steps |

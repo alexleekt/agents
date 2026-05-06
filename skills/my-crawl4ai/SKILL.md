@@ -29,6 +29,13 @@ uv add "crawl4ai[basic,browser,markdown]"
 uv run python -c "import crawl4ai; crawl4ai.setup()"
 ```
 
+## Prerequisites
+
+- **uv** — Python package manager (install: `curl -LsSf https://astral.sh/uv/install.sh | sh`)
+- **just** — Task runner (optional, install: `cargo install just` or package manager)
+- **Shell** — bash, zsh, or fish (all examples are POSIX-compatible)
+- **Disk space** — ~200MB for browser binaries (downloaded once)
+
 ## Reference Files
 
 This skill references detailed guides for specific situations:

@@ -21,8 +21,8 @@ Multi-agent delegation patterns for any system with subagent support.
 | "refactor everything" / "50+ files" | Divide and Conquer | Pattern 3 |
 | "explore first, then build" | Scout → Planner → Worker | Pattern 1 |
 | "security + performance review" | Expert Panel | Pattern 2 |
-| "keep fixing till clean" / "yolo" | Till Done | Pattern 5 |
-| "use my expert team" | Predefined Teams | Pattern 4 |
+| "keep fixing till clean" / "yolo" | Till Done | Pattern 4 |
+| "use my expert team" | Predefined Teams | Pattern 5 |
 
 **Platform notes:**
 - **Pi:** Use `team_*` tools (`team_create`, `spawn_teammate`, `send_message`)
@@ -42,6 +42,12 @@ Don't wait for users to say "start a team". Recognize when tasks *need* teams:
 | **Time pressure** | "need this fast", "urgent", "many moving parts" | Any parallel pattern |
 
 **Key insight:** Users rarely say "I want to delegate this." They say "this is overwhelming" or "this touches everything." Those are the triggers.
+
+## Prerequisites
+
+- **Subagent support** — Platform must support spawning agents (Pi, Claude Code, etc.)
+- **Task decomposability** — Task can be broken into smaller, delegable pieces
+- **Coordination mechanism** — Shared inbox, file-based status, or direct messaging
 
 ## Core Patterns (Platform-Agnostic)
 
@@ -182,7 +188,7 @@ for (const task of tasks) {
 # Wait for all to complete, then verify
 ```
 
-### Pattern 5: Till Done (Iterative Refinement Loop)
+### Pattern 4: Till Done (Iterative Refinement Loop)
 Best for: Any task requiring repeated cycles until quality threshold met
 
 **Trigger phrases:** "till done", "until clean", "keep going", "don't stop", **"yolo"**
@@ -291,7 +297,7 @@ await team_shutdown({ team_name: "refinement-loop" });
 - Max rounds reached (safety valve)
 - Fixer makes no changes (stuck detection)
 
-### Pattern 4: Predefined Expert Teams
+### Pattern 5: Predefined Expert Teams
 Best for: Leveraging established domain expertise across projects
 
 **Concept:** Maintain reusable agent definitions for common roles (security, performance, DX, etc.)

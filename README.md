@@ -2,6 +2,17 @@
 
 This directory contains **skills** that guide how AI agents work with your projects. Skills are modular, reusable expertise modules that agents consult automatically based on triggers.
 
+**New to skills?** See [Getting Started](#getting-started) below, then read `AGENTS.md` for creation guidelines.
+
+## Table of Contents
+
+- [Directory Structure](#directory-structure)
+- [Skills Overview](#skills-overview)
+- [Getting Started](#getting-started)
+- [For AI Agents](#for-ai-agents)
+- [For Users](#for-users)
+- [Legacy Note](#legacy-note)
+
 ## Directory Structure
 
 ```
@@ -32,6 +43,31 @@ agents/
 | `my-semantic-release` | "release", "changelog", "semver" | Semantic versioning and release workflows |
 | `my-team-orchestrate` | "start a team", "delegate", "50+ files" | Multi-agent delegation patterns |
 | `my-tech-stack` | "what should I use", "bun or node" | Preferred tools and technology recommendations |
+
+## Getting Started
+
+**Quick setup for new users:**
+
+1. **Clone this repo:**
+   ```bash
+   git clone https://github.com/alexleekt/agents.git ~/agents
+   ```
+
+2. **Symlink skills for Pi:**
+   ```bash
+   mkdir -p ~/.agents/skills
+   ln -sf ~/agents/skills/* ~/.agents/skills/
+   ```
+
+3. **Verify setup:**
+   ```bash
+   ls ~/.agents/skills/  # Should show: my-agent-rules, my-code-review, etc.
+   ```
+
+**Creating your first skill:**
+- Read `AGENTS.md` → "Creating New Skills" section
+- Description must be **≤1024 characters** (Pi constraint)
+- Use `wc -c` to check: `head -20 SKILL.md | grep -A 100 "^description:" | wc -c`
 
 ## For AI Agents
 

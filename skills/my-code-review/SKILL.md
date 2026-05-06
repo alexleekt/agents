@@ -1,20 +1,52 @@
 ---
 name: my-code-review
 description: |
-  **ALWAYS use when user mentions:** "code review", "review this", "PR review", 
+  **ALWAYS use when user mentions:** "code review", "review this", "PR review",
   "check my code", "critique", "how should I write this", "raise the bar".
 
-  Elevates code. Researches modern best practices FIRST, then delivers 
-  specific, actionable recommendations. No generic advice—only evidence-backed 
+  Elevates code. Researches modern best practices FIRST, then delivers
+  specific, actionable recommendations. No generic advice—only evidence-backed
   improvements that raise the bar.
 
-  **DO NOT use for:** debugging specific bugs (use debug skills), explaining 
+  **DO NOT use for:** debugging specific bugs (use debug skills), explaining
   how code works (use docs), or general coding questions without review intent.
 ---
 
 # my-code-review
 
 Research. Analyze. Elevate.
+
+## ⚡ Quick Start
+
+**Before reviewing any code:**
+
+1. **Check for project tests** — `find . -name '*.test.*' -o -name '*.spec.*' | head -5`
+2. **Identify tech stack** — Check package.json, Cargo.toml, pyproject.toml
+3. **Research patterns** — Use `context7_get_library_docs` for unfamiliar libraries
+4. **Follow the workflow:**
+   ```
+   RESEARCH → ANALYZE → ELEVATE
+   ```
+
+**Output format:**
+```markdown
+## Critical (fix now)
+**[Issue]** — Clear description
+- **Why**: Impact + evidence
+- **Fix**: Before/After code blocks
+
+## Warning (fix soon)
+...
+
+## Suggestion (consider)
+...
+```
+
+## Prerequisites
+
+- Project context (language, framework, key libraries)
+- Access to authoritative docs (via context7)
+- Understanding of existing codebase patterns
 
 ## Workflow
 
@@ -188,6 +220,22 @@ Example: "Review this entire codebase" → Use team orchestration with checker/f
 - [ ] Memory leaks in long-running processes
 - [ ] Sensitive data in logs/errors
 - [ ] **New code without tests (when project has tests)**
+
+## Troubleshooting
+
+**Review feels overwhelming?**
+→ Use `@skills/my-team-orchestrate` to divide large reviews into focused checks
+
+**Can't find authoritative docs?**
+→ Check similar code in the codebase (consistency > perfection)
+
+**Unclear if issue is critical?**
+→ Ask: "Does this affect security, data loss, or core functionality?"
+→ If yes: Critical. If no: Warning or Suggestion.
+
+**Build vs Buy decision unclear?**
+→ Default to "buy" for: auth, crypto, date math, parsing
+→ Default to "build" for: domain-specific logic
 
 ## When Context Is Unclear
 
