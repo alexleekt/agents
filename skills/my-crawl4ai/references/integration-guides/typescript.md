@@ -146,13 +146,13 @@ Separate concerns: crawler runs independently, TypeScript app consumes results.
 ### Architecture
 
 ```
-~/projects/crawler/          (Python + uv)
+crawler-project/              (Python + uv)
 ├── src/
 │   └── scheduled-crawl.ts    # Runs on cron/schedule
 └── data/
     └── raw/                  # Markdown outputs
 
-~/projects/my-app/            (TypeScript + bun)
+my-app/                       (TypeScript + bun)
 ├── scripts/
 │   └── sync-crawl-data.ts    # Pulls data from crawler
 └── data/
@@ -164,7 +164,7 @@ Separate concerns: crawler runs independently, TypeScript app consumes results.
 Runs on schedule (cron, GitHub Actions, etc.):
 
 ```python
-# ~/projects/crawler/src/scheduled-crawl.py
+# crawler-project/src/scheduled-crawl.py
 import asyncio
 from pathlib import Path
 from crawl4ai import AsyncWebCrawler
@@ -191,12 +191,12 @@ if __name__ == "__main__":
 ### Sync Script (TypeScript)
 
 ```typescript
-// ~/projects/my-app/scripts/sync-crawl-data.ts
+// my-app/scripts/sync-crawl-data.ts
 import { $ } from "bun";
 
 async function syncCrawlData() {
     // Pull latest crawled data
-    await $`rsync -av ~/projects/crawler/data/raw/ ./data/crawled/`;
+    await $`rsync -av ../crawler-project/data/raw/ ./data/crawled/`;
     
     // Process into your app's format
     const files = await $`ls ./data/crawled/*.md`.lines();
@@ -219,7 +219,7 @@ await syncCrawlData();
 ### Justfile Integration
 
 ```just
-# ~/projects/my-app/justfile
+# my-app/justfile
 
 # Sync latest crawled data
 sync-crawl:

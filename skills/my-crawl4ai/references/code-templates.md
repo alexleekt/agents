@@ -424,7 +424,7 @@ if __name__ == "__main__":
 
 ## Justfile Tasks for Templates
 
-Add to your `~/projects/crawler/justfile`:
+Add to your `justfile`:
 
 ```just
 # Run quick single-page crawl

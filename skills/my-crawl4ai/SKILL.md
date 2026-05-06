@@ -9,13 +9,12 @@ description: |
   testing web apps) — use @skills/agent-browser for those.
 
   Set up and use crawl4ai for web crawling/scraping using uv, just, and project-based workflows.
-  Assumes uv for Python, just for tasks, Fish shell, and mise for version management.
-  For TypeScript/Node projects, provides CLI/MCP integration patterns.
+  Assumes uv for Python and just for task automation.
 ---
 
 # crawl4ai
 
-Web crawling with crawl4ai using your preferred stack: uv, just, Fish, and mise.
+Web crawling with crawl4ai using modern Python tooling: uv, just, and project-based workflows.
 
 ## Quick Start
 
@@ -24,7 +23,7 @@ Web crawling with crawl4ai using your preferred stack: uv, just, Fish, and mise.
 uvx --from crawl4ai crwl https://example.com --format markdown
 
 # Project-based setup (recommended)
-mkdir -p ~/projects/crawler && cd ~/projects/crawler
+mkdir -p ./my-crawler && cd ./my-crawler
 uv init --name crawler --python 3.12
 uv add "crawl4ai[basic,browser,markdown]"
 uv run python -c "import crawl4ai; crawl4ai.setup()"
@@ -50,7 +49,7 @@ This skill references detailed guides for specific situations:
 | Situation | Approach |
 |-----------|----------|
 | Quick one-page crawl | **uvx CLI** — `uvx --from crawl4ai crwl URL` |
-| Regular crawling needs | **Python API** — project at `~/projects/crawler/` |
+| Regular crawling needs | **Python API** — dedicated project directory |
 | From TypeScript project | **uvx via `bun.$`** or **MCP server** |
 | Isolated/containerized | **Docker** — `unclecode/crawl4ai:latest` |
 
@@ -63,8 +62,8 @@ Read `references/setup-workflow.md` for detailed steps.
 ### 1. Create Project
 
 ```bash
-mkdir -p ~/projects/crawler
-cd ~/projects/crawler
+mkdir -p ./my-crawler
+cd ./my-crawler
 uv init --name crawler --python 3.12
 ```
 
@@ -87,7 +86,7 @@ uv run python -c "import crawl4ai; crawl4ai.setup()"
 ### 4. Create Justfile
 
 ```just
-# ~/projects/crawler/justfile
+# justfile
 
 _default:
     @just --list
@@ -179,24 +178,33 @@ const crawlResult = await mcpClient.call("crawl", { url, format: "markdown" });
 
 ### Option 3: Data Pipeline
 
+Separate crawler project and TypeScript app sharing data directory:
+
 ```bash
-# ~/projects/crawler/ (Python) runs on schedule
-# ~/projects/my-app/ (TypeScript) reads ./data/
+# Crawler project (Python + uv) runs on schedule
+# TypeScript app reads from shared data location
 
 # justfile in TS project:
 sync-crawl-data:
-    rsync -av ~/projects/crawler/data/ ./data/
+    rsync -av ./crawler-data/raw/ ./data/crawled/
 ```
 
 ---
 
-## Fish Shell Integration (Optional)
+## Shell Integration (Optional)
 
-Add to `~/.config/fish/conf.d/abbreviations.fish`:
+Add to your shell configuration (e.g., `.bashrc`, `.zshrc`, `config.fish`):
 
-```fish
+```bash
 # System-wide: quick crawls from any directory
-abbr -a crawl 'uvx --from crawl4ai crwl'
+alias crawl='uvx --from crawl4ai crwl'
+```
+
+Or for project-specific:
+
+```bash
+# Project-based: requires justfile in project directory
+alias crawl-proj='cd ./my-crawler && just crawl'
 ```
 
 ---
@@ -245,8 +253,8 @@ abbr -a crawl 'uvx --from crawl4ai crwl'
 ## Project Structure Reference
 
 ```
-~/projects/crawler/
-├── .python-version          # mise-managed
+./my-crawler/
+├── .python-version          # Python version file
 ├── pyproject.toml           # uv project config
 ├── justfile                 # Task automation
 ├── README.md

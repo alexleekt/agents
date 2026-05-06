@@ -297,8 +297,7 @@ PREVENTION: ALWAYS use `-m` flag in scripts/automation:
 CAUSE: Not a jj repo yet
 
 SOLUTION:
-1. If git repo exists: First `jj` command auto-colocates (Fish shell)
-   Or run: jj git init --colocate
+1. If git repo exists: Run `jj git init --colocate` to set up jj alongside git
 
 2. If new project: jj git init
 ```
@@ -405,7 +404,7 @@ jj_with_retry() {
 |-----------|------|
 | Daily work | jj |
 | Push to GitHub | git push or jj git push |
-| Clone | git clone → auto-colocate |
+| Clone | git clone → then `jj git init --colocate` |
 | Submodules | git (jj limited) |
 | Complex split | git (jj split is interactive) |
 

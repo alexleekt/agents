@@ -1,18 +1,17 @@
 # Setup Workflow
 
-Complete step-by-step guide for setting up crawl4ai with uv, just, and Fish.
+Complete step-by-step guide for setting up crawl4ai with uv and just.
 
 ## Prerequisites
 
-- `uv` installed (via mise: `mise use uv`)
-- `just` installed
-- Fish shell configured
+- `uv` installed (Python package manager)
+- `just` installed (task runner)
 
 ## Step 1: Create Project Directory
 
 ```bash
-mkdir -p ~/projects/crawler
-cd ~/projects/crawler
+mkdir -p ./my-crawler
+cd ./my-crawler
 ```
 
 ## Step 2: Initialize uv Project
@@ -62,7 +61,7 @@ just setup-browser
 
 ## Step 5: Create Justfile
 
-Create `~/projects/crawler/justfile`:
+Create `justfile` in project root:
 
 ```just
 # Default recipe - list all tasks
@@ -162,29 +161,32 @@ just example
 just crawl https://example.com
 ```
 
-## Step 9: Add Fish Abbreviations
+## Step 9: Add Shell Aliases (Optional)
 
-Edit `~/.config/fish/conf.d/abbreviations.fish`:
+Add to your shell configuration:
 
-```fish
+```bash
 # System-wide: quick crawls from any directory
-abbr -a crawl 'uvx --from crawl4ai crwl'
-# Project-based: requires justfile in ~/projects/crawler/
+alias crawl='uvx --from crawl4ai crwl'
+
+# Project-based: requires justfile in project directory
+alias crawl-proj='cd ./my-crawler && just crawl'
 ```
 
-Reload Fish:
-```bash
-source ~/.config/fish/conf.d/abbreviations.fish
+For Fish shell, use `abbr` instead of `alias`:
+
+```fish
+abbr -a crawl 'uvx --from crawl4ai crwl'
 ```
 
 ## Verification Checklist
 
-- [ ] `cd ~/projects/crawler` exists and has `pyproject.toml`
+- [ ] Project directory exists and has `pyproject.toml`
 - [ ] `uv sync` completes without errors
 - [ ] `just --list` shows available tasks
-- [ ] Browser setup completes (run `just setup-browser` in project, or `uv run python -c "import crawl4ai; crawl4ai.setup()"` anywhere)
+- [ ] Browser setup completes (run `just setup-browser`)
 - [ ] `just example` successfully crawls example.com
-- [ ] Fish abbreviations work: `crawl https://example.com`
+- [ ] Shell aliases/abbreviations work: `crawl https://example.com`
 
 ## Next Steps
 

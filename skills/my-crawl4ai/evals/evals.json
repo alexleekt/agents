@@ -4,26 +4,26 @@
     {
       "id": 1,
       "prompt": "Set up crawl4ai for my project",
-      "expected_output": "Creates ~/projects/crawler/ directory with pyproject.toml containing crawl4ai dependency, justfile with crawl/setup-browser/example tasks, and src/crawler/quick.py template",
+      "expected_output": "Creates crawler project directory with pyproject.toml containing crawl4ai dependency, justfile with crawl/setup-browser/example tasks, and src/crawler/quick.py template",
       "files": [],
       "assertions": [
         {
           "name": "project_directory_created",
-          "description": "Directory ~/projects/crawler should be created",
+          "description": "Project directory should be created",
           "check": "path_exists"
         },
         {
           "name": "pyproject_has_crawl4ai",
           "description": "pyproject.toml should contain crawl4ai dependency",
           "check": "file_contains",
-          "target": "~/projects/crawler/pyproject.toml",
+          "target": "pyproject.toml",
           "content": "crawl4ai"
         },
         {
           "name": "justfile_has_tasks",
           "description": "justfile should contain crawl, setup-browser, and example tasks",
           "check": "file_contains",
-          "target": "~/projects/crawler/justfile",
+          "target": "justfile",
           "content": "crawl:"
         }
       ]
@@ -82,15 +82,15 @@
     },
     {
       "id": 4,
-      "prompt": "Add Fish abbreviations for crawl4ai",
-      "expected_output": "Provides Fish abbreviation for crawl command"
+      "prompt": "Add shell aliases for crawl4ai",
+      "expected_output": "Provides shell alias or abbreviation for crawl command",
       "files": [],
       "assertions": [
         {
-          "name": "provides_crawl_abbr",
-          "description": "Response should provide 'crawl' abbreviation",
+          "name": "provides_crawl_alias",
+          "description": "Response should provide 'crawl' alias or abbreviation",
           "check": "text_contains",
-          "content": "abbr -a crawl"
+          "content": "crawl"
         }
       ]
     }

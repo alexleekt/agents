@@ -301,7 +301,7 @@ Best for: Leveraging established domain expertise across projects
 // Use existing predefined team
 await create_predefined_team({
   team_name: "advisors",
-  predefined_team: "skill-representatives",  // From ~/.pi/teams.yaml
+  predefined_team: "skill-representatives",  // From teams.yaml config
   cwd: projectPath
 });
 
@@ -315,8 +315,8 @@ await send_message({
 
 **Claude Code Implementation:**
 ```
-# Claude Code uses .claude/agents/ for agent definitions
-# Create: ~/.claude/agents/security-expert.md, etc.
+# Claude Code uses its agents directory for agent definitions
+# Create: e.g., security-expert.md, perf-expert.md in your Claude Code config
 
 /subagent security-expert "Review this from security perspective..."
 /subagent perf-expert "Review this from performance perspective..."
