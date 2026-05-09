@@ -22,17 +22,28 @@ description: |
 
 **Before any jj operation, verify:**
 1. ✅ This is a jj repo (`ls .jj` or `jj st` succeeds)
-2. ✅ **CRITICAL: Always use `-m` flag for commits** (never rely on editor in non-interactive mode)
-3. ✅ Never use `jj split` (use patterns below)
-4. ✅ After `jj commit`, run `jj new` to continue
-5. ✅ Use `jj edit`, not `git checkout`
+2. ✅ Never use `jj split` — interactive-only; use [Split Workflow](#split-workflow)
+3. ✅ After `jj commit`, run `jj new` to continue
+4. ✅ Use `jj edit`, not `git checkout`
 
-**⚠️ NON-INTERACTIVE SAFETY:** In scripts/agents, `jj commit` without `-m` will abort or hang. Always use:
+**⚠️ NON-INTERACTIVE SAFETY — ALL jj commands in agents/scripts MUST run non-interactively.**
+
+In non-interactive contexts, any jj command that opens an editor will abort or hang forever. Prevention:
+
+1. **Always use `-m` / `--message` flag** for any command that accepts it:
    - `jj commit -m "message"`
    - `jj describe -m "message"`
    - `jj new -m "message"`
+   - `jj squash -m "message"`
 
-**If stuck:** `EDITOR=cat timeout 10 jj <command>` (recovery only)
+2. **Set `JJ_EDITOR=cat`** (or `EDITOR=cat`) in agent/script environments so jj never launches an interactive editor even if `-m` is forgotten:
+   ```bash
+   export JJ_EDITOR=cat   # jj-specific; falls back to EDITOR
+   ```
+
+3. **Never use `jj split`** — it is interactive-only. Use the [Split Workflow](#split-workflow) below.
+
+**If stuck:** `JJ_EDITOR=cat timeout 10 jj <command>` (recovery only)
 
 ---
 
@@ -76,13 +87,10 @@ jj st
 just check 2>/dev/null || npm test 2>/dev/null || echo "No checks configured"
 # Fix any issues before committing!
 
-# Step 3: If changes exist but no description, describe them
-jj describe -m "feat(scope): what this does"
-
-# Step 4: Commit
+# Step 3: Commit with message (-m is required in non-interactive mode)
 jj commit -m "feat(scope): what this does"
 
-# Step 5: CRITICAL - Create new change for next work
+# Step 4: Create new change for next work
 jj new -m "wip: next task"
 # (Or just `jj new` if you want to describe later)
 ```
@@ -235,67 +243,42 @@ jj commit -m "style: fix formatting"
 just release  # or: git push, jj git push, etc.
 ```
 
-**Why this matters:** CI failures after tagging require force-pushing the tag, which is messy and risks race conditions with npm registry.
-
 ---
 
 ## Error Recovery
 
-### Problem: Editor Opened (Forgot `-m` Flag)
+### Problem: Forgot `-m` in Non-Interactive Mode
+
+All three symptoms below share the same root cause: a jj command that opens an editor ran without `-m` in a non-interactive context.
 
 ```
-WHAT HAPPENED: You ran `jj commit` without `-m`, editor opened
+SYMPTOMS:
+- Editor opens (vim/nano) and command hangs
+- Command aborts with "Command aborted"
+- Command hangs indefinitely waiting for input
 
-RECOVERY:
-1. Cancel editor immediately:
-   - Vim: Press Escape, type `:q!`, press Enter
-   - Nano: Press Ctrl+X
+RECOVERY — pick one:
 
-2. Re-run with `-m` flag:
+1. Cancel the editor:
+   - Vim: Escape, then `:q!`, then Enter
+   - Nano: Ctrl+X
+
+2. Or force a non-interactive abort:
+   JJ_EDITOR=cat timeout 10 jj <command>
+   (WARNING: this creates an empty description)
+
+3. Verify state, then retry with `-m`:
+   jj log --limit 3          # check if commit happened
+   jj st                     # check working copy status
    jj commit -m "feat: actual message"
 
-PREVENTION: Always use `-m` flag. Never rely on editor.
-```
+4. If an empty description was created, fix it:
+   jj describe -m "proper message"     # if not yet committed
+   # or: jj edit @- && jj describe -m "..." && jj edit @+  # if committed
 
-### Problem: Command Stuck/Hanging
-
-```
-WHAT HAPPENED: Command waiting for input (forgot `-m` or interactive prompt)
-
-RECOVERY:
-1. Force non-interactive completion:
-   EDITOR=cat timeout 10 jj <command>
-
-2. Or kill and retry:
-   Ctrl+C or kill -9 <pid>
-   Then retry with `-m` flag
-
-WARNING: EDITOR=cat creates empty messages. Fix immediately with:
-   jj describe -m "proper message"  # if not committed
-   # or edit @- and squash if already committed
-```
-
-### Problem: `jj commit` Aborts in Non-Interactive Mode
-
-```
-WHAT HAPPENED: Ran `jj commit` without `-m` flag in non-interactive mode
-
-SYMPTOM: Command aborts with "Command aborted" or hangs indefinitely
-
-RECOVERY:
-1. Check if commit actually happened:
-   jj log --limit 3
-
-2. If not committed, retry with `-m` flag:
-   jj commit -m "feat: actual message"
-
-3. If partially committed (change ID changed), check status:
-   jj st
-
-PREVENTION: ALWAYS use `-m` flag in scripts/automation:
-   ✅ jj commit -m "feat: x"
-   ✅ jj commit --message "feat: x"
-   ❌ jj commit  # Never use without -m in non-interactive mode
+PREVENTION:
+- Always use `-m` for commands that accept it
+- Set JJ_EDITOR=cat in agent environments as a safety net
 ```
 
 ### Problem: "No .jj Directory Found"

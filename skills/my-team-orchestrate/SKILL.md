@@ -300,22 +300,21 @@ await team_shutdown({ team_name: "refinement-loop" });
 ### Pattern 5: Predefined Expert Teams
 Best for: Leveraging established domain expertise across projects
 
-**Concept:** Maintain reusable agent definitions for common roles (security, performance, DX, etc.)
+**Concept:** Maintain reusable agent definitions for common roles (security, performance, DX, etc.). Define them in your agent configuration (e.g., `~/.pi/agents/` or Claude Code's agents directory).
 
 **Pi Implementation:**
 ```typescript
-// Use existing predefined team
-await create_predefined_team({
-  team_name: "advisors",
-  predefined_team: "skill-representatives",  // From teams.yaml config
-  cwd: projectPath
+// Spawn teammates with explicit agent definitions
+await spawn_teammate({
+  name: "security-expert",
+  agent_file: ".pi/agents/security-expert.md",
+  instructions: "Review from security perspective"
 });
 
 await send_message({
-  team_name: "advisors",
-  recipient: "tech-stack-rep",
-  summary: "Tool choice advice",
-  content: "Should I use bun or node for this serverless project?"
+  team_name: "security-expert",
+  summary: "Security review needed",
+  content: "Review auth.ts for security issues"
 });
 ```
 

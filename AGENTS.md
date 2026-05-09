@@ -20,8 +20,6 @@ These rules apply when working in the `~/agents/` directory and its subdirectori
 - `AGENTS_DIR` = `~/agents` (this repository root)
 - Skills live in `~/agents/skills/<skill-name>/SKILL.md`
 - Agent definitions live in `~/agents/.pi/agents/`
-- Team templates live in `~/agents/.pi/teams.yaml`
-
 ### Skills System
 - Each skill is a directory containing `SKILL.md`
 - Skills are distributed via symlinks for agent discovery (Claude Code)

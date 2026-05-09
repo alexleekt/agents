@@ -101,6 +101,29 @@ When working with this user:
 |------|-------------|
 | [**biome**](https://github.com/biomejs/biome) | Fast linting and formatting for JavaScript/TypeScript/CSS; faster alternative to ESLint + Prettier |
 
+#### Biome Configuration
+
+```json
+{
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 4
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "trailingCommas": "all"
+    }
+  }
+}
+```
+
+- **Indentation**: 4 spaces (not tabs)
+- **Quote style**: double
+- **Trailing commas**: `all` — always use trailing commas in arrays, objects, and function parameters
+- Apply to all JS/TS projects using Biome
+
 ### Infrastructure & Cloud
 
 | Tool | When to Use |

@@ -28,8 +28,7 @@ agents/
 │   ├── my-team-orchestrate/
 │   └── my-tech-stack/
 └── .pi/
-    ├── agents/         # Agent definitions for teams
-    └── teams.yaml      # Predefined team templates
+    └── agents/         # Agent definitions
 ```
 
 ## Skills Overview
