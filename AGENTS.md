@@ -96,37 +96,47 @@ Consider splitting into separate skills when:
 
 | Method | Behavior | Use For |
 |--------|----------|---------|
-| `npx skills add <dir>` | **Copies** to `~/.agents/skills/<name>/` | Stable skills that don't change often |
-| `npx skills add <dir> --copy` | Same as above (explicit) | Same |
-| Manual `ln -sf` | **Symlinks** → live reflection of edits | Skills actively being developed/edited |
+| `npx skills add <dir>` | **Copies** to `~/.agents/skills/<name>/` | External/public skills only |
+| Manual `ln -sf` | **Symlinks** → live reflection of edits | **All skills in this repository** |
 
 ### The Problem
 When you edit `~/agents/skills/my-agent-rules/SKILL.md`, the **copied** version in `~/.agents/skills/my-agent-rules/SKILL.md` does **not** update. Agents will continue using the stale copy.
 
-### Workflows
+### Policy: Manual Symlinks for All Repo Skills
 
-**For stable skills (installed via `npx skills`):**
+**All skills developed in this repository (`~/agents/skills/`) must use manual symlinks.** Do not use `npx skills add` for local skills.
+
 ```bash
-# After editing source, sync the copy
-npx skills update my-agent-rules -g -y
+# Create skill in source directory
+mkdir -p ~/agents/skills/my-new-skill
+# ... write SKILL.md ...
 
-# Or update all at once
-npx skills update -g -y
+# Symlink to ~/.agents/skills/ (required for Pi + other agents)
+ln -sf ~/agents/skills/my-new-skill ~/.agents/skills/my-new-skill
 ```
 
-**For dev skills (use manual symlinks):**
+### What About `npx skills add`?
+
+`npx skills add` is still useful — but **only for external skills from GitHub**, not for skills in this repo:
+
 ```bash
-# Remove the copied version first
+# ✅ Correct: External/public skill
+npx skills add max-sixty/worktrunk --skill worktrunk -g -y
+
+# ❌ Wrong: Local skill — will create a stale copy
+npx skills add ~/agents/skills --skill my-agent-rules -g -y
+```
+
+### If You Already Used `npx skills add` for Local Skills
+
+Replace copies with symlinks:
+```bash
+# 1. Remove the copied version
 rm -rf ~/.agents/skills/my-agent-rules
 
-# Create a symlink instead
+# 2. Create symlink instead
 ln -sf ~/agents/skills/my-agent-rules ~/.agents/skills/my-agent-rules
 ```
-
-### Recommendation
-- **Public skills** (e.g., `worktrunk`) → use `npx skills add` — copies are fine
-- **Personal skills you iterate on** (e.g., `my-agent-rules`) → use **manual symlinks** for live edits
-- **After bulk install via `npx skills add --all`** → consider re-symlinking your most-edited skills
 
 ### See Also
 - **skill-distribution-manual-symlinks** — Why we use manual symlinks (Memex reference)
