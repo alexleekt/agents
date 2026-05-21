@@ -90,10 +90,49 @@ Consider splitting into separate skills when:
 
 **No exceptions.** Even utility skills that might seem generic belong here with `my-` prefix because they're tuned to personal workflows.
 
+## `npx skills add` vs Manual Symlinks
+
+`npx skills add` supports installing from local directories, but it **copies** files instead of symlinking. This has critical implications for skill development.
+
+| Method | Behavior | Use For |
+|--------|----------|---------|
+| `npx skills add <dir>` | **Copies** to `~/.agents/skills/<name>/` | Stable skills that don't change often |
+| `npx skills add <dir> --copy` | Same as above (explicit) | Same |
+| Manual `ln -sf` | **Symlinks** → live reflection of edits | Skills actively being developed/edited |
+
+### The Problem
+When you edit `~/agents/skills/my-agent-rules/SKILL.md`, the **copied** version in `~/.agents/skills/my-agent-rules/SKILL.md` does **not** update. Agents will continue using the stale copy.
+
+### Workflows
+
+**For stable skills (installed via `npx skills`):**
+```bash
+# After editing source, sync the copy
+npx skills update my-agent-rules -g -y
+
+# Or update all at once
+npx skills update -g -y
+```
+
+**For dev skills (use manual symlinks):**
+```bash
+# Remove the copied version first
+rm -rf ~/.agents/skills/my-agent-rules
+
+# Create a symlink instead
+ln -sf ~/agents/skills/my-agent-rules ~/.agents/skills/my-agent-rules
+```
+
+### Recommendation
+- **Public skills** (e.g., `worktrunk`) → use `npx skills add` — copies are fine
+- **Personal skills you iterate on** (e.g., `my-agent-rules`) → use **manual symlinks** for live edits
+- **After bulk install via `npx skills add --all`** → consider re-symlinking your most-edited skills
+
 ### See Also
 - **skill-distribution-manual-symlinks** — Why we use manual symlinks (Memex reference)
 - **skill-separation-of-concerns** — When to split skills (Memex reference)
 - **skill-representatives-team** — Multi-domain discussion team (Memex reference)
+- **npx-skills-local-path-behavior** — Memex card on copy vs symlink behavior
 
 ## Skill Representatives Team
 
