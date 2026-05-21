@@ -20,7 +20,7 @@ agents/
 ├── README.md           # This file
 ├── AGENTS.md           # Skill creation and management guidelines
 ├── skills/             # Personal skills
-│   ├── my-agent-rules/
+│   ├── my-agent-file-conventions/
 │   ├── my-code-review/
 │   ├── my-crawl4ai/
 │   ├── my-semantic-release/
@@ -34,7 +34,7 @@ agents/
 
 | Skill | Trigger | Purpose |
 |-------|---------|---------|
-| `my-agent-rules` | "AGENT.md", "claude.md", "agent configuration" | Creating/editing agent behavioral config files |
+| `my-agent-file-conventions` | "AGENT.md", "claude.md", "agent file" | What belongs in agent files, templates, boundaries |
 | `my-code-review` | "code review", "PR review", "check my code" | Research-based code quality reviews |
 | `my-crawl4ai` | "crawl4ai", "web scraping", "scrape data" | Web crawling with crawl4ai |
 
@@ -54,12 +54,12 @@ agents/
 2. **Symlink skills for Pi:**
    ```bash
    mkdir -p ~/.agents/skills
-   ln -sf ~/agents/skills/* ~/.agents/skills/
+   ln -sf ~/git/my-agent-skills/skills/* ~/.agents/skills/
    ```
 
 3. **Verify setup:**
    ```bash
-   ls ~/.agents/skills/  # Should show: my-agent-rules, my-code-review, etc.
+   ls ~/.agents/skills/  # Should show: my-agent-file-conventions, my-code-review, etc.
    ```
 
 **Creating your first skill:**
@@ -72,7 +72,7 @@ agents/
 When starting work:
 
 1. **Check for project-specific agent files** — Look for `AGENT.md` or `claude.md` in the project root
-2. **Use skill references** — Consult `@skills/my-tech-stack` for tool recommendations, `@skills/my-agent-rules` for agent file creation
+2. **Use skill references** — Consult `@skills/my-tech-stack` for tool recommendations, `@skills/my-agent-file-conventions` for agent file creation
 3. **Skills auto-load** — Pi reads from `~/.agents/skills/` (symlinked from this directory)
 
 ## For Users
@@ -83,4 +83,4 @@ When starting work:
 
 ## Legacy Note
 
-Previous `conventions/agent-conventions.md` and `preferences/tech-preferences.md` have been superseded by `my-agent-rules` and `my-tech-stack` skills respectively. The legacy files are preserved in git history but removed from the working tree.
+Previous `conventions/agent-conventions.md` and `preferences/tech-preferences.md` have been superseded by `my-agent-file-conventions` and `my-tech-stack` skills respectively. The legacy files are preserved in git history but removed from the working tree.

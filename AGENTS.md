@@ -44,7 +44,7 @@ Skills are developed in `~/agents/skills/` and **symlinked to `~/.agents/skills/
 mkdir -p ~/agents/skills/<skill-name>
 
 # 2. Symlink to ~/.agents/skills/ (Pi + other agents)
-ln -sf ~/agents/skills/<skill-name> ~/.agents/skills/<skill-name>
+ln -sf ~/git/my-agent-skills/skills/<skill-name> ~/.agents/skills/<skill-name>
 
 # 3. For Claude Code (if using)
 ln -sf ~/.agents/skills/<skill-name> ~/.claude/skills/<skill-name>
@@ -57,7 +57,7 @@ ln -sf ~/.agents/skills/<skill-name> ~/.claude/skills/<skill-name>
    - Use `wc -c` to check: `head -20 SKILL.md | grep -A 100 "^description:" | wc -c`
 3. **Symlink to `~/.agents/skills/` (required):**
    ```bash
-   ln -sf ~/agents/skills/<skill-name> ~/.agents/skills/<skill-name>
+   ln -sf ~/git/my-agent-skills/skills/<skill-name> ~/.agents/skills/<skill-name>
    ```
 4. Add Claude Code symlink (if using Claude Code):
    ```bash
@@ -112,7 +112,7 @@ mkdir -p ~/agents/skills/my-new-skill
 # ... write SKILL.md ...
 
 # Symlink to ~/.agents/skills/ (required for Pi + other agents)
-ln -sf ~/agents/skills/my-new-skill ~/.agents/skills/my-new-skill
+ln -sf ~/git/my-agent-skills/skills/my-new-skill ~/.agents/skills/my-new-skill
 ```
 
 ### What About `npx skills add`?
@@ -135,7 +135,7 @@ Replace copies with symlinks:
 rm -rf ~/.agents/skills/my-agent-rules
 
 # 2. Create symlink instead
-ln -sf ~/agents/skills/my-agent-rules ~/.agents/skills/my-agent-rules
+ln -sf ~/git/my-agent-skills/skills/my-agent-file-conventions ~/.agents/skills/my-agent-file-conventions
 ```
 
 ### See Also

@@ -7,7 +7,7 @@ description: |
   **ALWAYS use when user asks about:** preferred tools, tech recommendations
   ("bun or node", "uv or pip"), or stack decisions.
 
-  **DO NOT use for:** agent configuration (@skills/my-agent-rules) or VCS
+  **DO NOT use for:** agent configuration (@skills/my-agent-file-conventions) or VCS
   operations.
 
   **CRITICAL:** Do NOT suggest unlisted tools without asking first.
@@ -284,4 +284,4 @@ Example:
 
 ## Related Skills
 
-- **my-agent-rules** — For creating AGENT.md files (not tech recommendations)
+- **my-agent-file-conventions** — For creating AGENT.md files (not tech recommendations)
