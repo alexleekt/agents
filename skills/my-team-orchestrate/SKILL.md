@@ -12,7 +12,7 @@ description: |
 
 Multi-agent delegation patterns for any system with subagent support.
 
-## ⚡ Agent Quick Start
+## ⚡ Quick Start
 
 **Pick pattern by signal:**
 

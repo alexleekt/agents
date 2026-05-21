@@ -1,17 +1,36 @@
 ---
 name: my-krea
-description: >
+description: |
+  **ALWAYS use when user asks for:** image generation, video generation,
+  creating pictures, making visual content, "generate image", "make a video",
+  "create a picture", "AI image", "text to image", "text to video".
+
+  **DO NOT use for:** photo editing or retouching, production-grade graphic
+  design, video editing, or any non-generative visual tasks.
+
   Generate images and videos with Krea AI using the mcp2cli-baked CLI.
-  Use when the user asks to create, generate, or make images, pictures,
-  videos, or visual content with AI. Triggers on phrases like
-  "generate image", "make a video", "create a picture", "AI image",
-  "text to image", "text to video", or any visual generation request.
 ---
 
 # Krea AI Generation
 
 Generate images and videos via the Krea MCP server, accessed through the
 `krea` CLI wrapper (baked mcp2cli tool).
+
+## ⚡ Quick Start
+
+```bash
+# Generate an image
+krea generate-image --prompt "a cyberpunk cityscape at night" --model flux --width 1024 --height 1024
+
+# Generate a video (image-to-video)
+krea generate-video --image_url "https://..." --prompt "camera pans across the scene"
+
+# Check a job status
+krea check-status --job_id <job_id>
+```
+
+**Image models:** `flux` (default), `flux-pro`, `ideogram`, `imagen-4`, `krea-1`,
+`chatgpt-image`, `nano-banana`, `seedream`
 
 ## Prerequisites
 

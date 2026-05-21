@@ -16,7 +16,7 @@ description: |
 
 Web crawling with crawl4ai using modern Python tooling: uv, just, and project-based workflows.
 
-## Quick Start
+## ⚡ Quick Start
 
 ```bash
 # One-off crawl (any directory)

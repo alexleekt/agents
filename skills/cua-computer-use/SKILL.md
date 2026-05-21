@@ -21,7 +21,7 @@ Computer-use automation via the CuaDriver macOS app. Provides screen control, ap
 - CuaDriver.app installed at `/Applications/CuaDriver.app` (v0.1.5+)
 - macOS Accessibility and Screen Recording permissions granted to CuaDriver
 
-## Quick Reference
+## ⚡ Quick Start
 
 All tools are invoked via the `cua-pi` wrapper (auto-starts daemon if needed):
 

@@ -1,18 +1,31 @@
 ---
 name: my-web-search-kagi
-description: >
-  Search the web using agent-browser. Use this skill whenever the user wants to
-  search the web, find information online, look up docs, check prices, research a
-  topic, or verify facts. Also use when no dedicated web search MCP server is
-  available. Triggers on phrases like "search the web", "look up", "find online",
-  "google", "kagi search", "web search", "search for", or when the agent needs
-  current/real-time information not in its training data.
+description: |
+  **ALWAYS use when user asks for:** searching the web, looking up information
+  online, finding docs, checking prices, researching a topic, verifying facts.
+  Also use when no dedicated web search MCP server is available. Triggers on
+  phrases like "search the web", "look up", "find online", "google", "kagi search",
+  "web search", "search for", or when current/real-time information is needed.
+
+  **DO NOT use for:** questions answerable from training data alone, tasks where
+  the user explicitly says "don't search", or when a dedicated MCP search server
+  is available and preferred.
 ---
 
 # Web Search via agent-browser
 
 Perform web searches using browser automation. Kagi is preferred if available,
 Bing is the fallback that works without authentication.
+
+## ⚡ Quick Start
+
+**Pick your browser, then search:**
+
+| Browser | One-time setup | Search command |
+|---------|---------------|----------------|
+| Firefox/Zen/LibreWolf | `python3 ~/.pi/agent/skills/my-web-search-kagi/scripts/sync-kagi-cookies.py --browser zen` | `agent-browser open "https://kagi.com/search?q=<query>" && agent-browser get text` |
+| Chromium/Chrome/Arc/Brave/Edge | `agent-browser open "https://kagi.com"` (reuse your logged-in profile) | Same as above |
+| Any (no Kagi login) | None needed | `agent-browser open "https://www.bing.com/search?q=<query>" && agent-browser get text` |
 
 ## ⚠️ Important: CAPTCHA / Login Requirement
 
