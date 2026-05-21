@@ -20,12 +20,16 @@ agents/
 ├── README.md           # This file
 ├── AGENTS.md           # Skill creation and management guidelines
 ├── skills/             # Personal skills
+│   ├── cua-computer-use/
 │   ├── my-agent-file-conventions/
 │   ├── my-code-review/
 │   ├── my-crawl4ai/
+│   ├── my-krea/
 │   ├── my-semantic-release/
 │   ├── my-team-orchestrate/
-│   └── my-tech-stack/
+│   ├── my-tech-stack/
+│   ├── my-web-search-kagi/
+│   └── my-workflow/
 └── .pi/
     └── agents/         # Agent definitions
 ```
@@ -34,13 +38,16 @@ agents/
 
 | Skill | Trigger | Purpose |
 |-------|---------|---------|
+| `cua-computer-use` | "computer-use", "screen control", "GUI automation" | macOS app control, screenshots, clicking |
 | `my-agent-file-conventions` | "AGENT.md", "claude.md", "agent file" | What belongs in agent files, templates, boundaries |
 | `my-code-review` | "code review", "PR review", "check my code" | Research-based code quality reviews |
 | `my-crawl4ai` | "crawl4ai", "web scraping", "scrape data" | Web crawling with crawl4ai |
-
+| `my-krea` | "generate image", "make a video", "AI image" | Image and video generation with Krea AI |
 | `my-semantic-release` | "release", "changelog", "semver" | Semantic versioning and release workflows |
 | `my-team-orchestrate` | "start a team", "delegate", "50+ files" | Multi-agent delegation patterns |
 | `my-tech-stack` | "what should I use", "bun or node" | Preferred tools and technology recommendations |
+| `my-web-search-kagi` | "search the web", "look up", "google" | Web search via agent-browser + Kagi |
+| `my-workflow` | "assessing task direction", "should I switch" | Worktrunk discipline, commit timing, naming hygiene |
 
 ## Getting Started
 
