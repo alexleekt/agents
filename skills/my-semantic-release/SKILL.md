@@ -4,7 +4,7 @@ description: |
   **ALWAYS use when user mentions:** "release", "ship it", "cut a release",
   "changelog", "version bump", "semver", "conventional commit".
 
-  **DO NOT use for:** daily VCS operations — use @skills/my-jj-workflow.
+  **DO NOT use for:** daily VCS operations — use git.
 
   Automates semantic versioning, changelog generation, and release workflows.
 ---
@@ -64,14 +64,11 @@ The project should follow **Conventional Commits** specification:
 
 **Concrete commands:**
 ```bash
-# Find last tag (jj or git)
+# Find last tag
 git describe --tags --abbrev=0
 
 # Get commits since last tag
 git log v1.2.0..HEAD --oneline --no-decorate
-
-# Or with jj (in colocated repo)
-jj log -r 'tags()::@' --no-graph
 ```
 
 **Changelog format:**
@@ -193,27 +190,27 @@ cat package.json | jq '.version = "1.3.0"' > package.json.tmp && mv package.json
 # Or edit Cargo.toml manually:
 # version = "1.3.0"
 
-# STEP 4: Describe the release (jj workflow)
-jj describe -m "chore(release): 1.3.0"
+# STEP 4: Stage changes
+git add -A
 
 # STEP 5: Commit the release
-jj commit
+git commit -m "chore(release): 1.3.0"
 
-# STEP 6: Tag the release (using git in colocated repo)
+# STEP 6: Tag the release
 git tag -a "v1.3.0" -m "Release v1.3.0"
 
-# STEP 7: Push (see @skills/my-jj-workflow for push commands)
+# STEP 7: Push
 git push origin main
 git push origin v1.3.0
 ```
 
 ## Integration with VCS
 
-This skill assumes you have version control set up (see @skills/my-jj-workflow for jj/git workflows). The release workflow:
+This skill assumes you have version control set up with git. The release workflow:
 
-1. **Reads** commit history via jj/git
+1. **Reads** commit history via git
 2. **Writes** changelog, version bumps, commits, tags
-3. **Uses** jj or git depending on your setup
+3. **Uses** git for all VCS operations
 
 ## Custom Release Tools
 
@@ -243,8 +240,8 @@ A typical npm project with `just release` which:
 **Correct workflow:**
 ```bash
 # 1-3. Update files and commit
-jj describe -m "chore(release): X.X.X"
-jj commit
+git add -A
+git commit -m "chore(release): X.X.X"
 
 # 4. Run the tool (handles everything including monitoring)
 just release
@@ -278,7 +275,8 @@ RELEASE_NO_WATCH=1 just release  # Push tag but don't watch CI
 just fix  # or: npx @biomejs/biome check --write .
 
 # Commit the fix
-jj commit -m "style: fix biome formatting"
+git add -A
+git commit -m "style: fix biome formatting"
 
 # Move tag to fixed commit (if already pushed)
 git tag -d vX.Y.X
@@ -340,12 +338,12 @@ $ mv CHANGELOG.md.new CHANGELOG.md
 $ cat package.json | jq '.version = "1.3.0"' > package.json.tmp
 $ mv package.json.tmp package.json
 
-# 4. Stage changes and describe
-$ jj st  # shows modified: CHANGELOG.md, package.json
-$ jj describe -m "chore(release): 1.3.0"
+# 4. Stage changes
+$ git add -A
+$ git status --short  # shows modified: CHANGELOG.md, package.json
 
 # 5. Commit the release
-$ jj commit
+$ git commit -m "chore(release): 1.3.0"
 
 # 6. Tag and push
 $ git tag -a v1.3.0 -m "Release v1.3.0"
@@ -356,9 +354,9 @@ $ git push origin main && git push origin v1.3.0
 
 ## When NOT to Use This Skill
 
-- Daily commit operations → Use @skills/my-jj-workflow
-- Checking what changed → Use @skills/my-jj-workflow
-- Push to GitHub → Use @skills/my-jj-workflow
-- Worktree management → Use @skills/my-jj-workflow
+- Daily commit operations → Use git
+- Checking what changed → Use git
+- Push to GitHub → Use git
+- Worktree management → Use git
 
 Use this skill **only** when the conversation is about releases, versioning, or changelog.

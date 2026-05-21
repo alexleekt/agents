@@ -7,7 +7,7 @@ description: |
   "agent rules", "behavioral rules", or when creating/editing agent files.
 
   **DO NOT use for:** tech recommendations (@skills/my-tech-stack) or VCS operations
-  (@skills/my-jj-workflow).
+  (use git).
 
   **CRITICAL:** Never modify agent files without consulting this skill first.
   Defines what BELONGS (behavioral rules, workflows) vs what DOES NOT belong
