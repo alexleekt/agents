@@ -29,6 +29,20 @@ How the agent should manage worktrunks, commits, and context while working.
 **Worktree name no longer describes the work?**
 → Propose renaming it to match the actual direction.
 
+## Activation Condition
+
+**This skill activates only when the agent is performing file-mutating operations.**
+
+Apply these rules when:
+- Creating, editing, deleting, or renaming files
+- Running commands that modify the working tree (install, scaffold, generate)
+- Performing any non-temporary file action
+
+Do **not** apply these rules when:
+- Reading or analyzing code (explain, review, search)
+- Answering questions about the codebase
+- Any purely read-only interaction
+
 ## Scope
 
 This skill covers **agent behavioral rules** for:
