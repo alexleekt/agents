@@ -360,3 +360,38 @@ $ git push origin main && git push origin v1.3.0
 - Worktree management → Use git
 
 Use this skill **only** when the conversation is about releases, versioning, or changelog.
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| CI fails with "Formatter would have printed..." | Run `just fix` or `npx @biomejs/biome check --write .` → commit → retag |
+| Test failures in CI | Run `just test` locally → fix → commit → `git tag -d vX.Y.Z && git tag -a vX.Y.Z` |
+| TypeScript errors (`tsc --noEmit` fails) | `npx tsc --noEmit --skipLibCheck` → fix → commit → retag |
+| `jq` broke `package.json` indentation | Run biome fix: `npx @biomejs/biome check --write package.json` |
+| Tag already pushed to wrong commit | `git tag -d vX.Y.Z && git tag -a vX.Y.Z <new-hash> && git push --force origin vX.Y.Z` |
+| Custom release tool conflicts with manual tag | Read `justfile` first — never manually tag if tool handles it |
+
+## Common Agent Mistakes
+
+❌ **Wrong:** Bumping version manually with `npm version` or editing `package.json` by hand
+✅ **Right:** Use conventional commits → let semantic-release calculate the bump automatically
+
+❌ **Wrong:** Writing changelog entries by hand from memory
+✅ **Right:** Generate from `git log --format='%s'` or use conventional-changelog tools
+
+❌ **Wrong:** Releasing without running checks first
+✅ **Right:** `just check` (or `npm run check`) → fix issues → then tag
+
+❌ **Wrong:** Using `feat:` for internal refactoring
+✅ **Right:** Use `refactor:` or `chore:` — `feat:` triggers a minor bump
+
+❌ **Wrong:** Manually tagging when a custom release tool exists
+✅ **Right:** Check `justfile`/`package.json` for `release` target first
+
+## Related Skills
+
+- **@skills/worktrunk** — For release branch management via worktrees
+- **@skills/my-tech-stack** — For tool recommendations (biome, just, mise, etc.)
+- **@skills/my-workflow** — For commit discipline before cutting a release
+- **@skills/my-team-orchestrate** — For parallel release tasks (e.g., multi-package releases)

@@ -383,6 +383,16 @@ You are a security expert. Focus on:
 - Save outputs before cleanup
 - Pi: `team_shutdown()` | Claude Code: Implicit on session end | Generic: Manual tracking
 
+## Related Skills
+
+- **@skills/my-code-review** — For research-based code quality analysis (use with Expert Panel or Till Done patterns)
+- **@skills/my-workflow** — For worktrunk discipline when spawning agents in separate worktrees
+- **@skills/my-semantic-release** — For release workflows with multi-package Divide and Conquer
+- **@skills/my-crawl4ai** — For parallel web crawling tasks (Divide and Conquer pattern)
+- **@skills/my-web-search-kagi** — For parallel research tasks (Expert Panel pattern)
+- **@skills/my-tech-stack** — For tool recommendations when setting up team infrastructure
+- **@skills/worktrunk** — For worktree management when spawning parallel agent sessions
+
 ## Cross-Skill References
 
 When reviewing code across multiple files, use `@skills/my-code-review` for:
@@ -393,14 +403,41 @@ When reviewing code across multiple files, use `@skills/my-code-review` for:
 
 The team patterns here handle orchestration; `my-code-review` handles the actual code quality analysis.
 
-## Common Anti-Patterns (All Platforms)
+## Common Mistakes
 
-❌ **Vague assignments** - "Help with this" vs "Audit src/auth.ts for SQL injection risks"
-❌ **Context overload** - Dumping entire conversation vs focused, relevant context
-❌ **Orphaned agents** - Starting subagents without plan to collect results
-❌ **Unclear handoffs** - Chain patterns need explicit "check X for previous output"
-❌ **Agent sprawl** - 3-5 focused agents > 10 generalists
-❌ **Platform confusion** - Using Pi syntax in Claude Code or vice versa
+❌ **Wrong:** Vague assignments — "Help with this"
+✅ **Right:** "Audit src/auth.ts for SQL injection risks, return numbered findings"
+
+❌ **Wrong:** Dumping the entire conversation into a subagent prompt
+✅ **Right:** Extract only the relevant context — subagents don't see parent chat
+
+❌ **Wrong:** Starting subagents without a plan to collect results
+✅ **Right:** Define who aggregates outputs and when (end of chain, file on disk, etc.)
+
+❌ **Wrong:** Unclear handoffs — "check X for previous output"
+✅ **Right:** Explicitly pass previous outputs or file paths into the next agent's prompt
+
+❌ **Wrong:** Spawning 10 generalist agents
+✅ **Right:** 3-5 focused agents > 10 generalists. Specific roles beat broad mandates
+
+❌ **Wrong:** Using Pi syntax in Claude Code or vice versa
+✅ **Right:** Check platform first; use Pi `spawn_teammate()` or Claude `/subagent` accordingly
+
+## Troubleshooting
+
+| Issue | Platform | Solution |
+|-------|----------|----------|
+| Agent not responding | Pi | `check_teammate()` then `send_message()` to nudge |
+| Lost context | Pi | Use `broadcast_message()` to re-sync all agents |
+| Task stuck | Pi | `task_update()` to reassign or spawn replacement |
+| Subagent hanging | Claude Code | Check response status, may need to re-invoke |
+| Context drift | Claude Code | Summarize previous outputs in new `/subagent` call |
+| Result scattered | Claude Code | Manually collect outputs from chat history |
+| No native subagents | Generic | Use file-based coordination (write status to disk) |
+| Need parallelism | Generic | Queue tasks externally (just, make, etc.) |
+| Result tracking | Generic | Maintain `RESULTS.md` or JSON status file |
+| Checker never returns "DONE" | Any | Add max rounds safety (5 cycles) and no-progress detection |
+| Fixer makes no changes | Any | Reduce scope or switch to manual intervention |
 
 ## Platform-Specific Troubleshooting
 

@@ -195,6 +195,41 @@ Worktree name no longer fits?
 └── No → Leave as-is
 ```
 
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| User says "just commit it" but worktree is wrong | Commit in current worktree, then suggest switching for next task |
+| User wants to rename worktree mid-session | Save state, rename, restore — or finish current work then rename |
+| Multiple worktrees with similar names | Use `wt list` to disambiguate; propose clearer naming |
+| User asks to "go back to previous task" | Check `wt list` for recent worktrees, ask which one to resume |
+| Commit fails due to untracked files | Stage with `git add .` or `git add -p` for selective staging |
+| Worktree name too long | Keep under 30 chars; use abbreviations: `refactor-auth` not `refactor-authentication-system` |
+
+## Common Mistakes
+
+❌ **Wrong:** Switching worktrees without asking the user first
+✅ **Right:** Always ask: "This is a new direction. Switch to a new worktree?"
+
+❌ **Wrong:** Committing after every tiny tweak (whitespace, typo)
+✅ **Right:** Batch trivial fixes; commit on logical units or before irreversible actions
+
+❌ **Wrong:** Letting the user work in a misleadingly named worktree
+✅ **Right:** Propose renaming when work evolves away from the original name
+
+❌ **Wrong:** Ending a session without committing WIP
+✅ **Right:** Always commit before ending, even if the commit message is "WIP"
+
+❌ **Wrong:** Using generic worktree names like `wip`, `temp`, `stuff`
+✅ **Right:** Use specific kebab-case names: `fix-auth-timeout-5min`
+
+## Related Skills
+
+- **@skills/worktrunk** — For `wt` CLI commands, hooks, config, troubleshooting
+- **@skills/my-semantic-release** — For release workflows when a worktree is ready to merge
+- **@skills/my-team-orchestrate** — For spawning agents in parallel worktrees
+- **@skills/my-code-review** — For reviewing changes before committing in a worktree
+
 ## Versioning
 
 - **Last updated:** 2026-05-21

@@ -175,7 +175,33 @@ For high-volume or structured programmatic search:
 
 ---
 
-## Related
+## Troubleshooting
 
-- [[agent-browser]] — Browser automation tool
-- [[my-crawl4ai]] — For crawling entire sites, not single queries
+| Issue | Solution |
+|-------|----------|
+| Kagi returns CAPTCHA page | Cookies expired → re-run sync script or use Bing fallback |
+| `agent-browser` not found | Install pi extension: `pi extensions install agent-browser` |
+| Cookie sync script fails | Check browser is installed: `which zen` or `which firefox` |
+| Results are stale/old | Check URL includes current year or recent terms |
+| Blank page after navigate | Wait for JS to load: add `sleep 2` or use `wait_for_selector` |
+| Search results truncated | Use `get text` for full page; `snapshot` for structured DOM |
+
+## Common Agent Mistakes
+
+❌ **Wrong:** Searching for information already in training data alone
+✅ **Right:** Use search only for current/real-time info or specific facts not in training data
+
+❌ **Wrong:** Using Kagi without checking cookies first
+✅ **Right:** Verify cookie sync worked before relying on Kagi results; fall back to Bing if needed
+
+❌ **Wrong:** Falling back to Bing when Kagi works fine
+✅ **Right:** Only use Bing fallback when Kagi is unavailable or unauthenticated
+
+❌ **Wrong:** Using web search for tasks better suited to API calls
+✅ **Right:** Use httpie/curl for known endpoints; web search is for discovery, not repeated API work
+
+## Related Skills
+
+- **@skills/my-crawl4ai** — For crawling entire sites, not single search queries
+- **@skills/my-tech-stack** — For tool recommendations (httpie vs curl, etc.)
+- **@skills/cua-computer-use** — For GUI interactions when browser automation isn't sufficient

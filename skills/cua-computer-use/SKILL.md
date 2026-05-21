@@ -100,6 +100,26 @@ apps = cua_call("list_apps", {})
 | Click/type has no effect | Missing Accessibility permission | Grant in System Settings → Privacy & Security |
 | `check_permissions` shows false | TCC not granted | Open CuaDriver.app GUI once, or manually add in System Settings |
 
+## Common Agent Mistakes
+
+❌ **Wrong:** Using `cua-pi` for headless API calls or data extraction
+✅ **Right:** Use curl/httpie for API work; cua-pi is for GUI interaction only
+
+❌ **Wrong:** Taking screenshots without checking permissions first
+✅ **Right:** Run `cua-pi check-permissions` before screenshot workflows
+
+❌ **Wrong:** Using `element_index` without listing elements first
+✅ **Right:** `list-windows` → `get-window-state` → click by index
+
+❌ **Wrong:** Using cua for tasks better done with shell scripts
+✅ **Right:** Shell scripts for automation; cua only when visual/GUI interaction is needed
+
+## Related Skills
+
+- **@skills/my-web-search-kagi** — For web searches when you need to find information, not interact with apps
+- **@skills/my-tech-stack** — For tool recommendations (shell scripts vs GUI automation)
+- **@skills/my-workflow** — For commit discipline when modifying CuaDriver configs or scripts
+
 ## Links
 
 - Cua repo: https://github.com/trycua/cua

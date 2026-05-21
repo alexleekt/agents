@@ -221,6 +221,23 @@ Example: "Review this entire codebase" → Use team orchestration with checker/f
 - [ ] Sensitive data in logs/errors
 - [ ] **New code without tests (when project has tests)**
 
+## Common Mistakes
+
+❌ **Wrong:** Reviewing code without researching current best practices first
+✅ **Right:** Always consult Context7 or official docs before making recommendations
+
+❌ **Wrong:** Giving vague feedback like "this could be better"
+✅ **Right:** Provide specific before/after code with evidence-backed reasoning
+
+❌ **Wrong:** Catching style issues but missing security red flags
+✅ **Right:** Check Red Flags first: input validation, secrets, async errors, race conditions
+
+❌ **Wrong:** Suggesting a rewrite when a small fix suffices
+✅ **Right:** Prefer minimal, targeted changes. Only refactor when clearly justified
+
+❌ **Wrong:** Reviewing 50+ files as a single monolithic review
+✅ **Right:** Use `@skills/my-team-orchestrate` to parallelize across modules
+
 ## Troubleshooting
 
 **Review feels overwhelming?**
@@ -324,6 +341,13 @@ const formatted = formatDate(date, 'yyyy-MM-dd HH:mm', { timezone: 'Europe/Berli
 
 **Decision**: Worth small dependency to eliminate maintenance burden + get correctness.
 ```
+
+## Related Skills
+
+- **@skills/my-team-orchestrate** — For dividing large reviews across multiple agents
+- **@skills/my-tech-stack** — For tool recommendations when suggesting build vs buy decisions
+- **@skills/my-workflow** — For commit discipline when applying review fixes
+- **@skills/my-semantic-release** — For release workflows when review findings affect versioning
 
 ## Post-Review
 

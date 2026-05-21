@@ -257,6 +257,13 @@ alias crawl-proj='cd ./my-crawler && just crawl'
 
 ---
 
+## Related Skills
+
+- **@skills/my-web-search-kagi** — For single search queries when you don't need to crawl entire sites
+- **@skills/my-tech-stack** — For tool recommendations (uv, just, biome, etc.)
+- **@skills/my-workflow** — For commit discipline when saving crawl results to version control
+- **@skills/my-team-orchestrate** — For parallel crawling tasks across multiple agents
+
 ## Project Structure Reference
 
 ```

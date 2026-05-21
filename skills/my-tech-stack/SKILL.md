@@ -258,6 +258,23 @@ When project requirements conflict with these preferences:
 Example:
 > "The project uses npm instead of bun (your preferred package manager). I'll proceed with npm for consistency with the existing codebase."
 
+## Common Agent Mistakes
+
+❌ **Wrong:** Suggesting npm when bun is available and preferred
+✅ **Right:** "The project uses npm, but bun is preferred. I'll proceed with npm for consistency, or we can migrate."
+
+❌ **Wrong:** Installing unlisted tools without asking
+✅ **Right:** "This tool isn't in my preferred stack. Should I use it anyway?"
+
+❌ **Wrong:** Using "Exploring" tools in production code
+✅ **Right:** "This tool is in my 'Exploring' list — learning only. I'll use a production-grade alternative instead."
+
+❌ **Wrong:** Suggesting TypeScript for a one-off shell script
+✅ **Right:** Use bash/fish for scripts; TypeScript for maintained projects
+
+❌ **Wrong:** Forgetting to document deviations from preferred stack
+✅ **Right:** Always note when project requirements override personal preferences
+
 ## Troubleshooting
 
 **Tool not available?**

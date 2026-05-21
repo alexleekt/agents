@@ -182,7 +182,30 @@ krea generate-video --prompt "camera slowly zooms out" --image-url "https://gen.
 krea get-job --job-id 8089cf88-ce7c-4fcc-80ea-2902a2c9b070
 ```
 
-## Related
+## Troubleshooting
 
-- [[mcp2cli]] — How the `krea` CLI wrapper works
-- [[my-cua-driver]] — For macOS UI actions on generated images
+| Issue | Solution |
+|-------|----------|
+| `krea: command not found` | Check if krea CLI is installed: `which krea` |
+| `KREA_API_KEY not set` | Run `chezmoi data \| jq -r '.krea_api_key'` to verify |
+| Job stuck in "scheduled" | Poll with `krea check-status --job_id <id>`; jobs take 30-120s |
+| Generation fails with "content policy" | Rephrase prompt to avoid disallowed content |
+| Image URL returns 403 | Use `krea upload-asset` to host locally first |
+| Style search returns 404 | Proceed without `style_id`; style lookup is optional |
+
+## Common Agent Mistakes
+
+❌ **Wrong:** Passing `--url` with a local file path to `upload-asset`
+✅ **Right:** `upload-asset` accepts remote URLs only; use `https://...`
+
+❌ **Wrong:** Expecting instant results from `generate-image`
+✅ **Right:** Every call returns a `job_id`; poll with `check-status` or `get-job`
+
+❌ **Wrong:** Using `mcp2cli --env` to pass `KREA_API_KEY`
+✅ **Right:** Use the Fish wrapper function; it pulls from chezmoi data at runtime
+
+## Related Skills
+
+- **@skills/my-web-search-kagi** — For searching reference images or style inspiration online
+- **@skills/my-tech-stack** — For tool recommendations if extending the pipeline
+- **@skills/my-workflow** — For commit discipline when saving generated assets to version control

@@ -237,6 +237,23 @@ Skill directories should match the skill name:
 - `skills/my-tech-stack/SKILL.md` → name: `my-tech-stack`
 - `skills/my-agent-conventions/SKILL.md` → name: `my-agent-conventions`
 
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| AGENT.md edits not being followed | Check file is in repo root, not a subdirectory |
+| Multiple claude.md files conflicting | Ensure scopes don't overlap; use explicit "Scope" headers |
+| Agent ignores workflow rules | Verify rules are behavioral (how), not documentation (what) |
+| claude.md not loading in subdirectory | Check `.agent/` directory exists at that level |
+| Rules feel too vague | Replace "Consider X" with "Always X" or "Never X" |
+
+## Related Skills
+
+- **@skills/my-tech-stack** — For tool recommendations (not agent config)
+- **@skills/my-workflow** — For commit discipline and worktrunk naming when editing agent files
+- **@skills/my-code-review** — For reviewing agent file changes before committing
+- **@skills/worktrunk** — For managing worktrees when working on agent file updates across branches
+
 ## Related Files
 
 - Project overview → `README.md`
