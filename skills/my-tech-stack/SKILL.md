@@ -8,7 +8,7 @@ description: |
   ("bun or node", "uv or pip"), or stack decisions.
 
   **DO NOT use for:** agent configuration (@skills/my-agent-rules) or VCS
-  operations (@skills/my-jj-workflow).
+  operations.
 
   **CRITICAL:** Do NOT suggest unlisted tools without asking first.
 ---
@@ -34,7 +34,7 @@ uv init               # Python project + deps
 uv add pytest         # Testing
 
 # Version control
-jj git init --colocate  # Or git init
+git init
 ```
 
 **Quick decision guide:**
@@ -285,4 +285,3 @@ Example:
 ## Related Skills
 
 - **my-agent-rules** — For creating AGENT.md files (not tech recommendations)
-- **my-jj-workflow** — For version control operations with jj

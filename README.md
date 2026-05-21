@@ -19,11 +19,10 @@ This directory contains **skills** that guide how AI agents work with your proje
 agents/
 ├── README.md           # This file
 ├── AGENTS.md           # Skill creation and management guidelines
-├── skills/             # Personal skills (JJ-tracked)
+├── skills/             # Personal skills
 │   ├── my-agent-rules/
 │   ├── my-code-review/
 │   ├── my-crawl4ai/
-│   ├── my-jj-workflow/
 │   ├── my-semantic-release/
 │   ├── my-team-orchestrate/
 │   └── my-tech-stack/
@@ -38,7 +37,7 @@ agents/
 | `my-agent-rules` | "AGENT.md", "claude.md", "agent configuration" | Creating/editing agent behavioral config files |
 | `my-code-review` | "code review", "PR review", "check my code" | Research-based code quality reviews |
 | `my-crawl4ai` | "crawl4ai", "web scraping", "scrape data" | Web crawling with crawl4ai |
-| `my-jj-workflow` | "jj", "jujutsu", "commit" (without git) | Daily version control with jj |
+
 | `my-semantic-release` | "release", "changelog", "semver" | Semantic versioning and release workflows |
 | `my-team-orchestrate` | "start a team", "delegate", "50+ files" | Multi-agent delegation patterns |
 | `my-tech-stack` | "what should I use", "bun or node" | Preferred tools and technology recommendations |

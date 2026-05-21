@@ -30,7 +30,7 @@ These rules apply when working in the `~/agents/` directory and its subdirectori
 ### Skill Availability Principle
 **All skills in this repository must be available across all projects and all agents.**
 
-Skills are developed in `~/agents/skills/` (JJ-tracked) and **symlinked to `~/.agents/skills/`** for universal agent discovery.
+Skills are developed in `~/agents/skills/` and **symlinked to `~/.agents/skills/`** for universal agent discovery.
 
 | Tool | Discovery Method | Status |
 |------|------------------|--------|
@@ -81,7 +81,7 @@ Consider splitting into separate skills when:
 |---------|---------|---------|
 | `my-<thing>` | `my-tech-stack` | Personal preferences, conventions, workflows |
 | `my-<tool>` | `my-crawl4ai` | Personal tooling configurations |
-| `my-<domain>` | `my-jj-workflow` | Domain-specific expertise |
+| `my-<domain>` | `my-code-review` | Domain-specific expertise |
 
 **Rationale:** This is a personal skills repository. The `my-` prefix:
 - Clearly identifies these as personal/opinionated (not generic)
@@ -103,7 +103,7 @@ For multi-domain discussions, a team of skill representatives is available:
 |----------------|--------|
 | `agent-rules-rep` | Agent configuration (AGENT.md, claude.md) |
 | `generalist-rep` | Cross-domain topics, bridges gaps |
-| `jj-workflow-rep` | Daily version control (jj, git, worktrees) |
+| `git-workflow-rep` | Daily version control (git, worktrees) |
 | `my-crawl4ai-rep` | Web crawling/scraping with crawl4ai |
 | `my-semantic-release-rep` | Semantic versioning and releases |
 | `skill-bar-raiser` | Quality assurance — triggers, expertise, separation |
@@ -113,7 +113,7 @@ For multi-domain discussions, a team of skill representatives is available:
 
 Use `create_predefined_team()` to instantiate for discussions spanning multiple skill domains.
 
-**Recent Split:** `my-jj-workflow` was separated from `my-semantic-release` because they have different triggers (daily VCS vs release workflows) and independent utility.
+**Recent Split:** `my-git-workflow` was separated from `my-semantic-release` because they have different triggers (daily VCS vs release workflows) and independent utility.
 
 ### Skill Bar Raiser Role
 
@@ -125,7 +125,7 @@ The `skill-bar-raiser` ensures skill quality by reviewing:
 ## Tool-Specific Notes
 
 ### Pi
-Pi discovers skills from `~/.agents/skills/` automatically. **The symlink from `~/agents/skills/` to `~/.agents/skills/` is required** to make JJ-tracked skills available to Pi.
+Pi discovers skills from `~/.agents/skills/` automatically. **The symlink from `~/agents/skills/` to `~/.agents/skills/` is required** to make skills available to Pi.
 
 ### Claude Code
 Requires symlinks in `~/.claude/skills/` to discover skills. Add manually when creating new skills.
