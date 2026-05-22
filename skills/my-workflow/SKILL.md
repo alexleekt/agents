@@ -22,12 +22,16 @@ How the agent should manage worktrunks, commits, and context while working.
 
 **Task doesn't match the current worktrunk?**
 → Ask the user before switching or spawning a new worktree.
+→ If the user approves, prefer `/wt-switch-create <branch>` to create, switch, and relaunch in one step.
 
 **Significant code change or irreversible file action?**
 → Make a commit first. Prefer small, focused commits.
 
 **Worktree name no longer describes the work?**
 → Propose renaming it to match the actual direction.
+
+**Need parallel agents for a large task?**
+→ Use `spawn_worktree_agent` to create isolated worktrees with subagents, or `/wt-switch-create` to open additional Pi sessions in new worktrees.
 
 ## Activation Condition
 
@@ -65,21 +69,26 @@ When the user's task changes or diverges from the current worktrunk's purpose:
    - Does it diverge meaningfully? Flag it.
 
 2. **Default behavior: ask first (conservative)**
-   - "This seems like a new direction from `<current-worktree>`. Switch to a new worktree?"
+   - "This seems like a new direction from `<current-worktree>`. Switch to a new worktree with `/wt-switch-create <name>`?"
    - Let the user decide. Do not switch unilaterally.
 
 3. **When the user explicitly says "let's work on X"**
    - If X clearly differs from the current worktrunk's scope, propose switching.
    - If related, continue but note: "Continuing in `<worktree>` — say 'new worktree' if you want separation."
 
+4. **Before spawning a parallel subagent, check `wt list` for active worktrees**
+   - Look for 🤖 markers to see which worktrees already have running agents.
+   - Avoid naming collisions and coordinate resource usage.
+
 ### Examples
 
 | Situation | Action |
 |-----------|--------|
 | User asks to fix a bug in feature branch | Continue in current worktree |
-| User asks to start an unrelated refactor | Ask: "New worktree for this?" |
-| User asks to review a different PR | Ask: "Switch worktrees?" |
+| User asks to start an unrelated refactor | Ask: "New worktree with `/wt-switch-create refactor-auth`?" |
+| User asks to review a different PR | Check `wt list` for that PR's worktree, then ask: "Switch to `<branch>`?" |
 | Task evolved away from original intent | Propose renaming or switching |
+| Large task (50+ files, multi-domain) | Propose: "Spawn parallel subagents with `spawn_worktree_agent`?" |
 
 ## Commit Discipline
 
@@ -146,17 +155,52 @@ When the user switches contexts mid-session:
 
 1. Commit current work (WIP is fine)
 2. Note the stopping point
-3. Ask whether to stay in the current worktree or switch
-4. When returning, read the previous summary to resume context
+3. Check `wt list` to see available worktrees and their activity (🤖/💬 markers)
+4. Ask whether to stay in the current worktree or switch
+5. If switching, prefer `/wt-switch-create <branch>` for a quick create+switch, or switch to an existing worktree
+6. When returning, read the previous summary to resume context
+
+## Parallel Work with Subagents
+
+For large or complex tasks, spawn parallel Pi subagents in isolated worktrees:
+
+### When to Spawn Parallel Agents
+
+- **Scale signal**: "50+ files", "refactor everything", "whole codebase"
+- **Complexity signal**: "explore first, then build", multi-domain task
+- **Independence**: Work can be split into non-overlapping chunks
+
+### Spawning Pattern
+
+1. **Break the task** into 2–4 independent chunks
+2. **Pre-check `wt list`** — avoid colliding with existing active worktrees (🤖 markers)
+3. **Spawn subagents** using the `spawn_worktree_agent` tool:
+   ```json
+   {
+     "branch": "scout-auth",
+     "task": "Explore the auth module. Return a summary of current flow, files, and dependencies."
+   }
+   ```
+4. **Each subagent runs in its own worktree** with isolated context
+5. **Collect results** from each subagent's output
+6. **Integrate** findings in the parent session
+
+### Coordination
+
+- Use `wt list` to monitor which worktrees are active (🤖 = working, 💬 = idle)
+- Use `/wt-statusline-refresh` for an up-to-date footer
+- Herdr users: each subagent can run in its own tab/pane via `/wt-switch-create`
 
 ## Relationship to Other Skills
 
-| Skill | Responsibility |
-|-------|---------------|
-| **my-workflow** (this) | When to use worktrunks, commit discipline, naming hygiene |
+| Skill / Extension | Responsibility |
+|-------------------|---------------|
+| **my-workflow** (this) | When to use worktrunks, commit discipline, naming hygiene, parallel coordination |
 | **worktrunk** | How to run `wt` commands, hooks, config, troubleshooting |
-| **my-semantic-release** | Release workflows, versioning, changelog generation |
-| **my-team-orchestrate** | Multi-agent delegation, parallel work, team spawning |
+| **my-team-orchestrate** | Multi-agent delegation patterns (scout→planner→worker, expert panel, etc.) |
+| **pi-worktrunk-bridge** | Activity tracking, `/wt-switch-create`, statusline, `spawn_worktree_agent` tool |
+| **herdr** | Workspace/tab/pane management when running inside herdr |
+| **my-semantic-release** | Release workflows when a worktree is ready to merge |
 
 ## Examples
 
@@ -181,10 +225,16 @@ Agent switches to a new worktree without asking. ❌ Always ask first.
 
 ```
 Task diverges from current worktrunk?
-├── Yes → Ask user: "Switch worktrees?"
-│         ├── User says yes → Switch (use @skills/worktrunk)
+├── Yes → Ask user: "Switch worktrees with /wt-switch-create?"
+│         ├── User says yes → /wt-switch-create <branch> (or wt switch)
 │         └── User says no → Continue, note divergence
 └── No → Continue in current worktree
+
+Task is large/complex/parallelizable?
+├── Yes → Propose parallel subagents (spawn_worktree_agent)
+│         ├── User says yes → Spawn 2–4 agents in worktrees, coordinate
+│         └── User says no → Continue solo in current worktree
+└── No → Continue solo
 
 About to make large/irreversible change?
 ├── Yes → Commit first
@@ -193,6 +243,10 @@ About to make large/irreversible change?
 Worktree name no longer fits?
 ├── Yes → Propose rename, wait for approval
 └── No → Leave as-is
+
+Need to check what other worktrees are active?
+├── Yes → Run /wt-list or check footer statusline
+└── No → Proceed
 ```
 
 ## Troubleshooting
@@ -205,6 +259,10 @@ Worktree name no longer fits?
 | User asks to "go back to previous task" | Check `wt list` for recent worktrees, ask which one to resume |
 | Commit fails due to untracked files | Stage with `git add .` or `git add -p` for selective staging |
 | Worktree name too long | Keep under 30 chars; use abbreviations: `refactor-auth` not `refactor-authentication-system` |
+| Stale 🤖 marker in `wt list` | Run `wt config state marker clear` to remove it |
+| `/wt-switch-create` didn't relaunch Pi | Check multiplexer (tmux/Zellij/herdr). Without one, `cd` into the worktree path and restart Pi manually |
+| `spawn_worktree_agent` returned no output | Check `wt list` to confirm worktree exists; verify the subagent completed |
+| Footer statusline is outdated | Run `/wt-statusline-refresh` to force a cache refresh |
 
 ## Common Mistakes
 
@@ -232,6 +290,6 @@ Worktree name no longer fits?
 
 ## Versioning
 
-- **Last updated:** 2026-05-21
-- **Version:** 1.0
-- **Update notes:** Initial workflow discipline rules
+- **Last updated:** 2026-05-22
+- **Version:** 1.1
+- **Update notes:** Integrated `pi-worktrunk-bridge` extension patterns: `/wt-switch-create`, `spawn_worktree_agent`, `wt list` coordination, statusline awareness, and parallel subagent workflows.
