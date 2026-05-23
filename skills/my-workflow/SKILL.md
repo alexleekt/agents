@@ -108,6 +108,32 @@ Make commits **early and often**. Prefer small, focused commits over large bundl
 - Commit when the user says "let me think" or pauses for a while
 - Do not wait for perfection — imperfect commits are better than lost work
 
+### Amend Safety
+
+`git commit --amend` rewrites the commit hash. The old commit becomes
+**unreachable** — invisible in `git log` but still in the object database.
+
+**When amending is risky:**
+- Right after a refactor that replaced a code pattern (e.g., inline → shared
+  component). Fixes from the old architecture may not exist in the new code.
+- When the commit you're amending contained a fix that hasn't been verified in
+  the refactored layout.
+
+**Recovery if a fix was lost:**
+```bash
+git fsck --unreachable --no-reflogs | grep commit
+# For each suspicious hash:
+git show <hash> --stat
+git show <hash> -- <file>
+```
+
+**Prevention:**
+- Before amending during a refactor, review the diff one last time
+- After refactoring a pattern, grep the new code for old pattern keywords to
+  verify fixes migrated (e.g., search for the old label string in the new shared
+  component)
+- Never amend a commit that has already been pushed
+
 ### Don't Commit Unnecessarily
 
 - Trivial tweaks (whitespace, typo fixes) — batch if possible
@@ -347,6 +373,7 @@ Need to check what other worktrees are active?
 | `/wt-switch-create` didn't relaunch Pi | Check multiplexer (tmux/Zellij/herdr). Without one, `cd` into the worktree path and restart Pi manually |
 | `spawn_worktree_agent` returned no output | Check `wt list` to confirm worktree exists; verify the subagent completed |
 | Footer statusline is outdated | Run `/wt-statusline-refresh` to force a cache refresh |
+| Lost changes after `git commit --amend` | `git fsck --unreachable --no-reflogs \| grep commit` → `git show <hash>` to recover; then port the fix into the refactored architecture |
 
 ## Common Mistakes
 
@@ -358,6 +385,9 @@ Need to check what other worktrees are active?
 
 ❌ **Wrong:** Letting the user work in a misleadingly named worktree
 ✅ **Right:** Propose renaming when work evolves away from the original name
+
+❌ **Wrong:** Amending a commit during a refactor without verifying fixes migrated
+✅ **Right:** After amending, grep the new code for old pattern keywords; run `git fsck --unreachable` if unsure
 
 ❌ **Wrong:** Ending a session without committing WIP
 ✅ **Right:** Always commit before ending, even if the commit message is "WIP"
@@ -375,5 +405,5 @@ Need to check what other worktrees are active?
 ## Versioning
 
 - **Last updated:** 2026-05-23
-- **Version:** 1.4
-- **Update notes:** Added `.env` fallback pattern (create from .env.example if missing), mise trust with shell-agnostic `sh -c` wrapper, and `[list] url` for service projects. Expanded pre-create pipeline guidance.
+- **Version:** 1.5
+- **Update notes:** Added Amend Safety section after recovering an orphaned commit (`7b161895`) lost during a `git commit --amend` cycle. Covers `git fsck --unreachable` recovery, post-refactor verification, and prevention patterns.
