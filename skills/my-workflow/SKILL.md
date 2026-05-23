@@ -162,6 +162,11 @@ When creating a new worktree or working in a repo without `.config/wt.toml`, con
      check = "just check"            # Step 2: can validate .env
      ```
    - **Never** use `[pre-create]` table form with multiple keys — steps run concurrently and ordering is undefined
+   - Add an `.env` fallback step after `copy-ignored` for first-time clones where main lacks `.env`:
+     ```toml
+     [[pre-create]]
+     env-fallback = "sh -c '[ -f .env ] || cp .env.example .env'"
+     ```
 
 4. **Use `.worktreeinclude` as a whitelist for what to copy:**
    - Create `.worktreeinclude` in the repo root alongside `.gitignore` to explicitly list gitignored files that should be copied to new worktrees
@@ -175,7 +180,15 @@ When creating a new worktree or working in a repo without `.config/wt.toml`, con
      node_modules/
      ```
 
-5. **Avoid fragile hooks:**
+5. **Trust mise if the repo uses it:**
+   - If `mise.toml` exists, add a `pre-create` step that trusts mise tools — but only if mise is installed
+   - Wrap in `sh -c` for shell portability (works in bash, fish, zsh):
+     ```toml
+     [[pre-create]]
+     mise = "sh -c 'command -v mise >/dev/null 2>&1 && mise trust || true'"
+     ```
+
+6. **Avoid fragile hooks:**
    - Don't put server-requiring tests in `pre-merge` — they break in CI/non-interactive contexts
    - Don't put destructive commands (`rm -rf`, `DROP TABLE`) in any hook
    - Don't put network fetches (`curl`, `wget`) in hooks
@@ -188,6 +201,17 @@ When creating a new worktree or working in a repo without `.config/wt.toml`, con
 | Cargo/Rust | `cargo build` | `cargo clippy` + `cargo fmt --check` | `cargo test` |
 | Python/just | `just check` | `just safety-check` | (skip if tests need running server) |
 | Generic | `cp .env.example .env` | — | — |
+
+### Service projects (APIs, proxies, servers)
+
+For repos that run a local service, add a `[list]` URL so `wt list --full` shows whether the service is listening:
+
+```toml
+[list]
+url = "http://localhost:4000"
+```
+
+This lights up the URL column in `wt list` when any worktree has the service running.
 
 ### What NOT to add
 
@@ -351,5 +375,5 @@ Need to check what other worktrees are active?
 ## Versioning
 
 - **Last updated:** 2026-05-23
-- **Version:** 1.3
-- **Update notes:** Replaced project-level `step.copy-ignored.exclude` recommendation with `.worktreeinclude` whitelist approach. `.worktreeinclude` is more intentional — you say what TO copy, not what NOT to copy. Personal exclusions (`.pi/`, etc.) remain in user config.
+- **Version:** 1.4
+- **Update notes:** Added `.env` fallback pattern (create from .env.example if missing), mise trust with shell-agnostic `sh -c` wrapper, and `[list] url` for service projects. Expanded pre-create pipeline guidance.
