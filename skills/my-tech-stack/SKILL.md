@@ -129,8 +129,20 @@ When working with this user:
 | Tool | When to Use |
 |------|-------------|
 | [**cloudflare**](https://www.cloudflare.com/) | DNS management, CDN, DDoS protection, serverless workers, fast global edge network |
+| [**colima**](https://github.com/abiosoft/colima) | **Default container runtime** — macOS Docker-compatible containers via Lima; free, open source, fast |
+| [**docker**](https://www.docker.com/) | Container CLI and compose; used alongside colima as the client interface |
 | [**k3s**](https://github.com/k3s-io/k3s) | Lightweight Kubernetes for edge, IoT, CI/CD, resource-constrained environments |
 | [**terraform**](https://github.com/hashicorp/terraform) | Infrastructure as Code for provisioning cloud resources; multi-cloud or complex infrastructure |
+
+**Colima vs alternatives:**
+| | Colima | OrbStack | Docker Desktop | Finch |
+|---|---|---|---|---|
+| License | Apache 2.0 (OSS) | Proprietary | Proprietary | Apache 2.0 (OSS) |
+| Cost | Free | Free / $8 Pro | Free / Enterprise | Free |
+| Performance | Good | Excellent | Moderate | Good |
+| UX | CLI-only | GUI app | GUI app | CLI-only |
+
+**Preference:** Colima — best open-source license, modern macOS standard, CLI-native workflow.
 
 ### Local Development
 
@@ -235,6 +247,9 @@ RH:- Use **SvelteKit** for web framework (when applicable)
 ### Working with Python?
 - Use **uv** for dependencies and virtual environments
 
+### Need containers on macOS?
+- Use **colima** + **docker** — free, OSS, Docker-compatible
+
 ### Setting up CI/CD?
 - Use **GitHub Actions** on **GitHub**
 
@@ -295,9 +310,9 @@ Example:
 
 ## Versioning
 
-- **Last updated:** 2026-04-22
-- **Version:** 1.6
-- **Update notes:** Added AI Providers section with fireworks/firepass as default LLM provider; pi-coding-agent as primary agent; memex replacing mulch
+- **Last updated:** 2026-05-23
+- **Version:** 1.7
+- **Update notes:** Added colima + docker as default container runtime for macOS; included comparison table against OrbStack, Docker Desktop, and Finch
 
 ## Related Skills
 
