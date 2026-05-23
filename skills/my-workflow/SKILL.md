@@ -134,13 +134,73 @@ Worktree names should describe the **actual work being done**, not the original 
 - Be specific: `fix-login` → `fix-session-timeout-5min`
 - Avoid generic names: `wip`, `temp`, `stuff`
 
+## Worktrunk Config Maintenance
+
+When creating a new worktree or working in a repo without `.config/wt.toml`, consider improving the worktrunk configuration so future worktrees benefit.
+
+### Checklist when spawning/creating worktrees
+
+1. **Does `.config/wt.toml` exist?**
+   - If missing, check if the project warrants one (any non-trivial repo with hooks, build steps, or shared tooling)
+   - If present, review whether it's still accurate for the current build system
+
+2. **Read the build system** before designing hooks:
+   - `justfile` → use `just check`, `just test`, `just safety-check`, etc.
+   - `package.json` → use `npm ci`, `npm run lint`, `npm test`
+   - `Cargo.toml` → use `cargo build`, `cargo clippy`, `cargo test`
+   - `pyproject.toml`/`setup.py` → use `pip install`, `pytest`, `ruff check`, `mypy`
+   - No build manifest → skip or use lightweight shell checks
+
+3. **Handle gitignored files (`.env`, caches, local state):**
+   - Add `wt step copy-ignored` to `pre-create` when `.env` or other gitignored files are needed in new worktrees
+   - Use `[[pre-create]]` **pipeline** syntax (not `[pre-create]` table) to control ordering:
+     ```toml
+     [[pre-create]]
+     copy = "wt step copy-ignored"  # Step 1: .env is now present
+
+     [[pre-create]]
+     check = "just check"            # Step 2: can validate .env
+     ```
+   - **Never** use `[pre-create]` table form with multiple keys — steps run concurrently and ordering is undefined
+
+4. **Use `.worktreeinclude` as a whitelist for what to copy:**
+   - Create `.worktreeinclude` in the repo root alongside `.gitignore` to explicitly list gitignored files that should be copied to new worktrees
+   - **Project-level** — assess what the repo needs (e.g., `.env`, `node_modules/`, `target/`)
+   - **User-level** — keep personal excludes (`.pi/`, `.vscode/`, `.idea/`) in `~/.config/worktrunk/config.toml` under `[step.copy-ignored]`
+   - `.worktreeinclude` is more intentional than `step.copy-ignored.exclude` in project config — you say what TO copy, not what NOT to copy
+   - Example `.worktreeinclude`:
+     ```text
+     # Whitelist of gitignored files to copy into new worktrees
+     .env
+     node_modules/
+     ```
+
+5. **Avoid fragile hooks:**
+   - Don't put server-requiring tests in `pre-merge` — they break in CI/non-interactive contexts
+   - Don't put destructive commands (`rm -rf`, `DROP TABLE`) in any hook
+   - Don't put network fetches (`curl`, `wget`) in hooks
+
+### Common config patterns by project type
+
+| Build System | `pre-create` | `pre-commit` | `pre-merge` |
+|---|---|---|---|
+| npm/Node | `npm ci` | `npm run lint` + `npm run typecheck` | `npm test` |
+| Cargo/Rust | `cargo build` | `cargo clippy` + `cargo fmt --check` | `cargo test` |
+| Python/just | `just check` | `just safety-check` | (skip if tests need running server) |
+| Generic | `cp .env.example .env` | — | — |
+
+### What NOT to add
+
+- `switch.create` — **not a valid config key** anywhere (global or per-project). It's CLI-only. `wt switch <branch>` already auto-creates worktrees for existing branches without any flag.
+
 ## Session Boundaries
 
 ### Starting a Session
 
 1. Check the current worktrunk name and purpose
 2. Confirm with the user if the task fits
-3. If no worktrunk exists and the task is non-trivial, suggest creating one
+3. If no worktree exists and the task is non-trivial, suggest creating one
+4. If creating a worktree and `.config/wt.toml` is missing, consider the **Worktrunk Config Maintenance** checklist above
 
 ### Ending a Session
 
@@ -290,6 +350,6 @@ Need to check what other worktrees are active?
 
 ## Versioning
 
-- **Last updated:** 2026-05-22
-- **Version:** 1.1
-- **Update notes:** Integrated `pi-worktrunk-bridge` extension patterns: `/wt-switch-create`, `spawn_worktree_agent`, `wt list` coordination, statusline awareness, and parallel subagent workflows.
+- **Last updated:** 2026-05-23
+- **Version:** 1.3
+- **Update notes:** Replaced project-level `step.copy-ignored.exclude` recommendation with `.worktreeinclude` whitelist approach. `.worktreeinclude` is more intentional — you say what TO copy, not what NOT to copy. Personal exclusions (`.pi/`, etc.) remain in user config.
