@@ -394,4 +394,3 @@ Use this skill **only** when the conversation is about releases, versioning, or 
 - **@skills/worktrunk** — For release branch management via worktrees
 - **@skills/my-tech-stack** — For tool recommendations (biome, just, mise, etc.)
 - **@skills/my-workflow** — For commit discipline before cutting a release
-- **@skills/my-team-orchestrate** — For parallel release tasks (e.g., multi-package releases)

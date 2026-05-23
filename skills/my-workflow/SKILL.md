@@ -178,19 +178,19 @@ When creating a new worktree or working in a repo without `.config/wt.toml`, con
    - No build manifest → skip or use lightweight shell checks
 
 3. **Handle gitignored files (`.env`, caches, local state):**
-   - Add `wt step copy-ignored` to `pre-create` when `.env` or other gitignored files are needed in new worktrees
-   - Use `[[pre-create]]` **pipeline** syntax (not `[pre-create]` table) to control ordering:
+   - Add `wt step copy-ignored` to `pre-start` when `.env` or other gitignored files are needed in new worktrees
+   - Use `[[pre-start]]` **pipeline** syntax (not `[pre-start]` table) to control ordering:
      ```toml
-     [[pre-create]]
+     [[pre-start]]
      copy = "wt step copy-ignored"  # Step 1: .env is now present
 
-     [[pre-create]]
+     [[pre-start]]
      check = "just check"            # Step 2: can validate .env
      ```
-   - **Never** use `[pre-create]` table form with multiple keys — steps run concurrently and ordering is undefined
+   - **Never** use `[pre-start]` table form with multiple keys — steps run concurrently and ordering is undefined
    - Add an `.env` fallback step after `copy-ignored` for first-time clones where main lacks `.env`:
      ```toml
-     [[pre-create]]
+     [[pre-start]]
      env-fallback = "sh -c '[ -f .env ] || cp .env.example .env'"
      ```
 
@@ -207,10 +207,10 @@ When creating a new worktree or working in a repo without `.config/wt.toml`, con
      ```
 
 5. **Trust mise if the repo uses it:**
-   - If `mise.toml` exists, add a `pre-create` step that trusts mise tools — but only if mise is installed
+   - If `mise.toml` exists, add a `pre-start` step that trusts mise tools — but only if mise is installed
    - Wrap in `sh -c` for shell portability (works in bash, fish, zsh):
      ```toml
-     [[pre-create]]
+     [[pre-start]]
      mise = "sh -c 'command -v mise >/dev/null 2>&1 && mise trust || true'"
      ```
 
@@ -221,7 +221,7 @@ When creating a new worktree or working in a repo without `.config/wt.toml`, con
 
 ### Common config patterns by project type
 
-| Build System | `pre-create` | `pre-commit` | `pre-merge` |
+| Build System | `pre-start` | `pre-commit` | `pre-merge` |
 |---|---|---|---|
 | npm/Node | `npm ci` | `npm run lint` + `npm run typecheck` | `npm test` |
 | Cargo/Rust | `cargo build` | `cargo clippy` + `cargo fmt --check` | `cargo test` |
@@ -399,7 +399,6 @@ Need to check what other worktrees are active?
 
 - **@skills/worktrunk** — For `wt` CLI commands, hooks, config, troubleshooting
 - **@skills/my-semantic-release** — For release workflows when a worktree is ready to merge
-- **@skills/my-team-orchestrate** — For spawning agents in parallel worktrees
 - **@skills/my-code-review** — For reviewing changes before committing in a worktree
 
 ## Versioning
@@ -407,3 +406,4 @@ Need to check what other worktrees are active?
 - **Last updated:** 2026-05-23
 - **Version:** 1.5
 - **Update notes:** Added Amend Safety section after recovering an orphaned commit (`7b161895`) lost during a `git commit --amend` cycle. Covers `git fsck --unreachable` recovery, post-refactor verification, and prevention patterns.
+

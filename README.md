@@ -44,7 +44,6 @@ agents/
 | `my-crawl4ai` | "crawl4ai", "web scraping", "scrape data" | Web crawling with crawl4ai |
 | `my-krea` | "generate image", "make a video", "AI image" | Image and video generation with Krea AI |
 | `my-semantic-release` | "release", "changelog", "semver" | Semantic versioning and release workflows |
-| `my-team-orchestrate` | "start a team", "delegate", "50+ files" | Multi-agent delegation patterns |
 | `my-tech-stack` | "what should I use", "bun or node" | Preferred tools and technology recommendations |
 | `my-web-search-kagi` | "search the web", "look up", "google" | Web search via agent-browser + Kagi |
 | `my-workflow` | "assessing task direction", "should I switch" | Worktrunk discipline, commit timing, naming hygiene |
@@ -91,3 +90,4 @@ When starting work:
 ## Legacy Note
 
 Previous `conventions/agent-conventions.md` and `preferences/tech-preferences.md` have been superseded by `my-agent-file-conventions` and `my-tech-stack` skills respectively. The legacy files are preserved in git history but removed from the working tree.
+ are preserved in git history but removed from the working tree.

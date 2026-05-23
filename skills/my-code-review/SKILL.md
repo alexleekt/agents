@@ -236,7 +236,7 @@ Example: "Review this entire codebase" → Use team orchestration with checker/f
 ✅ **Right:** Prefer minimal, targeted changes. Only refactor when clearly justified
 
 ❌ **Wrong:** Reviewing 50+ files as a single monolithic review
-✅ **Right:** Use `@skills/my-team-orchestrate` to parallelize across modules
+✅ **Right:** Use `@skills/pi-subagents` or `@skills/my-team-orchestrate` to parallelize across modules
 
 ## Troubleshooting
 
