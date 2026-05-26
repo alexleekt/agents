@@ -1,29 +1,26 @@
 ---
 name: my-workflow
 description: |
-  **ALWAYS use when:** the user says commit, push, stage, ship, "looking good", "done", "wrap it up", or signals completion; when starting a session with uncommitted changes or on a dirty main branch; when assessing task direction, deciding whether to stay in the current worktrunk or switch; making commits; performing large or irreversible file actions; updating worktree names to match evolving work. Use this skill whenever the user mentions committing, pushing, shipping, or wrapping up work — even if they don't explicitly use git terminology.
+  **ALWAYS use when:** assessing task direction, deciding whether to stay in the current worktrunk or switch; updating worktree names to match evolving work; managing session boundaries and context switching; spawning parallel subagents. Use whenever the user asks about worktrees, switching contexts, session starts/ends, or coordinating multiple agents.
 
-  **DO NOT use for:** `wt` CLI mechanics, hooks, or config — use @skills/worktrunk.
+  **DO NOT use for:** commit/push/ship actions — use @skills/my-vcs-hygiene. Plan/build/review/document phases — use @skills/my-project-lifecycle. `wt` CLI mechanics — use @skills/worktrunk.
 ---
 
 # Personal Workflow Discipline
 
-How the agent should manage worktrunks, commits, and context while working.
+Core orchestration: worktrees, direction, session boundaries, and parallel agents.
 
 > **Note:** This is a living document. Workflows evolve. Check the latest version
 > before making decisions.
 
 ## ⚡ Quick Start
 
-**User says "commit it", "push it", "ship it", or "looking good"?**
-→ Execute directly — confirm scope briefly, don't ask permission. Branch-from-Main Guard applies.
-
 **Task doesn't match the current worktrunk?**
 → Ask the user before switching or spawning a new worktree.
 → If the user approves, prefer `/wt-switch-create <branch>` to create, switch, and relaunch in one step.
 
 **Significant code change or irreversible file action?**
-→ Make a commit first. Prefer small, focused commits.
+→ Consult @skills/my-vcs-hygiene — commit first. Prefer small, focused commits.
 
 **Worktree name no longer describes the work?**
 → Propose renaming it to match the actual direction.
@@ -33,89 +30,35 @@ How the agent should manage worktrunks, commits, and context while working.
 
 ## Activation Condition
 
-**This skill activates when the agent is performing file-mutating operations OR when workflow state changes require a decision.**
+**This skill activates when the agent is managing worktree state, session context, or parallel coordination.**
 
 Apply these rules when:
-- Creating, editing, deleting, or renaming files
-- Running commands that modify the working tree (install, scaffold, generate)
-- The user issues VCS commands or wrap-up signals ("commit it", "ship it", "done")
-- The session starts with uncommitted changes from a prior session
-- Performing any non-temporary file action
+- Assessing whether a task fits the current worktrunk
+- Starting or ending a session
+- Switching contexts mid-session
+- Spawning or coordinating parallel subagents
+- Naming, renaming, or creating worktrees
 
 Do **not** apply these rules when:
-- Reading or analyzing code (explain, review, search)
-- Answering questions about the codebase
-- Any purely read-only interaction
+- The user issues a VCS command (commit, push, ship) → use @skills/my-vcs-hygiene
+- Planning or reviewing a feature → use @skills/my-project-lifecycle
+- Answering questions about `wt` CLI → use @skills/worktrunk
 
 ## Scope
 
 This skill covers **agent behavioral rules** for:
-- User-initiated VCS actions (commit, push, stage, ship)
-- Implicit commit signals ("looking good", "done", "wrap it up")
-- Branch-from-Main Guard (never commit to main)
-- Resuming with uncommitted work
 - Direction assessment (does the task fit the current worktrunk?)
-- Commit discipline (when and why to commit)
 - Worktree naming hygiene (keeping names accurate)
-- Session boundaries (end-of-session rituals, context switching)
+- Session boundaries (start, end, context switching)
+- Parallel work with subagents
+- Worktrunk config maintenance
 
 It does **not** cover:
-- `wt` CLI commands or syntax → see @skills/worktrunk
-- Hook configuration or project automation → see @skills/worktrunk
-- Commit message generation → see @skills/worktrunk
-
-## User-Initiated VCS Actions
-
-When the user explicitly commands a commit, push, stage, or ship:
-
-1. **Do not ask for permission** — they already gave it. Asking adds friction.
-2. **Confirm scope briefly** — "Committing these 6 files on branch `docs/foo`?" gives them a chance to correct without blocking.
-3. **Apply Branch-from-Main Guard** — if on `main` with uncommitted changes, create a feature branch first.
-4. **Execute** — stage → commit → push (if requested).
-
-### Why this matters
-The skill's "ask first" default is for **unsolicited** actions — when the agent initiates. When the user explicitly commands a VCS action, asking is patronizing and slows the loop. Confirm scope, then execute.
-
-## Implicit Commit Signals
-
-Phrases that signal the user wants to wrap up and commit:
-
-| Explicit | Implicit |
-|----------|----------|
-| "commit it" | "looking good" |
-| "push it" | "that's it" |
-| "stage this" | "done" |
-| "ship it" | "wrap it up" |
-| "commit and push" | "finish up" |
-| | "let's ship this" |
-
-When you hear these:
-1. Check `git status` to see what's changed
-2. Confirm what to include: "Commit the changes to `<files>`?"
-3. Apply Branch-from-Main Guard if needed
-4. Execute
-
-## Branch-from-Main Guard
-
-If on `main` (or any protected default branch) with uncommitted changes:
-
-1. **Create a descriptive feature branch**: `git checkout -b <kebab-case-name>`
-2. **Then commit** — never commit directly to main
-
-This bridges the AGENTS.md rule into the workflow skill. The branch name should describe the actual work, not be generic.
-
-**Good**: `docs/event-horizon-provider-context`, `fix-auth-timeout-5min`
-**Bad**: `wip`, `temp`, `stuff`
-
-## Resuming with Uncommitted Work
-
-When a session starts and `git status` shows changes:
-
-1. Check if on main → if yes, apply Branch-from-Main Guard
-2. Ask: "I see uncommitted work from a prior session. Commit this first, or continue editing?"
-3. If the user says continue without committing, note it and proceed
-
-Do **not** silently ignore a dirty tree — it means work from a prior session may be at risk.
+- Commit/push discipline → @skills/my-vcs-hygiene
+- Plan/build/review/document lifecycle → @skills/my-project-lifecycle
+- `wt` CLI commands or syntax → @skills/worktrunk
+- Hook configuration or project automation → @skills/worktrunk
+- Commit message generation → @skills/worktrunk
 
 ## Direction Assessment
 
@@ -146,55 +89,6 @@ When the user's task changes or diverges from the current worktrunk's purpose:
 | User asks to review a different PR | Check `wt list` for that PR's worktree, then ask: "Switch to `<branch>`?" |
 | Task evolved away from original intent | Propose renaming or switching |
 | Large task (50+ files, multi-domain) | Propose: "Spawn parallel subagents with `spawn_worktree_agent`?" |
-
-## Commit Discipline
-
-Make commits **early and often**. Prefer small, focused commits over large bundles.
-
-### Must Commit Before
-
-- Large file moves, deletions, or renames
-- Irreversible operations ( destructive edits, schema changes )
-- Switching worktrees or ending a session
-- Any change you'd regret losing if the terminal crashed
-
-### Good Commit Hygiene
-
-- Commit when a logical unit of work is complete
-- Commit before running risky commands
-- Commit when the user says "let me think" or pauses for a while
-- Do not wait for perfection — imperfect commits are better than lost work
-
-### Amend Safety
-
-`git commit --amend` rewrites the commit hash. The old commit becomes
-**unreachable** — invisible in `git log` but still in the object database.
-
-**When amending is risky:**
-- Right after a refactor that replaced a code pattern (e.g., inline → shared
-  component). Fixes from the old architecture may not exist in the new code.
-- When the commit you're amending contained a fix that hasn't been verified in
-  the refactored layout.
-
-**Recovery if a fix was lost:**
-```bash
-git fsck --unreachable --no-reflogs | grep commit
-# For each suspicious hash:
-git show <hash> --stat
-git show <hash> -- <file>
-```
-
-**Prevention:**
-- Before amending during a refactor, review the diff one last time
-- After refactoring a pattern, grep the new code for old pattern keywords to
-  verify fixes migrated (e.g., search for the old label string in the new shared
-  component)
-- Never amend a commit that has already been pushed
-
-### Don't Commit Unnecessarily
-
-- Trivial tweaks (whitespace, typo fixes) — batch if possible
-- Work-in-progress that breaks the build — unless it's end of session
 
 ## Worktree Naming Hygiene
 
@@ -305,23 +199,23 @@ This lights up the URL column in `wt list` when any worktree has the service run
 ### Starting a Session
 
 1. Check the current worktrunk name and purpose
-2. Run `git status` — if dirty, apply **Resuming with Uncommitted Work**
+2. Run `git status` — if dirty, consult @skills/my-vcs-hygiene for **Resuming with Uncommitted Work**
 3. Confirm with the user if the task fits
 4. If no worktree exists and the task is non-trivial, suggest creating one
 5. If creating a worktree and `.config/wt.toml` is missing, consider the **Worktrunk Config Maintenance** checklist above
 
 ### Ending a Session
 
-1. **Commit any uncommitted work** — even if WIP
+1. **Commit any uncommitted work** — consult @skills/my-vcs-hygiene. Even if WIP.
 2. Summarize what was done and what's left
 3. Note the current worktree name for next time
-4. If the work is complete, suggest merging or closing the worktree
+4. If the work is complete, consult @skills/my-project-lifecycle for documentation, then suggest merging or closing the worktree
 
 ### Context Switching
 
 When the user switches contexts mid-session:
 
-1. Commit current work (WIP is fine)
+1. Commit current work (consult @skills/my-vcs-hygiene)
 2. Note the stopping point
 3. Check `wt list` to see available worktrees and their activity (🤖/💬 markers)
 4. Ask whether to stay in the current worktree or switch
@@ -361,22 +255,18 @@ For large or complex tasks, spawn parallel Pi subagents in isolated worktrees:
 
 ## Relationship to Other Skills
 
-| Skill / Extension | Responsibility |
+| Skill | Responsibility |
 |-------------------|---------------|
-| **my-workflow** (this) | When to use worktrunks, commit discipline, naming hygiene, parallel coordination, user-initiated VCS actions, implicit commit signals |
-| **worktrunk** | How to run `wt` commands, hooks, config, troubleshooting |
+| **my-workflow** (this) | Worktrees, direction, naming, session boundaries, parallel coordination |
+| **my-vcs-hygiene** | Commit discipline, user-initiated VCS, implicit signals, branch-from-main, amend safety, monorepo commits, visual iteration |
+| **my-project-lifecycle** | Plan → Build → Review → Document → Ship, when to review, post-build docs, skill self-improvement |
+| **worktrunk** | `wt` CLI commands, hooks, config, troubleshooting |
 | **my-team-orchestrate** | Multi-agent delegation patterns (scout→planner→worker, expert panel, etc.) |
 | **pi-worktrunk-bridge** | Activity tracking, `/wt-switch-create`, statusline, `spawn_worktree_agent` tool |
 | **herdr** | Workspace/tab/pane management when running inside herdr |
 | **my-semantic-release** | Release workflows when a worktree is ready to merge |
 
 ## Examples
-
-### Good: User-Initiated VCS Action
-
-User: "looking good. commit it and push"
-Agent: "Committing 6 files — creating branch `docs/event-horizon-provider-context` from main, then committing and pushing."
-→ Executes without asking permission.
 
 ### Good Direction Check
 
@@ -385,7 +275,7 @@ Agent (current worktree: `fix-auth-timeout`): "This is related to auth but a new
 
 ### Good Commit Timing
 
-Agent: "About to delete the old auth module. Committing current progress first."
+Agent: "About to delete the old auth module. Committing current progress first." → consults @skills/my-vcs-hygiene
 
 ### Good Naming Hygiene
 
@@ -395,20 +285,9 @@ Agent: "This worktree started as `ui-tweaks` but we're now rebuilding the compon
 
 Agent switches to a new worktree without asking. ❌ Always ask first.
 
-### Bad: Asking Permission for a Command
-
-User: "commit it"
-Agent: "Should I commit the changes?" ❌ The user already said commit it. Confirm scope instead.
-
 ## Decision Tree
 
 ```
-User gave explicit VCS command or implicit commit signal?
-├── Yes → Confirm scope briefly, then execute
-│         ├── On main with changes? → Branch-from-Main Guard first
-│         └── Then stage → commit → push (if requested)
-└── No → Continue to general workflow
-
 Task diverges from current worktrunk?
 ├── Yes → Ask user: "Switch worktrees with /wt-switch-create?"
 │         ├── User says yes → /wt-switch-create <branch> (or wt switch)
@@ -422,7 +301,7 @@ Task is large/complex/parallelizable?
 └── No → Continue solo
 
 About to make large/irreversible change?
-├── Yes → Commit first
+├── Yes → Consult @skills/my-vcs-hygiene — commit first
 └── No → Proceed
 
 Worktree name no longer fits?
@@ -438,52 +317,40 @@ Need to check what other worktrees are active?
 
 | Issue | Solution |
 |-------|----------|
-| User says "just commit it" but worktree is wrong | Commit in current worktree, then suggest switching for next task |
+| User says "just commit it" but worktree is wrong | Commit in current worktree (consult @skills/my-vcs-hygiene), then suggest switching for next task |
 | User wants to rename worktree mid-session | Save state, rename, restore — or finish current work then rename |
 | Multiple worktrees with similar names | Use `wt list` to disambiguate; propose clearer naming |
 | User asks to "go back to previous task" | Check `wt list` for recent worktrees, ask which one to resume |
-| Commit fails due to untracked files | Stage with `git add .` or `git add -p` for selective staging |
 | Worktree name too long | Keep under 30 chars; use abbreviations: `refactor-auth` not `refactor-authentication-system` |
 | Stale 🤖 marker in `wt list` | Run `wt config state marker clear` to remove it |
 | `/wt-switch-create` didn't relaunch Pi | Check multiplexer (tmux/Zellij/herdr). Without one, `cd` into the worktree path and restart Pi manually |
 | `spawn_worktree_agent` returned no output | Check `wt list` to confirm worktree exists; verify the subagent completed |
 | Footer statusline is outdated | Run `/wt-statusline-refresh` to force a cache refresh |
-| Lost changes after `git commit --amend` | `git fsck --unreachable --no-reflogs \| grep commit` → `git show <hash>` to recover; then port the fix into the refactored architecture |
 
 ## Common Mistakes
 
 ❌ **Wrong:** Switching worktrees without asking the user first
 ✅ **Right:** Always ask: "This is a new direction. Switch to a new worktree?"
 
-❌ **Wrong:** Asking permission when the user already said "commit it"
-✅ **Right:** Confirm scope briefly, then execute: "Committing these 4 files on `fix-auth`?"
-
-❌ **Wrong:** Committing after every tiny tweak (whitespace, typo)
-✅ **Right:** Batch trivial fixes; commit on logical units or before irreversible actions
-
 ❌ **Wrong:** Letting the user work in a misleadingly named worktree
 ✅ **Right:** Propose renaming when work evolves away from the original name
 
-❌ **Wrong:** Amending a commit during a refactor without verifying fixes migrated
-✅ **Right:** After amending, grep the new code for old pattern keywords; run `git fsck --unreachable` if unsure
-
 ❌ **Wrong:** Ending a session without committing WIP
-✅ **Right:** Always commit before ending, even if the commit message is "WIP"
+✅ **Right:** Always commit before ending, even if the commit message is "WIP" — consult @skills/my-vcs-hygiene
 
 ❌ **Wrong:** Using generic worktree names like `wip`, `temp`, `stuff`
 ✅ **Right:** Use specific kebab-case names: `fix-auth-timeout-5min`
 
-❌ **Wrong:** Committing directly to main when in a worktree-less session
-✅ **Right:** Apply Branch-from-Main Guard — create a feature branch first
-
 ## Related Skills
 
-- **@skills/worktrunk** — For `wt` CLI commands, hooks, config, troubleshooting
-- **@skills/my-semantic-release** — For release workflows when a worktree is ready to merge
-- **@skills/my-code-review** — For reviewing changes before committing in a worktree
+- **@skills/my-vcs-hygiene** — Commit/push discipline, branch-from-main, amend safety, visual iteration
+- **@skills/my-project-lifecycle** — Plan → Build → Review → Document → Ship
+- **@skills/worktrunk** — `wt` CLI commands, hooks, config, troubleshooting
+- **@skills/my-semantic-release** — Release workflows when a worktree is ready to merge
+- **@skills/my-code-review** — Reviewing changes before committing in a worktree
 
 ## Versioning
 
 - **Last updated:** 2026-05-26
-- **Version:** 1.6
-- **Update notes:** Added User-Initiated VCS Actions, Implicit Commit Signals, Branch-from-Main Guard, and Resuming with Uncommitted Work sections. Expanded activation conditions and description to trigger on VCS commands and wrap-up signals. Added "ask permission for commanded actions" to Common Mistakes.
+- **Version:** 2.0
+- **Update notes:** Refactored into focused core orchestration skill. Extracted all VCS content to @skills/my-vcs-hygiene and all lifecycle content to @skills/my-project-lifecycle. This skill now covers worktrees, direction, naming, session boundaries, and parallel agents only.
