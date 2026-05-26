@@ -1,14 +1,9 @@
 ---
 name: my-workflow
 description: |
-  **ALWAYS use when:** assessing task direction, deciding whether to stay in the
-  current worktrunk or switch; making commits; performing large or irreversible
-  file actions; updating worktree names to match evolving work.
+  **ALWAYS use when:** the user says commit, push, stage, ship, "looking good", "done", "wrap it up", or signals completion; when starting a session with uncommitted changes or on a dirty main branch; when assessing task direction, deciding whether to stay in the current worktrunk or switch; making commits; performing large or irreversible file actions; updating worktree names to match evolving work. Use this skill whenever the user mentions committing, pushing, shipping, or wrapping up work — even if they don't explicitly use git terminology.
 
   **DO NOT use for:** `wt` CLI mechanics, hooks, or config — use @skills/worktrunk.
-
-  Guides agent behavioral discipline around idea separation, commit timing,
-  and worktree hygiene. Conservative by default: ask before switching.
 ---
 
 # Personal Workflow Discipline
@@ -19,6 +14,9 @@ How the agent should manage worktrunks, commits, and context while working.
 > before making decisions.
 
 ## ⚡ Quick Start
+
+**User says "commit it", "push it", "ship it", or "looking good"?**
+→ Execute directly — confirm scope briefly, don't ask permission. Branch-from-Main Guard applies.
 
 **Task doesn't match the current worktrunk?**
 → Ask the user before switching or spawning a new worktree.
@@ -35,11 +33,13 @@ How the agent should manage worktrunks, commits, and context while working.
 
 ## Activation Condition
 
-**This skill activates only when the agent is performing file-mutating operations.**
+**This skill activates when the agent is performing file-mutating operations OR when workflow state changes require a decision.**
 
 Apply these rules when:
 - Creating, editing, deleting, or renaming files
 - Running commands that modify the working tree (install, scaffold, generate)
+- The user issues VCS commands or wrap-up signals ("commit it", "ship it", "done")
+- The session starts with uncommitted changes from a prior session
 - Performing any non-temporary file action
 
 Do **not** apply these rules when:
@@ -50,6 +50,10 @@ Do **not** apply these rules when:
 ## Scope
 
 This skill covers **agent behavioral rules** for:
+- User-initiated VCS actions (commit, push, stage, ship)
+- Implicit commit signals ("looking good", "done", "wrap it up")
+- Branch-from-Main Guard (never commit to main)
+- Resuming with uncommitted work
 - Direction assessment (does the task fit the current worktrunk?)
 - Commit discipline (when and why to commit)
 - Worktree naming hygiene (keeping names accurate)
@@ -59,6 +63,59 @@ It does **not** cover:
 - `wt` CLI commands or syntax → see @skills/worktrunk
 - Hook configuration or project automation → see @skills/worktrunk
 - Commit message generation → see @skills/worktrunk
+
+## User-Initiated VCS Actions
+
+When the user explicitly commands a commit, push, stage, or ship:
+
+1. **Do not ask for permission** — they already gave it. Asking adds friction.
+2. **Confirm scope briefly** — "Committing these 6 files on branch `docs/foo`?" gives them a chance to correct without blocking.
+3. **Apply Branch-from-Main Guard** — if on `main` with uncommitted changes, create a feature branch first.
+4. **Execute** — stage → commit → push (if requested).
+
+### Why this matters
+The skill's "ask first" default is for **unsolicited** actions — when the agent initiates. When the user explicitly commands a VCS action, asking is patronizing and slows the loop. Confirm scope, then execute.
+
+## Implicit Commit Signals
+
+Phrases that signal the user wants to wrap up and commit:
+
+| Explicit | Implicit |
+|----------|----------|
+| "commit it" | "looking good" |
+| "push it" | "that's it" |
+| "stage this" | "done" |
+| "ship it" | "wrap it up" |
+| "commit and push" | "finish up" |
+| | "let's ship this" |
+
+When you hear these:
+1. Check `git status` to see what's changed
+2. Confirm what to include: "Commit the changes to `<files>`?"
+3. Apply Branch-from-Main Guard if needed
+4. Execute
+
+## Branch-from-Main Guard
+
+If on `main` (or any protected default branch) with uncommitted changes:
+
+1. **Create a descriptive feature branch**: `git checkout -b <kebab-case-name>`
+2. **Then commit** — never commit directly to main
+
+This bridges the AGENTS.md rule into the workflow skill. The branch name should describe the actual work, not be generic.
+
+**Good**: `docs/event-horizon-provider-context`, `fix-auth-timeout-5min`
+**Bad**: `wip`, `temp`, `stuff`
+
+## Resuming with Uncommitted Work
+
+When a session starts and `git status` shows changes:
+
+1. Check if on main → if yes, apply Branch-from-Main Guard
+2. Ask: "I see uncommitted work from a prior session. Commit this first, or continue editing?"
+3. If the user says continue without committing, note it and proceed
+
+Do **not** silently ignore a dirty tree — it means work from a prior session may be at risk.
 
 ## Direction Assessment
 
@@ -248,15 +305,16 @@ This lights up the URL column in `wt list` when any worktree has the service run
 ### Starting a Session
 
 1. Check the current worktrunk name and purpose
-2. Confirm with the user if the task fits
-3. If no worktree exists and the task is non-trivial, suggest creating one
-4. If creating a worktree and `.config/wt.toml` is missing, consider the **Worktrunk Config Maintenance** checklist above
+2. Run `git status` — if dirty, apply **Resuming with Uncommitted Work**
+3. Confirm with the user if the task fits
+4. If no worktree exists and the task is non-trivial, suggest creating one
+5. If creating a worktree and `.config/wt.toml` is missing, consider the **Worktrunk Config Maintenance** checklist above
 
 ### Ending a Session
 
 1. **Commit any uncommitted work** — even if WIP
 2. Summarize what was done and what's left
-3. Note the current worktrunk name for next time
+3. Note the current worktree name for next time
 4. If the work is complete, suggest merging or closing the worktree
 
 ### Context Switching
@@ -305,7 +363,7 @@ For large or complex tasks, spawn parallel Pi subagents in isolated worktrees:
 
 | Skill / Extension | Responsibility |
 |-------------------|---------------|
-| **my-workflow** (this) | When to use worktrunks, commit discipline, naming hygiene, parallel coordination |
+| **my-workflow** (this) | When to use worktrunks, commit discipline, naming hygiene, parallel coordination, user-initiated VCS actions, implicit commit signals |
 | **worktrunk** | How to run `wt` commands, hooks, config, troubleshooting |
 | **my-team-orchestrate** | Multi-agent delegation patterns (scout→planner→worker, expert panel, etc.) |
 | **pi-worktrunk-bridge** | Activity tracking, `/wt-switch-create`, statusline, `spawn_worktree_agent` tool |
@@ -313,6 +371,12 @@ For large or complex tasks, spawn parallel Pi subagents in isolated worktrees:
 | **my-semantic-release** | Release workflows when a worktree is ready to merge |
 
 ## Examples
+
+### Good: User-Initiated VCS Action
+
+User: "looking good. commit it and push"
+Agent: "Committing 6 files — creating branch `docs/event-horizon-provider-context` from main, then committing and pushing."
+→ Executes without asking permission.
 
 ### Good Direction Check
 
@@ -331,9 +395,20 @@ Agent: "This worktree started as `ui-tweaks` but we're now rebuilding the compon
 
 Agent switches to a new worktree without asking. ❌ Always ask first.
 
+### Bad: Asking Permission for a Command
+
+User: "commit it"
+Agent: "Should I commit the changes?" ❌ The user already said commit it. Confirm scope instead.
+
 ## Decision Tree
 
 ```
+User gave explicit VCS command or implicit commit signal?
+├── Yes → Confirm scope briefly, then execute
+│         ├── On main with changes? → Branch-from-Main Guard first
+│         └── Then stage → commit → push (if requested)
+└── No → Continue to general workflow
+
 Task diverges from current worktrunk?
 ├── Yes → Ask user: "Switch worktrees with /wt-switch-create?"
 │         ├── User says yes → /wt-switch-create <branch> (or wt switch)
@@ -380,6 +455,9 @@ Need to check what other worktrees are active?
 ❌ **Wrong:** Switching worktrees without asking the user first
 ✅ **Right:** Always ask: "This is a new direction. Switch to a new worktree?"
 
+❌ **Wrong:** Asking permission when the user already said "commit it"
+✅ **Right:** Confirm scope briefly, then execute: "Committing these 4 files on `fix-auth`?"
+
 ❌ **Wrong:** Committing after every tiny tweak (whitespace, typo)
 ✅ **Right:** Batch trivial fixes; commit on logical units or before irreversible actions
 
@@ -395,6 +473,9 @@ Need to check what other worktrees are active?
 ❌ **Wrong:** Using generic worktree names like `wip`, `temp`, `stuff`
 ✅ **Right:** Use specific kebab-case names: `fix-auth-timeout-5min`
 
+❌ **Wrong:** Committing directly to main when in a worktree-less session
+✅ **Right:** Apply Branch-from-Main Guard — create a feature branch first
+
 ## Related Skills
 
 - **@skills/worktrunk** — For `wt` CLI commands, hooks, config, troubleshooting
@@ -403,7 +484,6 @@ Need to check what other worktrees are active?
 
 ## Versioning
 
-- **Last updated:** 2026-05-23
-- **Version:** 1.5
-- **Update notes:** Added Amend Safety section after recovering an orphaned commit (`7b161895`) lost during a `git commit --amend` cycle. Covers `git fsck --unreachable` recovery, post-refactor verification, and prevention patterns.
-
+- **Last updated:** 2026-05-26
+- **Version:** 1.6
+- **Update notes:** Added User-Initiated VCS Actions, Implicit Commit Signals, Branch-from-Main Guard, and Resuming with Uncommitted Work sections. Expanded activation conditions and description to trigger on VCS commands and wrap-up signals. Added "ask permission for commanded actions" to Common Mistakes.
