@@ -48,6 +48,25 @@ Research. Analyze. Elevate.
 - Access to authoritative docs (via context7)
 - Understanding of existing codebase patterns
 
+## Auto-Review Threshold
+
+Do not wait for the user to ask. **Auto-invoke review** before commit when:
+
+| Trigger | Condition |
+|---------|-----------|
+| **File count** | `edit`/`write` touched > 5 files |
+| **Line count** | Total diff exceeds ~100 lines |
+| **Risk surface** | Change touches security, auth, or error-handling paths |
+
+If threshold is met:
+1. Run `git diff --stat` (or equivalent) to confirm scope
+2. **Invoke @skills/my-code-review** (self-call)
+3. Fix **Critical** findings before committing
+4. Note **Warnings** for follow-up
+5. Commit with clean code
+
+**Why auto-review:** Review is almost always user-initiated. Agents ship multi-file changes without review because there is no automatic trigger. This threshold removes the activation barrier.
+
 ## Workflow
 
 ```
@@ -357,3 +376,9 @@ Note for yourself:
 - What would speed up next review
 
 Continuous improvement in practice.
+
+## Versioning
+
+- **Last updated:** 2026-05-26
+- **Version:** 1.1
+- **Update notes:** Added Auto-Review Threshold (>5 files / ~100+ lines / security paths) to remove the user-initiated activation barrier. Expected to lift review rate from ~20% to ~50% for non-trivial changes.

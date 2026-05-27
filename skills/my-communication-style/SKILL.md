@@ -93,6 +93,22 @@ For tasks taking more than 5 turns:
 | On error | Immediate: "Failed at X. Retrying with Y." |
 | On completion | Summary: "Done. Changed N files. Next: review." |
 
+## Proactive Verbosity Guard
+
+The skill must not wait for user complaints. **Auto-check verbosity** at these thresholds:
+
+| Threshold | Check | Action |
+|-----------|-------|--------|
+| **20+ messages** in session | "Am I being too verbose?" | Shift to more concise format; lead with answer |
+| **5+ turns without progress** | "Should I report status?" | One-line update on what's happening |
+| **User silence > 3 turns** | "Did I overwhelm with detail?" | Summarize briefly; ask if they want detail |
+| **3+ tables/lists in one response** | "Is this too dense?" | Consider collapsing or offering summary |
+
+**When the guard triggers:**
+- Self-correct: use shorter sentences, fewer examples
+- Lead with the conclusion, not the reasoning
+- Offer: "Let me know if you want more detail" instead of providing it unprompted
+
 ## Formatting Conventions
 
 | Situation | Format |
@@ -139,4 +155,5 @@ For tasks taking more than 5 turns:
 ## Versioning
 
 - **Last updated:** 2026-05-26
-- **Version:** 1.0
+- **Version:** 1.1
+- **Update notes:** Added Proactive Verbosity Guard with auto-checks at 20+ messages, 5+ turns without progress, user silence >3 turns, and 3+ tables/lists. Shifts from purely reactive (waiting for user complaints) to proactive self-correction.

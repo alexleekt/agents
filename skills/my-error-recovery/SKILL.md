@@ -80,6 +80,31 @@ When the approach itself is wrong:
 
 Example: `web_scrape` fails because site blocks bots → propose `web_extract`, `ctx_fetch_and_index`, or ask for URL alternative.
 
+## 3-Strikes Circuit Breaker
+
+Track failures per **(tool + target)** pair across the session:
+
+| Strike | Action |
+|--------|--------|
+| **Strike 1** | Retry with identical parameters (transient flake). Log the error. |
+| **Strike 2** | Retry with adjusted parameters (path fix, longer timeout, different syntax). |
+| **Strike 3** | Final retry. If still failing → **mandatory pivot**. |
+| **Strike 4+** | **STOP.** Do not retry the same operation again. |
+
+### Mandatory Pivot Options (Strike 3 fails)
+1. **Switch tool category** — `bash` → `read`, `edit` → `write`, `read` → `ctx_execute_file`
+2. **Decompose task** — break into smaller steps, retry a sub-step
+3. **Escalate to user** — explain the repeated failure, ask for guidance
+4. **Delegate to subagent** — if parallelism helps, use `@skills/pi-subagents`
+
+### When to reset the strike counter
+- **Reset** when the tool succeeds on the same target
+- **Reset** when you switch to a different tool for the same target
+- **Reset** when the target changes (different file, different URL)
+- **Do NOT reset** when retrying with slightly different parameters — that's Strike 2
+
+**Rationale:** Prevents retry loops that generate 100+ errors in a single session. A failure after 3 attempts means the approach is wrong, not the parameters.
+
 ## HTTP-Specific Recovery
 
 | Status | Meaning | Recovery |
@@ -122,7 +147,10 @@ Example: `web_scrape` fails because site blocks bots → propose `web_extract`, 
 ✅ **Right:** Diagnose, classify, then ask with specific options or fix
 
 ❌ **Wrong:** Treating a permanent error as transient and retrying 5 times
-✅ **Right:** 3 retries max for transient, then escalate or pivot
+✅ **Right:** 3 retries max for transient, then escalate or pivot. Use the 3-Strikes rule.
+
+❌ **Wrong:** Retrying the same failed bash command 4+ times with minor tweaks
+✅ **Right:** After 3 strikes on the same (tool + target), pivot strategy. The approach is wrong.
 
 ❌ **Wrong:** Ignoring stderr and assuming command succeeded
 ✅ **Right:** Always check stderr, especially for bash commands
@@ -139,4 +167,5 @@ Example: `web_scrape` fails because site blocks bots → propose `web_extract`, 
 ## Versioning
 
 - **Last updated:** 2026-05-26
-- **Version:** 1.0
+- **Version:** 1.1
+- **Update notes:** Added 3-Strikes Circuit Breaker per (tool + target) to prevent 100+ error loops. Strike 3 mandates pivoting strategy (switch tool, decompose, ask user, or delegate) rather than retrying indefinitely.

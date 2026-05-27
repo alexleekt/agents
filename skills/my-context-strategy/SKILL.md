@@ -138,6 +138,27 @@ read({ path: "src/index.ts" })
 ctx_execute({ language: "javascript", code: "fs.writeFileSync('src/index.ts', 'new content')" })
 ```
 
+## The Processing Reflex
+
+Before calling `bash` for ANY non-mutating command, ask:
+> **"Do I need the raw output, or only a derived result?"**
+
+| Intent | Correct Tool |
+|--------|-------------|
+| Need raw output for editing | Read / Bash |
+| Need derived result (count, filter, parse, aggregate) | **ctx_execute / ctx_execute_file / ctx_batch_execute** |
+
+**Hard rule:** If you intend to `bash` a command and then `read` or `grep` its output, you **must** use `ctx_execute` instead.
+
+## Post-Hoc Migration Rule
+
+If a `bash` command returns **>20 lines** or the output is unpredictable:
+1. **Do NOT read** the raw output with `read`
+2. **Re-run** the analysis using `ctx_execute` or `ctx_batch_execute`
+3. **Surface only** the derived summary (counts, filtered lines, aggregates)
+
+This rule **overrides** the general "Bash for simple observation" hierarchy when output size exceeds the threshold.
+
 ## Trigger Phrases
 
 | User Says | Correct Tool |
@@ -175,6 +196,12 @@ ctx_execute({ language: "javascript", code: "fs.writeFileSync('src/index.ts', 'n
 ❌ **Wrong:** Using `ctx_execute` for `git status` on a clean tree
 ✅ **Right:** Using `bash` for short fixed observation
 
+❌ **Wrong:** Using `bash` to grep a log, then `read` the grep output
+✅ **Right:** Using `ctx_execute` — one call, processed in sandbox
+
+❌ **Wrong:** Processing 10,000 lines through bash into conversation memory
+✅ **Right:** Using `ctx_execute` to derive counts/filters, surfacing only the summary
+
 ## Related Skills
 
 - **@skills/my-workflow** — Session boundaries and parallel agent coordination
@@ -183,4 +210,5 @@ ctx_execute({ language: "javascript", code: "fs.writeFileSync('src/index.ts', 'n
 ## Versioning
 
 - **Last updated:** 2026-05-26
-- **Version:** 1.0
+- **Version:** 1.1
+- **Update notes:** Added Processing Reflex (pre-flight gate before any bash call) and Post-Hoc Migration Rule (bash >20 lines → re-run via ctx_execute). These address the 71% bash-misuse pattern found in retrospective analysis of 697 sessions.

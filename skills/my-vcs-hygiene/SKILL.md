@@ -133,6 +133,37 @@ Make commits **early and often**. Prefer small, focused commits over large bundl
 - Trivial tweaks (whitespace, typo fixes) — batch if possible
 - Work-in-progress that breaks the build — unless it's end of session
 
+## Session-End Commit Gate ("3×5" Heuristic)
+
+If the session has made edits or writes and the user has **not** given an explicit VCS signal, the agent **must** check for uncommitted work before ending.
+
+### Trigger Conditions (any one of)
+| Dimension | Threshold | Action |
+|-----------|-----------|--------|
+| **Files touched** | ≥ 3 files edited or written | Prompt to commit at next natural pause |
+| **Turns elapsed** | ≥ 5 agent turns that included `edit` or `write` | Prompt to commit at next natural pause |
+| **Irreversible op** | Any delete, rename, schema change | Commit immediately, no threshold |
+| **Session end** | Any `edit`/`write` occurred and zero VCS commands | **Mandatory** commit reminder |
+
+### Agent-Initiated Prompt
+
+Before ending the session:
+1. Check `git status` (or `yadm status` for dotfiles)
+2. If changes exist and no commit was made in this session:
+   > "I edited `<files>`. Should I commit these changes?"
+3. Show `git diff --stat` for scope confirmation
+4. If user approves → apply Branch-from-Main Guard → commit with generated message
+5. If user declines → note why and proceed
+
+### Config-File Auto-Commit
+
+For paths under `~/.config/`, `~/.pi/`, dotfiles repo, or `*.json`/`*.yaml`/`*.toml` in home:
+- **Threshold:** 1 file changed → auto-commit at session end
+- **Prefix:** Use `config:` for config-only commits
+- **Message format:** `config: <what changed> in <file>`
+
+Example: `config: add EVENTHORIZON_DEBUG to fish env abbreviations`
+
 ## Visual Iteration
 
 When the user gives repeated visual or UX feedback during building:
@@ -213,6 +244,13 @@ About to make large/irreversible change?
 Committing in a monorepo?
 ├── Same concern across packages? → One commit
 └── Different concerns? → Separate commits
+
+Session ending with uncommitted changes?
+├── ≥ 3 files OR ≥ 5 edit turns OR irreversible op?
+│   └── Yes → Prompt: "Should I commit these changes?"
+│       ├── User says yes → Branch-from-Main Guard → commit → end
+│       └── User says no → Note reason → end
+└── No → End normally
 ```
 
 ## Troubleshooting
@@ -254,5 +292,5 @@ Committing in a monorepo?
 ## Versioning
 
 - **Last updated:** 2026-05-26
-- **Version:** 1.0
-- **Update notes:** Extracted from my-workflow v1.6 as a focused VCS discipline skill. Added Visual Iteration and Monorepo Commit Scope sections based on session patterns observed during pi-event-horizon-provider development.
+- **Version:** 1.1
+- **Update notes:** Added Session-End Commit Gate ("3×5" heuristic: ≥3 files OR ≥5 edit turns → prompt to commit). Added Config-File Auto-Commit rule for dotfiles/config paths. Addresses glasskey/pi-heading/HongKongTaxiMeterCarThing VCS collapse (0.5–0.7% commit rates) where user never signals "commit it" and agent never asks.

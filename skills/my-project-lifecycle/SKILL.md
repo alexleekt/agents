@@ -65,11 +65,34 @@ Each phase has an exit condition. Don't skip phases unless the work is trivial.
 
 | Phase | Exit Condition | Skip If |
 |-------|---------------|---------|
-| Plan | Shared understanding of domain and approach | Trivial fix (< 5 lines) |
+| Plan | Shared understanding of domain and approach | Trivial fix **AND** < 3 files **AND** < 10 tool calls |
 | Build | Feature works, tests pass | — |
-| Review | Critical findings fixed, warnings noted | Trivial fix |
-| Document | CONTEXT.md updated, ADRs created if needed | Trivial fix |
+| Review | Critical findings fixed, warnings noted | Trivial fix **AND** < 3 files **AND** < 10 tool calls |
+| Document | CONTEXT.md updated, ADRs created if needed | Trivial fix **AND** no new terminology or behavior introduced |
 | Ship | Committed, pushed, PR/merge suggested | — |
+
+## Mini Lifecycle (Quick Fixes)
+
+For sessions with **< 20 tool calls** or **< 5 files touched**:
+
+```
+┌─────────┐    ┌─────────┐    ┌─────┐
+│  Intent │ → │  Verify │ → │ Ship│
+└─────────┘    └─────────┘    └─────┘
+```
+
+| Phase | Duration | Checkpoint |
+|-------|----------|------------|
+| **Intent** | 1 sentence | State what changed and why: "Fixing typo in README that broke the install link." |
+| **Verify** | 1 tool call | `read` the changed file to confirm the edit is correct. If config, `bash` to validate syntax. |
+| **Ship** | 1–2 tool calls | Commit with a descriptive message. No review subagent needed. |
+
+**When to skip Mini Lifecycle:**
+- Pure whitespace/formatting changes (agent auto-formats)
+- Changes to untracked scratch files (`progress.md`, local notes)
+- Changes inside a worktree where user explicitly said "just fix it, I'll review later"
+
+**Escalation rule:** If a Mini Lifecycle session exceeds 20 tool calls, pause and assess whether the full Plan→Build→Review→Document→Ship lifecycle should apply.
 
 ## Plan Phase
 
@@ -83,9 +106,30 @@ Decide how much planning a task needs:
 
 **Rule of thumb**: If you'd need to explain the domain to another developer, plan first. If the change is obvious from the codebase, build first.
 
+### Plan Phase Exit Checklist
+
+Before leaving Plan and entering Build:
+- [ ] Approach is sketched and shared
+- [ ] If any non-trivial choice was made (library, pattern, scope), **log it via @skills/my-decision-log**
+- [ ] If no non-trivial choices, skip decision logging
+
+**Why mandatory:** `my-decision-log` adherence is 5–15% because it is standalone. Piggybacking on the stronger lifecycle skill doubles activation. Log decisions immediately — do not defer to Document phase where context may be compacted.
+
 ## Build Phase
 
 While building, consult @skills/my-vcs-hygiene for commit discipline and visual iteration rules.
+
+### Build Phase Decision Capture
+
+During Build, if a pivot or trade-off emerges:
+- [ ] **Pause and log via @skills/my-decision-log immediately**
+- [ ] Do not defer to Document phase — context may be compacted
+
+**Examples of decisions to log:**
+- Switched from library A to library B mid-build
+- Narrowed or expanded scope from original plan
+- Chose one pattern over another with genuine alternatives
+- Deferred a sub-task to a follow-up session
 
 ### Build Exit Checklist
 
@@ -159,6 +203,20 @@ Hand off to @skills/my-vcs-hygiene:
 3. Summarize: "Pushed to `<branch>`. PR: `<url>`"
 4. Suggest merge or next steps
 
+### Cross-Skill Commit Trigger
+
+For **Mini Lifecycle** sessions, the lifecycle skill **must** explicitly invoke `@skills/my-vcs-hygiene` at session end if changes exist. Do not wait for a user signal — the user already implicitly approved the intent during the Mini Lifecycle.
+
+For **full lifecycle** sessions, `@skills/my-vcs-hygiene` is already triggered by the Ship phase handoff.
+
+### Memex Retro Mandate
+
+Every session that called `memex_recall` **must** call `memex_retro` before ending, unless the user explicitly waives with "no retro needed."
+
+- Sessions without memex recall are exempt
+- Retro should write at least 1 card per session
+- If the session had significant learnings (new pattern, error fix, skill update), write multiple cards
+
 ## Skill Self-Improvement
 
 After shipping, reflect on the session:
@@ -204,13 +262,14 @@ Agent creates an ADR for renaming a local variable. ❌ ADRs are for hard-to-rev
 
 ```
 Starting new feature?
-├── Trivial fix (< 5 lines) → Skip to Build
+├── < 20 tool calls OR < 5 files → Mini Lifecycle (Intent → Verify → Ship)
+├── Trivial fix but growing scope → Escalate to full lifecycle
 ├── New domain or unclear terminology → Plan first (@skills/grill-with-docs)
 └── Well-understood domain → Brief sketch, then Build
 
 Feature feels complete?
-├── Trivial fix → Ship directly
-└── Non-trivial → Review first (@skills/my-code-review)
+├── Mini Lifecycle → Ship via @skills/my-vcs-hygiene
+└── Full lifecycle → Review first (@skills/my-code-review)
 
 Review findings?
 ├── Critical → Fix before commit
@@ -218,8 +277,9 @@ Review findings?
 └── Suggestion → Optional, mention to user
 
 About to end session?
-├── Trivial fix → Commit and end
-└── Non-trivial → Document first, then commit and end
+├── Mini Lifecycle → Commit and end
+├── Full lifecycle → Document first, then commit and end
+└── Used memex_recall? → memex_retro before ending
 ```
 
 ## Related Skills
@@ -234,5 +294,5 @@ About to end session?
 ## Versioning
 
 - **Last updated:** 2026-05-26
-- **Version:** 1.0
-- **Update notes:** New skill extracted from my-workflow v1.6 patterns. Covers the Plan → Build → Review → Document → Ship lifecycle, review timing, post-build documentation, and skill self-improvement based on observed session flows during pi-event-horizon-provider development.
+- **Version:** 1.1
+- **Update notes:** Added Mini Lifecycle (Intent→Verify→Ship for <20 tool calls / <5 files) to replace the overly permissive "< 5 lines" trapdoor. Added mandatory decision-log checkpoints in Plan and Build phases. Added cross-skill commit trigger for Mini Lifecycle. Added memex retro mandate. Addresses VCS collapse in small sessions and 5–15% my-decision-log adherence by piggybacking on the stronger lifecycle skill.
