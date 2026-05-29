@@ -251,7 +251,7 @@ Skill directories should match the skill name:
 
 - **@skills/my-tech-stack** — For tool recommendations (not agent config)
 - **@skills/my-workflow** — For commit discipline and worktrunk naming when editing agent files
-- **@skills/my-code-review** — For reviewing agent file changes before committing
+- **@skills/my-council** — For reviewing agent file changes before committing
 - **@skills/worktrunk** — For managing worktrees when working on agent file updates across branches
 
 ## Related Files
