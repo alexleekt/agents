@@ -159,6 +159,16 @@ These rules apply to: `src/frontend/`
 - Always test responsive behavior
 ```
 
+## Validation Checklist
+
+After modifying any `AGENT.md`, `AGENTS.md`, `claude.md`, or `SKILL.md` file:
+
+1. **Run `agnix validate .`** — validates Skills, MCP servers, Hooks, Memory, Plugins
+2. **If agnix is not installed**: `brew install agnix` (or equivalent)
+3. **Fix any errors before committing** — warnings are acceptable but review them
+
+This is a mandatory step. Agent configuration files are high-impact — they affect all future agent behavior. Validation catches syntax errors, missing references, and structural issues.
+
 ## Common Mistakes to Avoid
 
 1. **Writing project documentation in AGENT.md** → Move to README.md
@@ -166,6 +176,7 @@ These rules apply to: `src/frontend/`
 3. **Forgetting file location rules** → AGENT.md in root, claude.md in .agent/
 4. **Including feature specs** → Those belong in issues or docs/
 5. **Not updating when workflows change** → Treat as living document
+6. **Skipping agnix validation** → Always validate after editing agent files
 
 ## Versioning
 
