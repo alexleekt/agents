@@ -15,6 +15,9 @@ Core orchestration: worktrees, direction, session boundaries, and parallel agent
 
 ## ⚡ Quick Start
 
+**About to edit a file and you're on `main`/`master`?**
+→ **STOP.** Create a worktree first. Use `wt switch --create <branch>` or `/wt-switch-create <branch>` before making any edits. Never edit files directly on main.
+
 **Task doesn't match the current worktrunk?**
 → Ask the user before switching or spawning a new worktree.
 → If the user approves, prefer `/wt-switch-create <branch>` to create, switch, and relaunch in one step.
@@ -59,6 +62,41 @@ It does **not** cover:
 - `wt` CLI commands or syntax → @skills/worktrunk
 - Hook configuration or project automation → @skills/worktrunk
 - Commit message generation → @skills/worktrunk
+
+## Pre-Edit Worktree Check (Mandatory)
+
+**Before editing any file, creating any file, or running any command that modifies the working tree, check if you're on `main`/`master` (or any protected default branch).**
+
+### The Rule
+
+1. **Check current branch**: `git branch --show-current`
+2. **If on `main`/`master`**: Create a worktree BEFORE editing
+   - `wt switch --create <branch>` (or `/wt-switch-create <branch>`)
+3. **If already in a worktree**: Proceed with edits
+
+### Why this matters
+
+The Branch-from-Main Guard (in @skills/my-vcs-hygiene) catches the problem at commit time, but by then the files have already been edited on main. The Pre-Edit Worktree Check prevents the problem upstream — before any edit happens.
+
+**This applies even to:**
+- `.gitignore` changes
+- Config file tweaks (`package.json`, `tsconfig.json`)
+- Documentation updates (`README.md`)
+- Script additions (`scripts/foo.sh`)
+- Any file modification, no matter how small
+
+**The only exception** is the user's own dotfiles repo managed by yadm, where files live in `~` and are tracked directly. Even then, prefer worktrees for non-trivial changes.
+
+### Common Mistakes
+
+❌ **Wrong:** Editing `.gitignore` on main, then committing
+✅ **Right:** `wt switch --create chore/gitignore-graphify` → edit `.gitignore` → commit
+
+❌ **Wrong:** Updating `package.json` scripts on main
+✅ **Right:** `wt switch --create chore/add-build-script` → edit → commit
+
+❌ **Wrong:** Adding a new config file directly on main
+✅ **Right:** `wt switch --create feat/add-config` → create file → commit
 
 ## Direction Assessment
 
@@ -381,6 +419,6 @@ Need to check what other worktrees are active?
 
 ## Versioning
 
-- **Last updated:** 2026-05-26
-- **Version:** 2.1
-- **Update notes:** Added Worktree Fit Auto-Detection and Divergence Reflection Checklist based on retrospective finding that worktrees were used in <15% of sessions.
+- **Last updated:** 2026-06-05
+- **Version:** 2.2
+- **Update notes:** Added Pre-Edit Worktree Check (Mandatory) — never edit files on main before creating a worktree. This addresses the gap where the Branch-from-Main Guard only caught violations at commit time, after edits were already made on main.

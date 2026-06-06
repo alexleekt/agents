@@ -88,9 +88,23 @@ When you hear these:
 3. Apply Branch-from-Main Guard if needed
 4. Execute
 
-## Branch-from-Main Guard
+## No Mainline Edits Rule (Mandatory)
 
-If on `main` (or any protected default branch) with uncommitted changes:
+**Never edit files directly on `main`/`master`. The only files that should be modified on main are fast-forward merges from worktrees.**
+
+This is stronger than the Branch-from-Main Guard (which catches the problem at commit time). The No Mainline Edits Rule prevents the problem at edit time:
+
+1. **Before editing ANY file**: check `git branch --show-current`
+2. **If on `main`/`master`**: Create a worktree first — `wt switch --create <branch>`
+3. **Make all edits inside the worktree**
+4. **Commit inside the worktree**
+5. **Merge back to main** via `wt merge`
+
+This applies to ALL edits, no matter how small: `.gitignore`, `package.json`, config files, docs, scripts, tests.
+
+## Branch-from-Main Guard (Commit-Time Safety Net)
+
+If the No Mainline Edits Rule was violated and there are uncommitted changes on `main`:
 
 1. **Create a descriptive feature branch**: `git checkout -b <kebab-case-name>`
 2. **Then commit** — never commit directly to main
@@ -291,6 +305,6 @@ Session ending with uncommitted changes?
 
 ## Versioning
 
-- **Last updated:** 2026-05-26
-- **Version:** 1.1
-- **Update notes:** Added Session-End Commit Gate ("3×5" heuristic: ≥3 files OR ≥5 edit turns → prompt to commit). Added Config-File Auto-Commit rule for dotfiles/config paths. Addresses glasskey/pi-heading/HongKongTaxiMeterCarThing VCS collapse (0.5–0.7% commit rates) where user never signals "commit it" and agent never asks.
+- **Last updated:** 2026-06-05
+- **Version:** 1.2
+- **Update notes:** Added No Mainline Edits Rule (Mandatory) — prevents editing files directly on main before a worktree is created. The Branch-from-Main Guard was only a commit-time safety net; this rule stops the problem upstream at edit time. Applies to ALL edits regardless of size (`.gitignore`, config, docs, scripts).
