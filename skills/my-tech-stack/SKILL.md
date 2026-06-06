@@ -107,6 +107,7 @@ Agent about to recommend/install a tool?
 | Tool | When to Use |
 |------|-------------|
 | [**bun**](https://github.com/oven-sh/bun) | JavaScript/TypeScript runtime and package manager; fast installs, running JS/TS scripts, Node.js alternative |
+| [**devenv**](https://devenv.sh) | **Default local dev environment** — Nix-based reproducible dev shells; per-project dependencies without global pollution |
 | [**fd**](https://github.com/sharkdp/fd) | Fast, user-friendly alternative to `find`; searching for files and directories |
 | [**fzf**](https://github.com/junegunn/fzf) | Fuzzy finder for command-line; interactive filtering of lists, files, command history, process management |
 | [**github**](https://github.com/) | Git hosting; code collaboration; CI/CD with Actions; issue tracking |
@@ -165,20 +166,17 @@ Agent about to recommend/install a tool?
 | Tool | When to Use |
 |------|-------------|
 | [**cloudflare**](https://www.cloudflare.com/) | DNS management, CDN, DDoS protection, serverless workers, fast global edge network |
-| [**colima**](https://github.com/abiosoft/colima) | **Default container runtime** — macOS Docker-compatible containers via Lima; free, open source, fast |
-| [**docker**](https://www.docker.com/) | Container CLI and compose; used alongside colima as the client interface |
+| [**docker**](https://www.docker.com/) | **Deployment packaging** — containerizing projects for remote deployment; `docker build` + `docker compose` for shipping to other machines |
 | [**k3s**](https://github.com/k3s-io/k3s) | Lightweight Kubernetes for edge, IoT, CI/CD, resource-constrained environments |
 | [**terraform**](https://github.com/hashicorp/terraform) | Infrastructure as Code for provisioning cloud resources; multi-cloud or complex infrastructure |
 
-**Colima vs alternatives:**
-| | Colima | OrbStack | Docker Desktop | Finch |
-|---|---|---|---|---|
-| License | Apache 2.0 (OSS) | Proprietary | Proprietary | Apache 2.0 (OSS) |
-| Cost | Free | Free / $8 Pro | Free / Enterprise | Free |
-| Performance | Good | Excellent | Moderate | Good |
-| UX | CLI-only | GUI app | GUI app | CLI-only |
+**Local dev vs deployment:**
+| Context | Tool | Rationale |
+|---|---|---|
+| Local development | **devenv** | Reproducible Nix shells without Docker overhead |
+| Deployment packaging | **docker** | Universal runtime on target machines |
 
-**Preference:** Colima — best open-source license, modern macOS standard, CLI-native workflow.
+**Note:** Docker is intentionally not used as a local development runtime. Use `devenv` for local envs, `docker` only for building deployable images.
 
 ### Local Development
 
@@ -252,7 +250,7 @@ These tools are for learning and experimentation, not production use:
 | Tool | Interest |
 |------|----------|
 | [**chat-sdk**](https://chat-sdk.dev/) | Building AI chat interfaces, streaming LLM responses |
-| [**devbox**](https://www.jetify.com/devbox) | Nix-based reproducible dev environments; exploring alongside mise + smolvm |
+| [**colima**](https://github.com/abiosoft/colima) | macOS Docker-compatible containers via Lima; kept as fallback if docker daemon is needed locally |
 | [**dotenvx**](https://github.com/dotenvx/dotenvx) | Managing environment variables across environments, encrypting secrets |
 | [**gridland**](https://www.gridland.io/) | Building terminal apps with React and OpenTUI; works in both browser and terminal |
 | [**endeavouros**](https://endeavouros.com/) | Arch-based Linux distribution; exploring as alternative desktop/server OS |
@@ -283,8 +281,12 @@ RH:- Use **SvelteKit** for web framework (when applicable)
 ### Working with Python?
 - Use **uv** for dependencies and virtual environments
 
+### Need a local development environment?
+- Use **devenv** — Nix-based, reproducible, no Docker overhead
+
 ### Need containers on macOS?
-- Use **colima** + **docker** — free, OSS, Docker-compatible
+- Use **docker** CLI + compose for deployment packaging only
+- Do not use Docker as a local dev runtime — use devenv instead
 
 ### Setting up CI/CD?
 - Use **GitHub Actions** on **GitHub**
@@ -346,9 +348,9 @@ Example:
 
 ## Versioning
 
-- **Last updated:** 2026-05-26
-- **Version:** 1.8
-- **Update notes:** Added Automatic Agent Invocation section based on retrospective finding that only 12/697 sessions consulted this skill. Agent must now self-trigger on any package install, dependency add, or tool selection.
+- **Last updated:** 2026-06-05
+- **Version:** 2.0
+- **Update notes:** Migrated default local dev environment from devbox to devenv. devenv provides native Nix DSL configuration, built-in services, tasks, git hooks, and testing. Projects migrated: kindercare, event-horizon, HongKongTaxiMeterCarThing.
 
 ## Related Skills
 
