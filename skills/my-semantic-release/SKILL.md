@@ -7,6 +7,7 @@ description: |
   **DO NOT use for:** daily VCS operations — use git.
 
   Automates semantic versioning, changelog generation, and release workflows.
+disable-model-invocation: true
 ---
 
 # My Semantic Release
