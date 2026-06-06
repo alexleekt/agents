@@ -19,24 +19,104 @@ Bing is the fallback that works without authentication.
 
 ## ⚡ Quick Start
 
-**Pick your browser, then search:**
+**Pick the fastest path for your setup:**
 
-| Browser | One-time setup | Search command |
-|---------|---------------|----------------|
-| Firefox/Zen/LibreWolf | `python3 ~/.pi/agent/skills/my-web-search-kagi/scripts/sync-kagi-cookies.py --browser zen` | `agent-browser open "https://kagi.com/search?q=<query>" && agent-browser get text` |
-| Chromium/Chrome/Arc/Brave/Edge | `agent-browser open "https://kagi.com"` (reuse your logged-in profile) | Same as above |
-| Any (no Kagi login) | None needed | `agent-browser open "https://www.bing.com/search?q=<query>" && agent-browser get text` |
+| Path | When to use | One-time setup | Search command |
+|------|-------------|---------------|----------------|
+| **API** (fastest) | You have a Kagi API token | Get token at [kagi.com/settings?p=api](https://kagi.com/settings?p=api) | `curl -H "Authorization: Bot $KAGI_API_KEY" "https://kagi.com/api/v1/search?q=<query>"` |
+| Firefox/Zen/LibreWolf | Browser automation, already logged in | `python3 ~/.pi/agent/skills/my-web-search-kagi/scripts/sync-kagi-cookies.py --browser zen` | `agent-browser open "https://kagi.com/search?q=<query>" && agent-browser get text` |
+| Chromium/Chrome/Arc/Brave/Edge | Browser automation, already logged in | `agent-browser open "https://kagi.com"` (reuse profile) | Same as above |
+| Any (no Kagi login) | No auth needed | None | `agent-browser open "https://www.bing.com/search?q=<query>" && agent-browser get text` |
 
 ## ⚠️ Important: CAPTCHA / Login Requirement
 
 **Kagi search via browser automation is blocked by Cloudflare Turnstile CAPTCHA
 unless the browser session has authenticated Kagi cookies.**
 
-This skill provides **three viable paths** depending on what browser the user uses.
+The **API path** avoids this entirely. This skill provides **four viable paths**:
 
 ---
 
-## Path 1: Firefox / Zen / LibreWolf / Waterfox users (Recommended)
+## Path 0: API Direct (Fastest — Recommended for Programmatic Use)
+
+If you have a Kagi API token, use the official API directly. It's **~10-50x faster**
+(~100-500ms) than browser automation and returns structured JSON.
+
+### Prerequisites
+
+- Kagi API token from [kagi.com/settings?p=api](https://kagi.com/settings?p=api)
+- Kagi Search API is now in **public preview** — all subscribers get **$5 free API credits**
+
+### Quick search with curl
+
+```bash
+# Set your token
+export KAGI_API_KEY="your_token_here"
+
+# Search
+curl -H "Authorization: Bot $KAGI_API_KEY" \
+  "https://kagi.com/api/v1/search?q=rust+tokio+async+runtime"
+```
+
+### Python (official `kagiapi` package)
+
+```bash
+pip install kagiapi
+```
+
+```python
+from kagiapi import KagiClient
+import os
+
+kagi = KagiClient(os.environ["KAGI_API_KEY"])
+results = kagi.search("rust tokio async runtime", limit=10)
+
+for result in results["data"]:
+    if result['t'] == 0:  # t=0 is search result, t=1 is related searches
+        print(f"{result['title']}\n{result['url']}\n")
+```
+
+### MCP Server (official `kagimcp`)
+
+For Claude Desktop, Codex CLI, Cline, or any MCP client:
+
+```bash
+# Install uv first (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Add to Codex CLI
+codex mcp add kagi --env KAGI_API_KEY=<YOUR_API_KEY> -- uvx kagimcp
+
+# Or add to Claude Desktop config (~/Library/Application Support/Claude/claude_desktop_config.json)
+{
+  "mcpServers": {
+    "kagi": {
+      "command": "uvx",
+      "args": ["kagimcp"],
+      "env": {
+        "KAGI_API_KEY": "your_token_here"
+      }
+    }
+  }
+}
+```
+
+Tools exposed: `kagi_search_fetch` (web/news/videos/podcasts/images), `kagi_extract` (page as markdown)
+
+### API vs Browser Automation
+
+| Factor | API | Browser Automation |
+|--------|-----|-------------------|
+| Speed | ~100-500ms | ~2-5s |
+| Format | Structured JSON | Raw text |
+| Auth | API token | Browser cookies |
+| Cost | $25/1,000 queries (2.5¢ each) | Free (uses subscription) |
+| Rate limits | Yes (see docs) | No hard limit |
+| Best for | 10+ searches/hour, structured data | Occasional searches, no setup |
+
+---
+
+## Path 1: Firefox / Zen / LibreWolf / Waterfox users (Recommended for Browser Automation)
 
 If the user uses a Firefox-variant browser and is already logged into Kagi,
 cookies can be synced into agent-browser automatically.
@@ -143,35 +223,43 @@ agent-browser open "URL_FROM_RESULTS" && agent-browser get text
 
 ## Best Practices
 
-1. **Try Kagi first** — better results, ad-free, respects user's subscription
-2. **Sync cookies** for Firefox-variant users via the included script
-3. **Reuse Chrome profile** for Chromium users via `--profile`
-4. **Fallback to Bing** if Kagi auth is unavailable
-5. **Encode queries**: Replace spaces with `+`, special chars with percent-encoding
-6. **Use `get text`**: Clean innerText, no HTML clutter
-7. **Use `snapshot`**: When you need to interact with specific elements
-8. **Chain searches**: Search broad → extract URL → deep-dive
+1. **Use API first** — if you have a token, it's 10-50x faster and more reliable
+2. **Try Kagi browser automation** — better results, ad-free, respects user's subscription
+3. **Sync cookies** for Firefox-variant users via the included script
+4. **Reuse Chrome profile** for Chromium users via `--profile`
+5. **Fallback to Bing** if Kagi auth is unavailable
+6. **Encode queries**: Replace spaces with `+`, special chars with percent-encoding
+7. **Use `get text`**: Clean innerText, no HTML clutter
+8. **Use `snapshot`**: When you need to interact with specific elements
+9. **Chain searches**: Search broad → extract URL → deep-dive
 
 ---
 
 ## Limitations
 
-- **Kagi requires auth**: Cloudflare Turnstile blocks unauthenticated automation
-- **Speed**: ~2-5s per page (slower than API's ~100-500ms)
-- **Format**: Raw text, not structured JSON
-- **Fragility**: May break if search UI changes
+- **API requires token**: Must get API key from Kagi settings
+- **Browser Kagi requires auth**: Cloudflare Turnstile blocks unauthenticated automation
+- **Browser speed**: ~2-5s per page (slower than API's ~100-500ms)
+- **Browser format**: Raw text, not structured JSON
+- **Browser fragility**: May break if search UI changes
 - **Cookie expiry**: If Kagi sessions expire, re-run the sync script or re-login
 
 ---
 
-## Alternative: Kagi Search API
+## Alternative: Kagi Search API (Now in Public Preview)
 
-For high-volume or structured programmatic search:
+For high-volume or structured programmatic search, the Kagi Search API is now
+**publicly available** (no invite needed):
 
 - **Cost**: $25 per 1,000 queries (2.5¢ each)
-- **Status**: Closed beta — email `support@kagi.com` for invite
-- **Docs**: https://help.kagi.com/kagi/api/search.html
+- **Free credits**: $5 added to all subscriber accounts (May 2026)
+- **Status**: Public preview — ready for production use
+- **Docs**: https://kagi.com/api/docs
+- **Python package**: `pip install kagiapi` ([github.com/kagisearch/kagiapi](https://github.com/kagisearch/kagiapi))
+- **MCP server**: `uvx kagimcp` ([github.com/kagisearch/kagimcp](https://github.com/kagisearch/kagimcp))
 - **Use when**: Agent needs 10+ searches/hour or structured JSON results
+
+See **Path 0** above for setup instructions.
 
 ---
 
@@ -179,6 +267,8 @@ For high-volume or structured programmatic search:
 
 | Issue | Solution |
 |-------|----------|
+| API returns 401 Unauthorized | Check `KAGI_API_KEY` is set and token is valid at kagi.com/settings?p=api |
+| API returns 429 Rate Limited | Slow down requests or check Kagi API rate limits |
 | Kagi returns CAPTCHA page | Cookies expired → re-run sync script or use Bing fallback |
 | `agent-browser` not found | Install pi extension: `pi extensions install agent-browser` |
 | Cookie sync script fails | Check browser is installed: `which zen` or `which firefox` |
@@ -191,17 +281,22 @@ For high-volume or structured programmatic search:
 ❌ **Wrong:** Searching for information already in training data alone
 ✅ **Right:** Use search only for current/real-time info or specific facts not in training data
 
-❌ **Wrong:** Using Kagi without checking cookies first
+❌ **Wrong:** Using browser automation when you have an API token
+✅ **Right:** Use the API (Path 0) for speed and reliability; save browser automation for when you don't have a token
+
+❌ **Wrong:** Using Kagi browser automation without checking cookies first
 ✅ **Right:** Verify cookie sync worked before relying on Kagi results; fall back to Bing if needed
 
-❌ **Wrong:** Falling back to Bing when Kagi works fine
+❌ **Wrong:** Falling back to Bing when Kagi API or browser automation works fine
 ✅ **Right:** Only use Bing fallback when Kagi is unavailable or unauthenticated
 
 ❌ **Wrong:** Using web search for tasks better suited to API calls
 ✅ **Right:** Use httpie/curl for known endpoints; web search is for discovery, not repeated API work
 
-## Related Skills
+## Related Skills & Tools
 
 - **@skills/my-crawl4ai** — For crawling entire sites, not single search queries
 - **@skills/my-tech-stack** — For tool recommendations (httpie vs curl, etc.)
 - **@skills/cua-computer-use** — For GUI interactions when browser automation isn't sufficient
+- **Official Kagi MCP Server** — `uvx kagimcp` for Claude Desktop, Codex CLI, Cline ([github.com/kagisearch/kagimcp](https://github.com/kagisearch/kagimcp))
+- **Official Kagi Python Package** — `pip install kagiapi` ([github.com/kagisearch/kagiapi](https://github.com/kagisearch/kagiapi))

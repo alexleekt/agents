@@ -8,201 +8,170 @@ description: |
   **DO NOT use for:** photo editing or retouching, production-grade graphic
   design, video editing, or any non-generative visual tasks.
 
-  Generate images and videos with Krea AI using the mcp2cli-baked CLI.
+  Generate images and videos with Krea AI using the official Krea CLI.
 ---
 
 # Krea AI Generation
 
-Generate images and videos via the Krea MCP server, accessed through the
-`krea` CLI wrapper (baked mcp2cli tool).
+Generate images and videos via the official Krea CLI (`@krea-ai/cli`).
 
 ## ⚡ Quick Start
 
 ```bash
-# Generate an image
-krea generate-image --prompt "a cyberpunk cityscape at night" --model flux --width 1024 --height 1024
+# Generate an image (async by default)
+krea generate image -p "a cyberpunk cityscape at night" -m bfl/flux-1-dev --width 1024 --height 1024
 
-# Generate a video (image-to-video)
-krea generate-video --image_url "https://..." --prompt "camera pans across the scene"
+# Generate and download immediately
+krea generate image -p "..." -o ./output.png
+
+# Generate a video
+krea generate video -p "ocean waves crashing at golden hour" -m hailuo/mini-max --duration 5
 
 # Check a job status
-krea check-status --job_id <job_id>
+krea jobs wait <job_id>
 ```
-
-**Image models:** `flux` (default), `flux-pro`, `ideogram`, `imagen-4`, `krea-1`,
-`chatgpt-image`, `nano-banana`, `seedream`
 
 ## Prerequisites
 
-- `krea_api_key` must be present in chezmoi data (`~/.config/chezmoi/chezmoi.toml`).
-- A Fish function wrapper reads the key at runtime and exports it locally for
-  the `krea` process only. No global env var needed.
-- If missing from chezmoi data, add it under `[data]` in `chezmoi.toml` and run
-  `chezmoi apply`.
-
-**How the secret injection works:**
-
-```fish
-# In ~/.config/fish/functions/krea.fish
-function krea
-  set -lx KREA_API_KEY (chezmoi data | jq -r '.krea_api_key // empty')
-  command krea $argv
-end
-```
-
-`set -lx` means the variable is **local to this function call** and exported
-only to child processes. It is never visible in the global shell environment.
+- Install the CLI: `npm install -g @krea-ai/cli`
+- Set `KREA_API_KEY` in your environment, or run `krea auth login` to store credentials.
+- Verify with `krea doctor`
 
 ## Core Workflow
 
 ### 1. Discover available commands
 
 ```bash
-krea --list
-krea <command> --help
+krea --help
+krea generate image --help
+krea models list          # list all models
+krea models list --json | jq '.[] | select(.category=="image") | .id'
 ```
 
 ### 2. Generate an image
 
 ```bash
-krea generate-image --prompt "a cyberpunk cityscape at night" --model flux --width 1024 --height 1024
+krea generate image -p "a cyberpunk cityscape at night" -m bfl/flux-1-dev --width 1024 --height 1024
 ```
 
-**Image models:** `flux` (default), `flux-pro`, `ideogram`, `imagen-4`,
-`krea-1`, `chatgpt-image`, `nano-banana`, `seedream`
+**Image models:** `bfl/flux-1-dev` (default), `bfl/flux-1.1-pro`, `bfl/flux-1.1-pro-ultra`,
+`google/imagen-4`, `google/nano-banana`, `ideogram/ideogram-3`, `openai/gpt-image-2`,
+`bytedance/seedream-5-lite`, `luma/uni-1`
 
-**Returns:** `{"job_id": "...", "status": "scheduled", "type": "flux"}`
+**Returns:** `{"job_id": "...", "status": "completed", "urls": ["https://..."]}`
 
 ### 3. Generate a video
 
 ```bash
-krea generate-video --prompt "ocean waves crashing at golden hour" --model hailuo --duration 5 --aspect-ratio 16:9
+krea generate video -p "ocean waves crashing at golden hour" -m hailuo/mini-max --duration 5 --aspect 16:9
 ```
 
-**Video models:** `hailuo` (default), `kling`, `runway`, `pika`, `veo-3`,
-`wan`, `sora`, `luma`
+**Video models:** `hailuo/mini-max`, `kling/kling-2`, `runway/gen-4`, `pika/pika-2`,
+`google/veo-3`, `luma/dream-machine`, `openai/sora`
 
 **Aspect ratios:** `16:9`, `9:16`, `1:1`
 
-### 4. Poll for results
+### 4. Poll for results / download
 
-All generations are **async**. You get a `job_id`. Poll `get-job` until
-`status` is `completed`:
+All generations are **async** unless you use `--wait` or `-o`.
 
 ```bash
-krea get-job --job-id <job_id>
+# Block until complete and print URL
+krea generate image -p "..." --wait
+
+# Block and save to file (implies --wait)
+krea generate image -p "..." -o ./result.png
+
+# Or manually poll
+krea jobs wait <job_id>
 ```
 
-Completed jobs include `result.urls` with the generated media URL.
+Completed jobs include `urls` with the generated media URL. When using `-o`, the file is saved locally and the path is returned as `saved_path`.
 
 ### 5. Check recent jobs
 
 ```bash
-krea list-jobs --limit 10 --status completed
+krea jobs list --limit 10
 ```
 
 ## Before Generating — Checklist
 
 - **Model**: Which model matches the user's quality/speed needs?
 - **Dimensions**: Default is 1024×1024 (images) and 16:9 5s (video).
-- **Source image**: For image-to-image or image-to-video, get an asset URL
-  first (see Assets below).
-- **Async nature**: Tell the user the job is queued. Offer to check status.
+  - `bfl/flux-1.1-pro` max width: **1440px**
+- **Source image**: For image-to-image, pass `--image <url>`.
+- **Async nature**: Without `--wait` or `-o`, the job is queued and a `job_id` is returned. Offer to check status.
 
 ## Assets & Uploads
 
-### List uploaded assets
+### Upload an asset (local file)
 
 ```bash
-krea list-assets --limit 10
+krea upload ./photo.jpg --name "source-photo"
 ```
 
-### Upload an asset (URL only)
-
-⚠️ `upload-asset` accepts a **remote URL**, not a local file path.
-
-```bash
-krea upload-asset --url "https://example.com/photo.jpg" --name "source-photo"
-```
-
-The returned `image_url` can then be passed to `--image-url` for
-image-to-image or image-to-video generation.
-
-## Styles & LoRAs
-
-### Search styles
-
-```bash
-krea search-styles --query "cyberpunk" --limit 5
-```
-
-⚠️ This endpoint often returns `404 - Style not found` even for common
-queries. If search fails, proceed without a `style_id`.
-
-### Get style details
-
-```bash
-krea get-style --style-id <style_id>
-```
+The returned URL can then be passed to `--image` for image-to-image or video generation.
 
 ## Anti-Patterns & Gotchas
 
 | Issue | Detail |
 |---|---|
-| **Async by design** | Every `generate-*` returns a `job_id`. Never expect an instant URL. |
-| **upload-asset takes URLs only** | `--url https://...` — local file paths will not work. |
-| **search-styles is flaky** | Frequently returns 404. Do not block on style lookup. |
-| **No `--pretty` flag** | The `krea` CLI outputs raw JSON. Pipe to `jq` or parse directly. |
-| **Runtime secret injection** | The Fish function pulls `krea_api_key` from chezmoi data at call time. No global `KREA_API_KEY` env var is kept in the shell. Do not pass secrets via mcp2cli `--env` (stdio bug). |
-| **Poll responsibly** | Wait 3–5s between `get-job` polls. Typical generation time: 5–15s. |
+| **Async by design** | Without `--wait` or `-o`, only a `job_id` is returned. Use `krea jobs wait` to block. |
+| **`-o` implies `--wait`** | When you specify an output path, the CLI blocks until the file is downloaded. |
+| **Max width for flux-1.1-pro** | `bfl/flux-1.1-pro` has a max width of **1440px**. Use `bfl/flux-1-dev` for 1536px. |
+| **Model IDs changed** | Old skill used `flux-pro`; new CLI uses `bfl/flux-1.1-pro`. Always check `krea models list`. |
+| **No `--pretty` flag** | The CLI outputs raw JSON. Pipe to `jq` or parse directly. Use `--json` for machine-readable. |
+| **Secret injection** | The CLI reads `KREA_API_KEY` from env or the system keyring (set via `krea auth login`). |
+| **Poll responsibly** | Wait 3–5s between job polls. Typical generation time: 5–15s for images, 30–120s for video. |
 
 ## Response Format for Users
 
-**After generation:**
+**After generation (async):**
 > Queued job `8089cf88-...` (type: flux, status: scheduled). I'll check the result...
 
-**After job completes:**
-> ✅ Done! Result: https://gen.krea.ai/images/....png
+**After generation (with `-o` or `--wait`):**
+> ✅ Done! Saved to `./result.png` (also available at https://gen.krea.ai/images/....png)
 
 **If failed:**
-> ❌ Job failed: `{status}` — check `list-jobs` for details.
+> ❌ Job failed: `{status}` — check `krea jobs list` for details.
 
 ## Examples
 
 ```bash
-# Image with specific model
-krea generate-image --prompt "neon samurai in rain" --model flux-pro --width 1536 --height 1024
+# Image with specific model and output file
+krea generate image -p "neon samurai in rain" -m bfl/flux-1.1-pro --width 1440 --height 480 -o ./banner.png
 
-# Video from image (i2v)
-krea upload-asset --url "https://i.imgur.com/abc123.jpg" --name "base"
-# Then use the returned URL:
-krea generate-video --prompt "camera slowly zooms out" --image-url "https://gen.krea.ai/assets/..." --model kling --duration 5
+# Video from image
+krea generate video -p "camera slowly zooms out" --image "https://gen.krea.ai/assets/..." -m kling/kling-2 --duration 5
 
-# Poll loop
-krea get-job --job-id 8089cf88-ce7c-4fcc-80ea-2902a2c9b070
+# Poll loop for a known job
+krea jobs wait 5d95517b-3c44-4a38-95eb-1bbdb3dbf118
 ```
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| `krea: command not found` | Check if krea CLI is installed: `which krea` |
-| `KREA_API_KEY not set` | Run `chezmoi data \| jq -r '.krea_api_key'` to verify |
-| Job stuck in "scheduled" | Poll with `krea check-status --job_id <id>`; jobs take 30-120s |
+| `krea: command not found` | `npm install -g @krea-ai/cli` |
+| `krea doctor` fails on auth | `krea auth login` or `export KREA_API_KEY=...` |
+| `422 Validation failed` | Check `width`/`height` limits for the chosen model (`krea models show <id>`) |
+| Job stuck in "scheduled" | `krea jobs wait <id>` blocks until terminal; typical time is 30–120s |
 | Generation fails with "content policy" | Rephrase prompt to avoid disallowed content |
-| Image URL returns 403 | Use `krea upload-asset` to host locally first |
-| Style search returns 404 | Proceed without `style_id`; style lookup is optional |
 
-## Common Agent Mistakes
+## Migration from mcp2cli
 
-❌ **Wrong:** Passing `--url` with a local file path to `upload-asset`
-✅ **Right:** `upload-asset` accepts remote URLs only; use `https://...`
+If you previously used `mcp2cli @krea`, migrate to the native CLI:
 
-❌ **Wrong:** Expecting instant results from `generate-image`
-✅ **Right:** Every call returns a `job_id`; poll with `check-status` or `get-job`
+```bash
+npm install -g @krea-ai/cli
+rm ~/.local/bin/krea   # remove old mcp2cli wrapper if present
+```
 
-❌ **Wrong:** Using `mcp2cli --env` to pass `KREA_API_KEY`
-✅ **Right:** Use the Fish wrapper function; it pulls from chezmoi data at runtime
+Key syntax changes:
+- `krea generate-image` → `krea generate image`
+- `krea get-job` → `krea jobs wait`
+- `krea list-jobs` → `krea jobs list`
+- `krea upload-asset` → `krea upload`
 
 ## Related Skills
 

@@ -7,6 +7,10 @@ description: |
   **ALWAYS use when user asks about:** preferred tools, tech recommendations
   ("bun or node", "uv or pip"), or stack decisions.
 
+  **ALWAYS use when agent decides:** to install a package, add a dependency,
+  choose a library/framework, select a build tool, or make any technology choice
+  that affects the project's stack.
+
   **DO NOT use for:** agent configuration (@skills/my-agent-file-conventions) or VCS
   operations.
 
@@ -63,6 +67,38 @@ When working with this user:
 3. **Respect "Exploring"** — Tools marked as exploring are for learning only
 4. **Ask before adding** — Don't install unlisted tools without confirmation
 5. **Note deviations** — If project requirements override preferences, document it
+
+## Automatic Agent Invocation
+
+**The agent must self-trigger this skill** — not just when the user asks, but when the agent itself is about to make a technology decision. This includes:
+
+| Agent Action | Must Check my-tech-stack? |
+|--------------|---------------------------|
+| Installing a new npm/pip/cargo package | ✅ YES |
+| Adding a dependency to package.json/pyproject.toml/Cargo.toml | ✅ YES |
+| Choosing between two libraries/frameworks | ✅ YES |
+| Selecting a build tool, linter, or formatter | ✅ YES |
+| Adding a new dev tool to the project | ✅ YES |
+| Recommending a runtime (bun vs node, uv vs pip) | ✅ YES |
+| Choosing a testing framework | ✅ YES |
+| Adding infrastructure tools (docker, terraform, k3s) | ✅ YES |
+| Using a code search tool (rg vs grep vs ag) | ✅ YES |
+| Standard library usage (e.g., `fetch` vs `axios`) | ⚠️ Prefer listed preferences |
+
+### Decision Flow
+
+```
+Agent about to recommend/install a tool?
+├── Is it in the preferred list above? → Use it
+├── Is it in the "Exploring" section? → Ask user before using
+├── Is it unlisted? → Ask user: "This tool isn't in my preferred stack. Use it anyway?"
+└── Is there a project-specific override? → Follow project, note deviation
+```
+
+**Example self-trigger:**
+> "I need to add a JSON parser. Checking @skills/my-tech-stack... The project uses TypeScript with bun. I'll use a native solution or check if `yaml` is already preferred for config."
+
+**Never silently install unlisted tools.** Always consult this skill first, even when the user hasn't explicitly asked.
 
 ## By Category
 
@@ -310,9 +346,9 @@ Example:
 
 ## Versioning
 
-- **Last updated:** 2026-05-23
-- **Version:** 1.7
-- **Update notes:** Added colima + docker as default container runtime for macOS; included comparison table against OrbStack, Docker Desktop, and Finch
+- **Last updated:** 2026-05-26
+- **Version:** 1.8
+- **Update notes:** Added Automatic Agent Invocation section based on retrospective finding that only 12/697 sessions consulted this skill. Agent must now self-trigger on any package install, dependency add, or tool selection.
 
 ## Related Skills
 

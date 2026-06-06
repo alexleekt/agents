@@ -36,7 +36,27 @@ Skip trivial decisions:
 - Standard library usage
 - Obvious fixes
 
-## Log Format
+## Decision Convention
+
+Establish a lightweight convention for logging decisions. Use the **Session Decision Card** format for most in-session decisions, and the **Full ADR format** only for hard-to-reverse architectural choices.
+
+### Session Decision Card (default)
+
+For in-session decisions that are important but not architectural:
+
+```markdown
+**Decision:** <One-line choice>
+**Context:** <2-3 sentence problem statement>
+**Rationale:** <Why this choice over alternatives>
+**Consequences:** <What this enables or constrains>
+```
+
+**Where to store:**
+- Inline in session chat (first) — for immediate context
+- `memex_retro` card (second) — for cross-session recall
+- Skill update if it affects agent behavior
+
+### Full Decision Log (for hard-to-reverse choices)
 
 Each decision entry:
 
@@ -52,6 +72,32 @@ Each decision entry:
 **Reversibility:** <Easy / Medium / Hard>
 **Related:** <Links to ADRs, skills, memex cards>
 ```
+
+**Where to store:**
+- `docs/adr/` for architectural decisions
+- `CONTEXT.md` for domain terminology changes
+- Relevant `SKILL.md` for behavioral decisions
+
+### When to Use Which Format
+
+| Situation | Format | Storage |
+|-----------|--------|---------|
+| Tool choice in session | Session Decision Card | memex + inline |
+| Architecture direction | Full Decision Log | ADR |
+| Workflow/behavioral change | Session Decision Card | memex + skill update |
+| Domain term/concept update | Session Decision Card | CONTEXT.md |
+| User overrides a default | Session Decision Card | memex |
+| Splitting/merging skills | Full Decision Log | ADR + memex |
+
+## Logging Discipline
+
+**Log immediately.** Don't wait until the end of the session. The moment a decision with trade-offs is made, log it:
+
+1. **First**: State it in the chat — "Decision: using X instead of Y because Z."
+2. **Second**: If cross-session value, call `memex_retro` with a Decision card
+3. **Third**: If architectural, create/update the ADR file
+
+**Never batch decision logging.** Log as decisions happen, or they get lost in context compaction.
 
 ## Where to Store
 
@@ -82,6 +128,23 @@ When a decision wasn't logged and the user asks about it later:
 2. **Reconstruct from session memory** — ctx_search for related terms
 3. **Ask user for confirmation** — "My reconstruction: we chose X because Y. Is that right?"
 4. **Log the recovered decision** — prevent future ambiguity
+
+## Common Decision Triggers
+
+Agents should proactively log decisions when these situations arise:
+
+| Trigger | Action |
+|---------|--------|
+| User says "let's use X" where X ≠ default/recommended | Log as user-override decision |
+| Choosing between 2+ libraries/frameworks/tools | Log trade-off decision |
+| Restructuring files, splitting modules, changing architecture | Log architecture decision |
+| Adding a new dependency not in the preferred stack | Log tech-stack deviation |
+| Changing workflow approach (e.g., switch from sequential to parallel) | Log workflow decision |
+| Worktree name no longer matches work being done | Log naming/scope decision |
+| Session scope expanded beyond original intent | Log scope decision |
+| Any "we should do X instead of Y" mid-session | Log pivot decision |
+
+**Rule of thumb:** If you pause to think "which option is better?" — log the decision.
 
 ## Examples
 
@@ -142,4 +205,5 @@ Agent chose `setWidget` over `notify` for UI without logging why. Future agent t
 ## Versioning
 
 - **Last updated:** 2026-05-26
-- **Version:** 1.0
+- **Version:** 1.1
+- **Update notes:** Added Decision Convention with Session Decision Card and Full Decision Log formats, plus Common Decision Triggers section based on retrospective finding that decision logging was the weakest skill (5–15% adherence).

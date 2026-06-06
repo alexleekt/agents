@@ -204,6 +204,36 @@ This lights up the URL column in `wt list` when any worktree has the service run
 4. If no worktree exists and the task is non-trivial, suggest creating one
 5. If creating a worktree and `.config/wt.toml` is missing, consider the **Worktrunk Config Maintenance** checklist above
 
+### Worktree Fit Auto-Detection
+
+When a session starts, auto-check whether the current worktree is appropriate:
+
+1. **Am I on `main`/`master` with uncommitted changes?**
+   - If yes → **WARN**: "You're on main with uncommitted work. Create a worktree with `/wt-switch-create <branch>` to isolate this work?"
+   - If no → proceed
+
+2. **Does the current worktree name match the actual work being done?**
+   - If the session has progressed 10+ turns and the work clearly diverged from the worktree name → flag for renaming
+   - Example: worktree `fix-login` but session is now refactoring the entire auth module → "This worktree is named `fix-login` but we're now rebuilding auth. Rename to `refactor-auth`?"
+
+3. **Has the work diverged enough to justify a new worktree?**
+   - After 20+ turns or significant scope expansion, reflect:
+     - Original intent of this worktree: `<X>`
+     - Current direction of this session: `<Y>`
+     - If X and Y are meaningfully different → ask: "We've diverged from the original worktree intent. Continue here or spawn a new worktree?"
+   - This reflection should happen naturally at context-switching moments or when the user asks a question unrelated to the current work
+
+### Divergence Reflection Checklist
+
+Run this mentally at session midpoint (≈20 turns) and before any context switch:
+
+| Question | If Yes → |
+|----------|----------|
+| Has the task scope expanded beyond the worktree name? | Propose rename |
+| Is the new work unrelated to the original intent? | Propose new worktree |
+| Are there >5 uncommitted files unrelated to the worktree purpose? | Propose commit + new worktree |
+| Did the user say "let's work on X" where X ≠ current work? | Ask to switch |
+
 ### Ending a Session
 
 1. **Commit any uncommitted work** — consult @skills/my-vcs-hygiene. Even if WIP.
@@ -352,5 +382,5 @@ Need to check what other worktrees are active?
 ## Versioning
 
 - **Last updated:** 2026-05-26
-- **Version:** 2.0
-- **Update notes:** Refactored into focused core orchestration skill. Extracted all VCS content to @skills/my-vcs-hygiene and all lifecycle content to @skills/my-project-lifecycle. This skill now covers worktrees, direction, naming, session boundaries, and parallel agents only.
+- **Version:** 2.1
+- **Update notes:** Added Worktree Fit Auto-Detection and Divergence Reflection Checklist based on retrospective finding that worktrees were used in <15% of sessions.
